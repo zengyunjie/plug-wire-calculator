@@ -844,7 +844,16 @@ function applyPreset(key) {
 }
 
 function clearAll() {
-  applyPreset('3c-05-16');
+  const numFields = ['coreCount','wireLength','wireSpec','strandDia','totalStrands','twistFactor',
+    'outerDia','copperStrands','aluminumStrands','ccaStrands',
+    'plugPrice','plugQty','switchPrice','switchQty','terminalPrice','terminalQty',
+    'tailFee','processFee','radFee','shipFee',
+    'copperPrice','aluminumPrice','ccaPrice','insulPrice','profitRate','taxRate'];
+  numFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('conductorType').value = '纯铜';
+  document.getElementById('insulationType').value = 'PVC';
+  onInsulationChange();
+  calc();
 }
 
 function setVal(id, val) {
