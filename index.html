@@ -373,6 +373,100 @@
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
   }
+
+  /* ==================== 手机端适配 ==================== */
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .app-header h1 { font-size: 20px; }
+    .app-header p { font-size: 12px; }
+    .app-header { margin-bottom: 14px; }
+    .card { padding: 14px; border-radius: 8px; }
+    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 8px; }
+
+    /* 表单网格全部单列 */
+    .form-grid,
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-4 {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px;
+    }
+    .form-grid .field { min-width: 0; }
+
+    /* 输入框高度适配触摸 */
+    .input-wrap input,
+    .input-wrap select {
+      height: 42px;
+      font-size: 16px; /* 防止iOS自动缩放 */
+    }
+
+    /* 预设网格 - 手机端2列 */
+    .card [style*="grid-template-columns:repeat(4"] {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    .preset-btn {
+      padding: 8px 6px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* 材质分配表横向滚动 */
+    .material-ratio-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -14px;
+      padding: 0 14px;
+    }
+    .mat-table {
+      font-size: 11px;
+      min-width: 580px;
+    }
+    .mat-table th, .mat-table td { padding: 6px 4px; }
+    .mat-table .editable-cell input { width: 52px; }
+
+    /* 配件费用表横向滚动 */
+    .acc-table { font-size: 12px; }
+
+    /* 结果面板 */
+    .result-card { padding: 18px 14px; }
+    .result-card .total-price { font-size: 36px; }
+    .result-card .currency { font-size: 18px; }
+    .cost-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .cost-item { padding: 6px 8px; }
+    .cost-item .ci-val { font-size: 14px; }
+    .cost-item.full-width { grid-column: span 2; }
+
+    /* 饼图高度 */
+    .chart-wrap { height: 200px; }
+
+    /* 明细行 */
+    .items-row { padding: 6px 10px; font-size: 12px; }
+    .items-row .ir-val { font-size: 13px; }
+    .items-row.highlight-row .ir-val { font-size: 14px; }
+    .items-row.total-row .ir-val { font-size: 14px; }
+
+    /* 标签按钮 */
+    .tab-btn { font-size: 12px; padding: 7px 0; }
+
+    /* 禁止 iOS 输入框缩放 */
+    input[type="number"] { font-size: 16px; }
+  }
+
+  /* 超小屏 (<=380px) */
+  @media (max-width: 380px) {
+    .form-grid,
+    .form-grid-2,
+    .form-grid-3,
+    .form-grid-4 {
+      grid-template-columns: 1fr !important;
+    }
+    .card [style*="grid-template-columns:repeat(4"] {
+      grid-template-columns: 1fr !important;
+    }
+    .result-card .total-price { font-size: 30px; }
+    .cost-breakdown { grid-template-columns: 1fr; }
+    .cost-item.full-width { grid-column: span 1; }
+  }
 </style>
 </head>
 <body>
