@@ -753,7 +753,7 @@
         <div class="field">
           <label>运费</label>
           <div class="input-wrap">
-            <input type="number" id="shipFee" value="0.1" min="0" step="0.05" onchange="calc()">
+            <input type="number" id="shipFee" value="0.05" min="0" step="0.05" onchange="calc()">
             <span class="unit">元/条</span>
           </div>
         </div>
@@ -888,27 +888,28 @@ const MATERIAL_DENSITY   = { copper: 8.9, aluminum: 3.0, cca: 8.6 };
 //  美规 × 两芯/三芯 × 0.5/0.824mm² × 1.6m/6.1m = 8种组合
 // ============================================================
 const BASE = { conductorType:'纯铜', insulationType:'PVC',
-               plugPrice:1.2, plugQty:1, switchQty:0, terminalQty:0,
+               plugPrice:1.2, plugQty:1, switchPrice:1.0, switchQty:0,
+               terminalPrice:0.05, terminalQty:0, shipFee:0.05,
                radFee:0, copperPrice:105, aluminumPrice:39, ccaPrice:76,
                insulPrice:8, profitRate:15, taxRate:10 };
 
 const PRESETS = {
   // 两芯 0.5mm² 1.6m
-  '2c-05-16': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:1.6, outerDia:7.0, tailFee:0.2, shipFee:0.05 },
+  '2c-05-16': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:1.6, outerDia:7.0, tailFee:0.2 },
   // 两芯 0.5mm² 6.1m
-  '2c-05-61': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:6.1, outerDia:7.0, tailFee:0.3, shipFee:0.1  },
+  '2c-05-61': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:6.1, outerDia:7.0, tailFee:0.3 },
   // 两芯 0.824mm² 1.6m
-  '2c-82-16': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:1.6, outerDia:7.8, tailFee:0.2, shipFee:0.05, plugPrice:1.4 },
+  '2c-82-16': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:1.6, outerDia:7.8, tailFee:0.2 },
   // 两芯 0.824mm² 6.1m
-  '2c-82-61': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:6.1, outerDia:7.8, tailFee:0.3, shipFee:0.1,  plugPrice:1.4 },
+  '2c-82-61': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:6.1, outerDia:7.8, tailFee:0.3 },
   // 三芯 0.5mm² 1.6m
-  '3c-05-16': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:1.6, outerDia:7.8, tailFee:0.3, shipFee:0.1  },
+  '3c-05-16': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:1.6, outerDia:7.8, tailFee:0.3 },
   // 三芯 0.5mm² 6.1m
-  '3c-05-61': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:6.1, outerDia:7.8, tailFee:0.4, shipFee:0.1  },
+  '3c-05-61': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:6.1, outerDia:7.8, tailFee:0.4 },
   // 三芯 0.824mm² 1.6m
-  '3c-82-16': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:1.6, outerDia:8.5, tailFee:0.3, shipFee:0.1,  plugPrice:1.4 },
+  '3c-82-16': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:1.6, outerDia:8.5, tailFee:0.3 },
   // 三芯 0.824mm² 6.1m
-  '3c-82-61': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:6.1, outerDia:8.5, tailFee:0.4, shipFee:0.1,  plugPrice:1.4 },
+  '3c-82-61': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:6.1, outerDia:8.5, tailFee:0.4 },
 };
 
 function applyPreset(key) {
@@ -922,7 +923,9 @@ function applyPreset(key) {
   setVal('insulationType', p.insulationType);
   setVal('plugPrice', p.plugPrice);
   setVal('plugQty', p.plugQty);
+  setVal('switchPrice', p.switchPrice);
   setVal('switchQty', p.switchQty);
+  setVal('terminalPrice', p.terminalPrice);
   setVal('terminalQty', p.terminalQty);
   setVal('tailFee', p.tailFee);
   setVal('shipFee', p.shipFee);
