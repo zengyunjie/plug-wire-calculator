@@ -1363,12 +1363,12 @@ function switchPlugTab(name) {
 var currentPkgType = '牛皮盒';
 
 var PKG_PRESETS = {
-  '牛皮盒':      { l:280, w:72,  h:150, price:1.61,  markup:65,  process:0,   material:'3层加强芯瓦楞纸' },
-  '外箱':        { l:597, w:335, h:516, price:2.88,  markup:20.5, process:0,   material:'5层加强芯瓦楞纸' },
-  '纸卡':        { l:768, w:123, h:0,   price:1.61,  markup:60,  process:0,   material:'3层加强芯瓦楞纸' },
-  '珍珠棉-粘底': { l:220, w:200, h:21,  price:350,  markup:0,   process:0,   material:'16Kg/立方' },
-  '珍珠棉-不粘底':{ l:227, w:150, h:6,   price:320,  markup:0,   process:0,   material:'16Kg/立方' },
-  '珍珠棉片':    { l:120, w:110, h:5,   price:320,  markup:0,   process:0,   material:'16Kg/立方' },
+  '\u725b\u76ae\u76d2':      { l:280, w:72,  h:150, price:1.61,  markup:0.65,  process:0 },
+  '\u5916\u7bb1':            { l:597, w:335, h:516, price:2.88,  markup:0.205, process:0 },
+  '\u7eb8\u5361':            { l:768, w:123, h:0,   price:1.61,  markup:0.6,   process:0 },
+  '\u73cd\u73e0\u68c9-\u7c98\u5e95':   { l:220, w:200, h:21,  price:350,   markup:0,     process:0 },
+  '\u73cd\u73e0\u68c9-\u4e0d\u7c98\u5e95': { l:227, w:150, h:6,   price:320,   markup:0,     process:0 },
+  '\u73cd\u73e0\u68c9\u7247':     { l:120, w:110, h:5,   price:320,   markup:0,     process:0 },
 };
 
 function selectPkgType(type, btn) {
@@ -1414,9 +1414,9 @@ function selectPkgType(type, btn) {
 
 function updatePkgFormulaHint(type) {
   var box = document.getElementById('pkgFormulaHint');
-  if (type === '牛皮盒') box.innerHTML = '<strong>\u725b\u76ae\u76d2\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)+15)/500 \u00d7 (\u5bbd+\u9ad8+\u5bbd/2+55)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
-  else if (type === '外箱') box.innerHTML = '<strong>\u5916\u7bb1\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)\u00d72+30)/1000 \u00d7 (\u5bbd+\u9ad8)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
-  else if (type === '纸卡') box.innerHTML = '<strong>\u7eb8\u5361\u516c\u5f0f\uff1a</strong>\u9762\u79ef = (\u957f/1000) \u00d7 (\u5bbd/1000)<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  if (type === '\u725b\u76ae\u76d2') box.innerHTML = '<strong>\u725b\u76ae\u76d2\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)+15)/500 \u00d7 (\u5bbd+\u9ad8+\u5bbd/2+55)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u7cfb\u6570)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  else if (type === '\u5916\u7bb1') box.innerHTML = '<strong>\u5916\u7bb1\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)\u00d72+30)/1000 \u00d7 (\u5bbd+\u9ad8)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u7cfb\u6570)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  else if (type === '\u7eb8\u5361') box.innerHTML = '<strong>\u7eb8\u5361\u516c\u5f0f\uff1a</strong>\u9762\u79ef = (\u957f/1000) \u00d7 (\u5bbd/1000)<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u7cfb\u6570)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
   else if (type === '珍珠棉-粘底') box.innerHTML = '<strong>\u73ab\u73c0\u68c9(\u7c98\u5e95)\u516c\u5f0f\uff1a</strong>\u4f53\u79ef = (\u957f\u00d7\u5bbd\u00d7(\u9ad8+3))/10\u2079<br><strong>\u6750\u6599\u6210\u672c</strong> = \u4f53\u79ef \u00d7 \u5355\u4ef7(\u5143/Kg)<br><strong>\u603b\u6210\u672c</strong> = \u6750\u6599\u6210\u672c + \u52a0\u5de5\u8d39';
   else box.innerHTML = '<strong>' + type + '\u516c\u5f0f\uff1a</strong>\u4f53\u79ef = (\u957f\u00d7\u5bbd\u00d7\u9ad8)/10\u2079<br><strong>\u6750\u6599\u6210\u672c</strong> = \u4f53\u79ef \u00d7 \u5355\u4ef7(\u5143/Kg)<br><strong>\u603b\u6210\u672c</strong> = \u6750\u6599\u6210\u672c + \u52a0\u5de5\u8d39';
 }
@@ -1533,11 +1533,10 @@ function calcAlu() {
 // CLEAR FUNCTIONS
 // ############################################################
 function clearPkg() {
-  ['pkgL','pkgW','pkgH','pkgPrice','pkgMarkup','pkgProcess'].forEach(function(id) {
+  ['pkgL','pkgW','pkgH','pkgProcess'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.value = '';
   });
-  document.getElementById('pkgMaterial').selectedIndex = 0;
   calcPkg();
 }
 function clearAlu() {
