@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>包装 & 铝材成本测算</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #e97316;
+    --primary-light: #fff7ed;
+    --primary-dark: #c2410c;
+    --accent: #0ea5e9;
+    --green: #22c55e;
+    --green-light: #f0fdf4;
+    --orange: #f97316;
+    --orange-light: #fff7ed;
+    --red: #ef4444;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --border-radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: linear-gradient(135deg, #f9731610 0%, #ef444420 100%);
+    background-color: #f0f4f8;
+    color: var(--gray-700);
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .app-header { text-align: center; margin-bottom: 20px; }
+  .app-header h1 { font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+  .app-header p { font-size: 13px; color: var(--gray-500); }
+  .nav-back {
+    display: inline-block; margin-bottom: 12px; font-size: 13px; color: var(--primary);
+    text-decoration: none; font-weight: 600;
+  }
+  .nav-back:hover { text-decoration: underline; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; margin-bottom: 20px; background: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; }
+  .tab-btn {
+    flex: 1; padding: 14px; text-align: center; font-size: 14px; font-weight: 600;
+    border: none; background: #fff; color: var(--gray-500); cursor: pointer;
+    transition: all 0.2s; border-bottom: 3px solid transparent;
+  }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+
+  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
+  .left-col { display: flex; flex-direction: column; gap: 16px; }
+  .right-col { position: sticky; top: 20px; }
+
+  .card {
+    background: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow);
+    padding: 20px; transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-100); }
+  .badge { font-size: 11px; font-weight: 500; color: var(--gray-500); background: var(--gray-100); padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+
+  /* Form */
+  .form-grid, .form-grid-2, .form-grid-3, .form-grid-4 {
+    display: grid; gap: 14px;
+  }
+  .form-grid-2 { grid-template-columns: 1fr 1fr; }
+  .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
+  .field .unit { font-size: 11px; color: var(--gray-500); margin-left: 4px; }
+  .input-wrap input, .input-wrap select {
+    width: 100%; height: 40px; border: 1.5px solid var(--gray-200); border-radius: 8px;
+    padding: 0 12px; font-size: 14px; color: var(--gray-900); background: var(--gray-50);
+    transition: border-color 0.2s, background 0.2s; outline: none;
+  }
+  .input-wrap input:focus, .input-wrap select:focus { border-color: var(--primary); background: #fff; }
+
+  /* Type selector */
+  .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .type-btn {
+    padding: 10px 6px; border: 2px solid var(--gray-200); border-radius: 8px;
+    background: #fff; font-size: 12px; font-weight: 600; color: var(--gray-600);
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .type-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+
+  /* Result card */
+  .result-card {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    border-radius: var(--border-radius); box-shadow: var(--shadow-lg);
+    padding: 28px 24px; color: #fff;
+  }
+  .result-label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
+  .total-price { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
+  .total-price .currency { font-size: 18px; font-weight: 600; }
+  .cost-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
+  .cost-item { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; }
+  .cost-item .ci-label { font-size: 11px; opacity: 0.75; }
+  .cost-item .ci-val { font-size: 16px; font-weight: 700; margin-top: 2px; }
+
+  /* Items rows */
+  .items-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px; border-bottom: 1px solid var(--gray-100); font-size: 13px;
+  }
+  .items-row:last-child { border-bottom: none; }
+  .items-row .ir-label { color: var(--gray-600); }
+  .items-row .ir-val { font-weight: 700; color: var(--gray-900); }
+  .items-row.highlight-row { background: var(--primary-light); border-radius: 6px; }
+  .items-row.highlight-row .ir-val { color: var(--primary-dark); font-size: 16px; }
+  .items-row.total-row { background: var(--gray-50); font-weight: 700; border-top: 2px solid var(--gray-200); }
+  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 18px; }
+
+  /* Chart */
+  .chart-wrap { height: 220px; margin-top: 16px; }
+
+  /* Formula display */
+  .formula-box {
+    background: var(--gray-50); border-radius: 8px; padding: 12px 16px; margin-top: 12px;
+    font-size: 12px; color: var(--gray-600); line-height: 1.8; font-family: 'Courier New', monospace;
+  }
+
+  /* Item table for packaging */
+  .pkg-item-row {
+    display: grid; grid-template-columns: 1fr 80px 80px 80px 40px; gap: 8px;
+    align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+  }
+  .pkg-item-row:last-child { border-bottom: none; }
+  .pkg-item-row .del-btn {
+    width: 32px; height: 32px; border: none; background: #fef2f2; color: #ef4444;
+    border-radius: 6px; cursor: pointer; font-size: 16px; display: flex;
+    align-items: center; justify-content: center; transition: background 0.2s;
+  }
+  .pkg-item-row .del-btn:hover { background: #fee2e2; }
+  .add-row-btn {
+    width: 100%; padding: 10px; border: 2px dashed var(--gray-200); border-radius: 8px;
+    background: #fff; color: var(--primary); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  }
+  .add-row-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+  .pkg-type-tag {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 4px; background: var(--primary-light); color: var(--primary-dark);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .right-col { position: static; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .app-header h1 { font-size: 20px; }
+    .card { padding: 14px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    .input-wrap input, .input-wrap select { height: 42px; font-size: 16px; }
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+    .result-card .total-price { font-size: 32px; }
+    .cost-breakdown { gap: 6px; }
+    .pkg-item-row { grid-template-columns: 1fr 60px 60px 60px 36px; font-size: 12px; }
+    input[type="number"] { font-size: 16px; }
+  }
+  @media (max-width: 380px) {
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
+    .type-grid { grid-template-columns: 1fr 1fr; }
+    .cost-breakdown { grid-template-columns: 1fr; }
+    .pkg-item-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<a class="nav-back" href="index.html">← 返回工具集首页</a>
+
+<div class="app-header">
+  <h1>📦 包装 & 铝材成本测算</h1>
+  <p>实时计算含税成本，支持纸盒/外箱/纸卡/珍珠棉/铝材等多种类型</p>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('pkg')">📦 包装成本测算</button>
+  <button class="tab-btn" onclick="switchTab('alu')">🔩 铝材成本测算</button>
+</div>
+
+<div class="layout">
+  <div class="left-col">
+
+    <!-- ==================== 包装成本 ==================== -->
+    <div id="tab-pkg">
+      <!-- 添加包装项 -->
+      <div class="card">
+        <div class="card-title">添加包装项</div>
+        <div style="margin-bottom:12px;font-size:12px;color:var(--gray-500);">选择类型并填入尺寸和单价</div>
+        <div class="type-grid" id="typeGrid">
+          <button class="type-btn active" onclick="selectType('纸盒')" data-type="纸盒">纸盒</button>
+          <button class="type-btn" onclick="selectType('外箱')" data-type="外箱">外箱</button>
+          <button class="type-btn" onclick="selectType('纸卡')" data-type="纸卡">纸卡</button>
+          <button class="type-btn" onclick="selectType('珍珠棉-粘底')" data-type="珍珠棉-粘底">珍珠棉(粘底)</button>
+          <button class="type-btn" onclick="selectType('珍珠棉-不粘底')" data-type="珍珠棉-不粘底">珍珠棉(不粘底)</button>
+          <button class="type-btn" onclick="selectType('珍珠棉片')" data-type="珍珠棉片">珍珠棉片</button>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="form-grid-4" id="pkgInputGrid">
+            <div class="field">
+              <label>长<span class="unit">(mm)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgL" value="280" min="0" step="1"></div>
+            </div>
+            <div class="field">
+              <label>宽<span class="unit">(mm)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgW" value="72" min="0" step="1"></div>
+            </div>
+            <div class="field" id="pkgHField">
+              <label>高<span class="unit">(mm)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgH" value="150" min="0" step="1"></div>
+            </div>
+            <div class="field">
+              <label id="priceLabel">单价<span class="unit">(元/张)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgPrice" value="1.61" min="0" step="0.01"></div>
+            </div>
+            <div class="field">
+              <label>材质规格</label>
+              <div class="input-wrap">
+                <select id="pkgMaterial">
+                  <option value="3层加强芯瓦楞纸">3层加强芯瓦楞纸</option>
+                  <option value="5层加强芯瓦楞纸">5层加强芯瓦楞纸 (外箱)</option>
+                  <option value="16Kg/立方">珍珠棉 16Kg/立方</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>加乘系数<span class="unit">(%)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgMarkup" value="65" min="0" step="1"></div>
+            </div>
+            <div class="field">
+              <label>加工费<span class="unit">(元)</span></label>
+              <div class="input-wrap"><input type="number" id="pkgProcess" value="0" min="0" step="0.01"></div>
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;">
+              <button onclick="addPkgItem()" style="width:100%;height:40px;border:none;background:var(--primary);color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">+ 添加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已添加的包装项列表 -->
+      <div class="card">
+        <div class="card-title">包装项清单 <span class="badge" id="pkgCount">0 项</span></div>
+        <div id="pkgList" style="min-height:60px;font-size:13px;color:var(--gray-500);text-align:center;padding:20px 0;">
+          尚未添加任何包装项，请在上方选择类型后点击「添加」
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--gray-200);display:flex;justify-content:space-between;font-size:15px;font-weight:700;">
+          <span>包装总成本（含税）</span>
+          <span id="pkgTotal" style="color:var(--primary-dark);">¥ 0.0000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 铝材成本 ==================== -->
+    <div id="tab-alu" style="display:none;">
+      <div class="card">
+        <div class="card-title">① 型材基础参数</div>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>型材长度<span class="unit">(MM)</span></label>
+            <div class="input-wrap"><input type="number" id="aluLength" value="1695" min="0" step="1" oninput="calcAlu()"></div>
+          </div>
+          <div class="field">
+            <label>型材整条重量<span class="unit">(克)</span></label>
+            <div class="input-wrap"><input type="number" id="aluWeight" value="389" min="0" step="1" oninput="calcAlu()"></div>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:8px;font-size:13px;">
+          <span style="color:var(--gray-500);">每米重量（自动计算）：</span>
+          <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 克</strong>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">② 费用明细</div>
+        <div class="form-grid-2">
+          <div class="field">
+            <label>原材料单价<span class="unit">(元/吨)</span></label>
+            <div class="input-wrap"><input type="number" id="aluRawPrice" value="24200" min="0" step="100" oninput="calcAlu()"></div>
+          </div>
+          <div class="field">
+            <label>加工费单价<span class="unit">(元/吨)</span></label>
+            <div class="input-wrap"><input type="number" id="aluProcPrice" value="2200" min="0" step="100" oninput="calcAlu()"></div>
+          </div>
+          <div class="field">
+            <label>表面处理单价<span class="unit">(元/吨)</span></label>
+            <div class="input-wrap"><input type="number" id="aluSurfPrice" value="800" min="0" step="100" oninput="calcAlu()"></div>
+          </div>
+          <div class="field">
+            <label>包装费<span class="unit">(元/条)</span></label>
+            <div class="input-wrap"><input type="number" id="aluPackFee" value="0" min="0" step="0.01" oninput="calcAlu()"></div>
+          </div>
+          <div class="field">
+            <label>税率<span class="unit">(%)</span></label>
+            <div class="input-wrap"><input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 右侧结果面板 ==================== -->
+  <div class="right-col">
+    <!-- 包装结果 -->
+    <div id="result-pkg">
+      <div class="result-card">
+        <div class="result-label">包装含税总成本</div>
+        <div class="total-price"><span class="currency">¥ </span><span id="pkgResultTotal">0.0000</span></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">逐项明细</div>
+        <div id="pkgDetailList" style="font-size:12px;color:var(--gray-500);text-align:center;padding:16px 0;">
+          添加包装项后自动展示
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">计价公式说明</div>
+        <div class="formula-box">
+<strong>纸盒：</strong>面积=((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
+<strong>外箱：</strong>面积=((长+宽)×2+30)/1000 × (宽+高)/1000<br>
+<strong>纸卡：</strong>面积=(长/1000) × (宽/1000)<br>
+<strong>珍珠棉(粘底)：</strong>体积=(长×宽×(高+3))/10⁹<br>
+<strong>珍珠棉(不粘底/片)：</strong>体积=(长×宽×高)/10⁹<br>
+─────────────────<br>
+材料成本 = 面积/体积 × 单价<br>
+含税成本 = 材料成本 × (1 + 加乘系数%)<br>
+总成本 = 含税成本 + 加工费
+        </div>
+      </div>
+    </div>
+
+    <!-- 铝材结果 -->
+    <div id="result-alu" style="display:none;">
+      <div class="result-card">
+        <div class="result-label">铝材含税总成本（整条）</div>
+        <div class="total-price"><span class="currency">¥ </span><span id="aluResultTotal">11.5331</span></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">成本分解明细</div>
+        <div id="aluDetailList"></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">成本占比</div>
+        <div class="chart-wrap"><canvas id="aluChart"></canvas></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">计价公式说明</div>
+        <div class="formula-box">
+每米重量 = 整条重量(g) ÷ 型材长度(mm) × 1000<br>
+─────────────────<br>
+整条单价 = 单价(元/吨) × 整条重量(g) ÷ 1,000,000<br>
+每米单价 = 单价(元/吨) × 每米重量(g) ÷ 1,000,000<br>
+─────────────────<br>
+税负(整条) = (原材料+加工费+表面处理) × 税率%<br>
+总成本(整条) = 原材料 + 加工费 + 表面处理 + 包装 + 税负
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  State
+// ============================================================
+let currentType = '纸盒';
+let pkgItems = [];
+let aluChart = null;
+
+// ============================================================
+//  Tab switching
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (tab === 'pkg' ? i === 0 : i === 1));
+  });
+  document.getElementById('tab-pkg').style.display = tab === 'pkg' ? '' : 'none';
+  document.getElementById('tab-alu').style.display = tab === 'alu' ? '' : 'none';
+  document.getElementById('result-pkg').style.display = tab === 'pkg' ? '' : 'none';
+  document.getElementById('result-alu').style.display = tab === 'alu' ? '' : 'none';
+  if (tab === 'alu') calcAlu();
+  if (tab === 'pkg') calcPkg();
+}
+
+// ============================================================
+//  Packaging Type Selection
+// ============================================================
+function selectType(type) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+
+  const hField = document.getElementById('pkgHField');
+  const priceLabel = document.getElementById('priceLabel');
+  const materialSel = document.getElementById('pkgMaterial');
+
+  if (type === '纸卡') {
+    hField.style.display = 'none';
+    document.getElementById('pkgH').value = 0;
+  } else {
+    hField.style.display = '';
+  }
+
+  if (type.includes('珍珠棉')) {
+    priceLabel.innerHTML = '单价<span class="unit">(元/Kg)</span>';
+    materialSel.value = '16Kg/立方';
+  } else {
+    priceLabel.innerHTML = '单价<span class="unit">(元/张)</span>';
+    materialSel.value = type === '外箱' ? '5层加强芯瓦楞纸' : '3层加强芯瓦楞纸';
+  }
+
+  // Preset dimensions per type
+  const presets = {
+    '纸盒':     { l: 280, w: 72,  h: 150, price: 1.61, markup: 65 },
+    '外箱':     { l: 597, w: 335, h: 516, price: 2.88, markup: 20.5 },
+    '纸卡':     { l: 768, w: 123, h: 0,   price: 1.61, markup: 60 },
+    '珍珠棉-粘底':    { l: 220, w: 200, h: 21,  price: 350, markup: 0 },
+    '珍珠棉-不粘底':  { l: 227, w: 150, h: 6,   price: 320, markup: 0 },
+    '珍珠棉片':       { l: 120, w: 110, h: 5,   price: 320, markup: 0 },
+  };
+  const p = presets[type] || presets['纸盒'];
+  document.getElementById('pkgL').value = p.l;
+  document.getElementById('pkgW').value = p.w;
+  document.getElementById('pkgH').value = p.h;
+  document.getElementById('pkgPrice').value = p.price;
+  document.getElementById('pkgMarkup').value = p.markup;
+}
+
+// ============================================================
+//  Packaging Calculation Logic
+// ============================================================
+function calcPkgItem(item) {
+  const { type, l, w, h, price, markup, processFee } = item;
+  let area = 0, volume = 0, sizeLabel = '';
+
+  if (type === '纸盒') {
+    const G = ((l + w) + 15) / 500;
+    const H = (w + h + w / 2 + 55) / 1000;
+    area = G * H;
+    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
+  } else if (type === '外箱') {
+    const G = ((l + w) * 2 + 30) / 1000;
+    const H = (w + h) / 1000;
+    area = G * H;
+    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
+  } else if (type === '纸卡') {
+    area = (l / 1000) * (w / 1000);
+    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
+  } else if (type === '珍珠棉-粘底') {
+    volume = (l * w * (h + 3)) / Math.pow(1000, 3);
+    sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
+  } else {
+    // 珍珠棉-不粘底, 珍珠棉片
+    volume = (l * w * h) / Math.pow(1000, 3);
+    sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
+  }
+
+  const matCost = (area > 0 ? area : volume) * price;
+  const taxCost = matCost * (1 + markup / 100);
+  const total = taxCost + processFee;
+
+  return { area, volume, matCost, taxCost, total, sizeLabel };
+}
+
+function addPkgItem() {
+  const item = {
+    id: Date.now(),
+    type: currentType,
+    l: parseFloat(document.getElementById('pkgL').value) || 0,
+    w: parseFloat(document.getElementById('pkgW').value) || 0,
+    h: parseFloat(document.getElementById('pkgH').value) || 0,
+    price: parseFloat(document.getElementById('pkgPrice').value) || 0,
+    markup: parseFloat(document.getElementById('pkgMarkup').value) || 0,
+    material: document.getElementById('pkgMaterial').value,
+    processFee: parseFloat(document.getElementById('pkgProcess').value) || 0,
+  };
+
+  if (item.l <= 0 || item.w <= 0) {
+    alert('长和宽必须大于0'); return;
+  }
+
+  item._calc = calcPkgItem(item);
+  pkgItems.push(item);
+  renderPkgList();
+  calcPkg();
+}
+
+function removePkgItem(id) {
+  pkgItems = pkgItems.filter(i => i.id !== id);
+  renderPkgList();
+  calcPkg();
+}
+
+function renderPkgList() {
+  const el = document.getElementById('pkgList');
+  document.getElementById('pkgCount').textContent = pkgItems.length + ' 项';
+
+  if (pkgItems.length === 0) {
+    el.innerHTML = '<div style="font-size:13px;color:var(--gray-500);text-align:center;padding:20px 0;">尚未添加任何包装项</div>';
+    return;
+  }
+
+  let html = '<div style="font-size:11px;color:var(--gray-500);padding-bottom:8px;border-bottom:1px solid var(--gray-100);margin-bottom:4px;">';
+  html += '<div style="display:grid;grid-template-columns:1fr 80px 80px 80px 40px;gap:8px;"><span>类型</span><span>尺寸</span><span>材料成本</span><span>含税成本</span><span></span></div></div>';
+
+  pkgItems.forEach(item => {
+    html += '<div class="pkg-item-row">';
+    html += '<span><span class="pkg-type-tag">' + item.type + '</span></span>';
+    html += '<span style="font-size:12px;">' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + '</span>';
+    html += '<span style="font-weight:600;">¥' + item._calc.matCost.toFixed(4) + '</span>';
+    html += '<span style="font-weight:700;color:var(--primary-dark);">¥' + item._calc.total.toFixed(4) + '</span>';
+    html += '<button class="del-btn" onclick="removePkgItem(' + item.id + ')">×</button>';
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+function calcPkg() {
+  let grandTotal = 0;
+  pkgItems.forEach(item => { grandTotal += item._calc.total; });
+
+  document.getElementById('pkgTotal').textContent = '¥ ' + grandTotal.toFixed(4);
+  document.getElementById('pkgResultTotal').textContent = grandTotal.toFixed(4);
+
+  // Detail list
+  const detailEl = document.getElementById('pkgDetailList');
+  if (pkgItems.length === 0) {
+    detailEl.innerHTML = '<div style="font-size:12px;color:var(--gray-500);text-align:center;padding:16px 0;">添加包装项后自动展示</div>';
+    return;
+  }
+
+  let dhtml = '';
+  pkgItems.forEach((item, i) => {
+    const c = item._calc;
+    dhtml += '<div class="items-row">';
+    dhtml += '<span class="ir-label">' + (i + 1) + '. ' + item.type + ' (' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + ')</span>';
+    dhtml += '<span class="ir-val">¥ ' + c.total.toFixed(4) + '</span>';
+    dhtml += '</div>';
+    dhtml += '<div class="items-row" style="padding:6px 14px 10px;font-size:12px;color:var(--gray-500);border-bottom:1px solid var(--gray-100);">';
+    dhtml += '<span>' + c.sizeLabel + ' → 材料 ¥' + c.matCost.toFixed(4) + ' × (1+' + item.markup + '%) → ¥' + c.taxCost.toFixed(4) + ' + 加工¥' + item.processFee.toFixed(2) + '</span>';
+    dhtml += '</div>';
+  });
+  dhtml += '<div class="items-row total-row">';
+  dhtml += '<span class="ir-label">包装总成本</span>';
+  dhtml += '<span class="ir-val">¥ ' + grandTotal.toFixed(4) + '</span>';
+  dhtml += '</div>';
+  detailEl.innerHTML = dhtml;
+}
+
+// ============================================================
+//  Aluminum Calculation Logic
+// ============================================================
+function calcAlu() {
+  const rawPrice   = parseFloat(document.getElementById('aluRawPrice').value) || 0;
+  const procPrice  = parseFloat(document.getElementById('aluProcPrice').value) || 0;
+  const surfPrice  = parseFloat(document.getElementById('aluSurfPrice').value) || 0;
+  const packFee    = parseFloat(document.getElementById('aluPackFee').value) || 0;
+  const length     = parseFloat(document.getElementById('aluLength').value) || 0;
+  const weight     = parseFloat(document.getElementById('aluWeight').value) || 0;
+  const taxRate    = parseFloat(document.getElementById('aluTaxRate').value) || 0;
+
+  const weightPerM = length > 0 ? (weight / length * 1000) : 0;
+
+  // Per-piece costs
+  const rawCostPiece    = rawPrice * weight / 1000000;
+  const procCostPiece   = procPrice * weight / 1000000;
+  const surfCostPiece   = surfPrice * weight / 1000000;
+
+  // Per-meter costs
+  const rawCostMeter    = rawPrice * weightPerM / 1000000;
+  const procCostMeter   = procPrice * weightPerM / 1000000;
+  const surfCostMeter   = surfPrice * weightPerM / 1000000;
+
+  // Tax on piece
+  const taxPiece = (rawCostPiece + procCostPiece + surfCostPiece) * (taxRate / 100);
+
+  // Totals
+  const totalPiece = rawCostPiece + procCostPiece + surfCostPiece + packFee + taxPiece;
+  const totalMeter = rawCostMeter + procCostMeter + surfCostMeter;
+
+  // Display weight per meter
+  document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 克';
+
+  // Result total
+  document.getElementById('aluResultTotal').textContent = totalPiece.toFixed(4);
+
+  // Detail list
+  const detailEl = document.getElementById('aluDetailList');
+  let html = '';
+
+  const rows = [
+    { label: '原材料', piece: rawCostPiece, meter: rawCostMeter },
+    { label: '加工费', piece: procCostPiece, meter: procCostMeter },
+    { label: '表面处理', piece: surfCostPiece, meter: surfCostMeter },
+    { label: '包装', piece: packFee, meter: '-' },
+    { label: '税负 (' + taxRate + '%)', piece: taxPiece, meter: '-' },
+  ];
+
+  rows.forEach(r => {
+    html += '<div class="items-row">';
+    html += '<span class="ir-label">' + r.label + '</span>';
+    html += '<span class="ir-val">¥' + r.piece.toFixed(4) + '</span>';
+    html += '</div>';
+  });
+
+  // Sub row for per-meter
+  html += '<div class="items-row highlight-row">';
+  html += '<span class="ir-label">不含税小计（每米）</span>';
+  html += '<span class="ir-val">¥' + totalMeter.toFixed(4) + '</span>';
+  html += '</div>';
+
+  html += '<div class="items-row total-row">';
+  html += '<span class="ir-label">总成本（整条·含税）</span>';
+  html += '<span class="ir-val">¥' + totalPiece.toFixed(4) + '</span>';
+  html += '</div>';
+
+  detailEl.innerHTML = html;
+
+  // Chart
+  updateAluChart([
+    rawCostPiece, procCostPiece, surfCostPiece, packFee, taxPiece
+  ], [
+    '原材料', '加工费', '表面处理', '包装', '税负'
+  ]);
+}
+
+function updateAluChart(data, labels) {
+  const ctx = document.getElementById('aluChart');
+  if (!ctx) return;
+
+  const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ef4444'];
+
+  if (aluChart) aluChart.destroy();
+  aluChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderWidth: 2,
+        borderColor: '#fff',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = total > 0 ? (ctx.raw / total * 100).toFixed(1) : 0;
+              return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+//  Init
+// ============================================================
+window.addEventListener('DOMContentLoaded', () => {
+  selectType('纸盒');
+  calcAlu();
+});
+</script>
+</body>
+</html>
