@@ -3,25 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>成本测算工具集</title>
+<title>成本测算工具</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --primary: #1a6fc4;
     --primary-light: #e8f3ff;
+    --primary-dark: #155a9e;
     --accent: #0ea5e9;
     --green: #22c55e;
     --green-light: #f0fdf4;
     --orange: #f97316;
     --orange-light: #fff7ed;
+    --red: #ef4444;
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
     --gray-500: #6b7280;
+    --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-900: #111827;
-    --border-radius: 12px;
-    --shadow: 0 4px 20px rgba(0,0,0,0.08);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+    --border-radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -30,94 +35,1503 @@
     background-color: #f0f4f8;
     color: var(--gray-700);
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 20px;
   }
-  .hub {
-    max-width: 800px;
-    width: 100%;
-    text-align: center;
+
+  /* ========== TOP NAV ========== */
+  .top-nav {
+    max-width: 1340px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
   }
-  .hub-header { margin-bottom: 40px; }
-  .hub-header h1 {
-    font-size: 32px;
+  .top-nav h1 {
+    font-size: 22px;
     font-weight: 800;
     color: var(--gray-900);
-    margin-bottom: 8px;
+    white-space: nowrap;
   }
-  .hub-header p { font-size: 15px; color: var(--gray-500); }
-  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .tool-card {
+  .top-nav .tabs {
+    display: flex;
+    gap: 4px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 4px;
+    box-shadow: var(--shadow);
+  }
+  .top-nav .tab-btn {
+    padding: 10px 22px;
+    border: none;
+    background: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .top-nav .tab-btn:hover { background: var(--gray-50); color: var(--primary); }
+  .top-nav .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(26,111,196,0.3); }
+
+  /* ========== PAGE PANELS ========== */
+  .page-panel { display: none; }
+  .page-panel.active { display: block; }
+
+  /* ========== SHARED LAYOUT ========== */
+  .layout {
+    max-width: 1340px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 20px;
+    align-items: start;
+  }
+  .left-col { display: flex; flex-direction: column; gap: 16px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+
+  .card {
     background: #fff;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    padding: 36px 28px;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.25s ease;
-    border: 2px solid transparent;
-    cursor: pointer;
+    padding: 20px;
+    transition: box-shadow 0.2s;
   }
-  .tool-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
-  }
-  .tool-card .icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 16px;
+  .card:hover { box-shadow: var(--shadow-lg); }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 14px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 30px;
-    margin: 0 auto 18px;
+    gap: 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-100);
   }
-  .tool-card:nth-child(1) .icon { background: var(--primary-light); }
-  .tool-card:nth-child(2) .icon { background: var(--orange-light); }
-  .tool-card h2 { font-size: 20px; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
-  .tool-card p { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
-  .tool-card .arrow {
-    margin-top: 16px;
-    font-size: 13px;
-    font-weight: 600;
+  .card-title .badge {
+    background: var(--primary-light);
     color: var(--primary);
+    font-size: 11px;
+    padding: 1px 7px;
+    border-radius: 20px;
+    font-weight: 600;
   }
-  .footer {
-    margin-top: 40px;
+
+  /* ========== FORM GRID ========== */
+  .form-grid { display: grid; gap: 12px; }
+  .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--gray-500); font-weight: 500; }
+  .field .unit-label { font-size: 11px; color: var(--gray-300); }
+
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap input,
+  .input-wrap select {
+    width: 100%;
+    height: 38px;
+    padding: 0 10px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 7px;
+    font-size: 14px;
+    color: var(--gray-900);
+    background: #fff;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input-wrap input:focus,
+  .input-wrap select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(26,111,196,0.1);
+  }
+  .input-wrap .unit {
+    position: absolute;
+    right: 10px;
+    font-size: 11px;
+    color: var(--gray-300);
+    pointer-events: none;
+  }
+  .input-wrap select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    cursor: pointer;
+  }
+  .input-wrap input.auto-fill {
+    background: var(--primary-light);
+    border-color: #c3daff;
+    color: var(--primary);
+    font-weight: 600;
+    cursor: not-allowed;
+  }
+
+  /* ========== PRESET BUTTONS ========== */
+  .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .preset-btn {
+    padding: 5px 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid #c3daff;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .preset-btn:hover { background: var(--primary); color: #fff; }
+
+  /* ========== PACKAGING 3-COL LAYOUT ========== */
+  .pkg-layout {
+    max-width: 1340px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 160px 1fr 380px;
+    gap: 20px;
+    align-items: start;
+  }
+  .pkg-type-col {
+    background: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 14px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: sticky;
+    top: 20px;
+  }
+  .pkg-type-btn {
+    padding: 10px 8px;
+    border: 2px solid var(--gray-200);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-600);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .pkg-type-btn:hover { border-color: var(--primary); color: var(--primary); }
+  .pkg-type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+  .pkg-mid-col { display: flex; flex-direction: column; gap: 16px; }
+  .pkg-right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+
+  /* ========== RESULT CARD ========== */
+  .result-card {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: #fff;
+    border-radius: var(--border-radius);
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .result-card .label { font-size: 13px; opacity: 0.8; margin-bottom: 4px; }
+  .result-card .total-price { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .result-card .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
+  .result-card .per-unit { font-size: 12px; opacity: 0.7; margin-top: 4px; }
+  .cost-breakdown {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .cost-item {
+    background: rgba(255,255,255,0.15);
+    border-radius: 7px;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .cost-item .ci-label { font-size: 11px; opacity: 0.75; }
+  .cost-item .ci-val { font-size: 16px; font-weight: 700; }
+
+  /* ========== ITEMS LIST ========== */
+  .items-list { display: flex; flex-direction: column; gap: 4px; }
+  .items-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+  }
+  .items-row:nth-child(odd) { background: var(--gray-50); }
+  .items-row .ir-name { color: var(--gray-600); }
+  .items-row .ir-formula { font-size: 11px; color: var(--gray-300); margin-top: 1px; }
+  .items-row .ir-val { font-weight: 700; color: var(--gray-900); }
+  .items-row.highlight-row { background: var(--green-light); }
+  .items-row.highlight-row .ir-val { color: var(--green); font-size: 15px; }
+  .items-row.total-row { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .items-row.total-row .ir-val { color: var(--primary); font-size: 16px; }
+
+  /* ========== CHART ========== */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ========== FORMULA BOX ========== */
+  .formula-box {
+    background: var(--gray-50);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--gray-600);
+    line-height: 1.8;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ========== ACCESSORIES TABLE ========== */
+  .acc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .acc-table th {
+    background: var(--gray-50);
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 600;
     font-size: 12px;
     color: var(--gray-500);
+    border-bottom: 1px solid var(--gray-200);
   }
-  @media (max-width: 600px) {
-    .cards { grid-template-columns: 1fr; }
-    .hub-header h1 { font-size: 24px; }
-    .tool-card { padding: 28px 20px; }
+  .acc-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+  .acc-table td input {
+    width: 100%;
+    height: 32px;
+    padding: 0 8px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--gray-900);
+    outline: none;
+  }
+  .acc-table td input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(26,111,196,0.1); }
+  .acc-table td.cost-cell { font-weight: 700; color: var(--orange); }
+  .acc-table td.auto-cell { color: var(--primary); font-weight: 600; background: var(--primary-light); border-radius: 4px; }
+
+  /* ========== MATERIAL RATIO TABLE ========== */
+  .material-ratio-wrap { overflow-x: auto; }
+  .mat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .mat-table th {
+    background: var(--gray-50);
+    padding: 7px 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .mat-table th:first-child { text-align: left; }
+  .mat-table td {
+    padding: 6px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 13px;
+  }
+  .mat-table td:first-child { text-align: left; font-weight: 600; }
+  .mat-table .editable-cell input {
+    width: 70px;
+    height: 30px;
+    padding: 0 6px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 5px;
+    font-size: 13px;
+    text-align: center;
+    outline: none;
+  }
+  .mat-table .editable-cell input:focus { border-color: var(--primary); }
+  .mat-table tr:last-child td { font-weight: 700; border-top: 2px solid var(--gray-200); }
+
+  /* ========== TAB PANE ========== */
+  .tab-btns {
+    display: flex;
+    gap: 2px;
+    background: var(--gray-100);
+    padding: 3px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .tab-btn-sm {
+    flex: 1;
+    padding: 6px 0;
+    border: none;
+    background: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn-sm.active { background: #fff; color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* ========== MSG ========== */
+  .msg { font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-top: 4px; }
+  .msg-warn { background: #fff7ed; color: var(--orange); border: 1px solid #fed7aa; }
+  .msg-ok { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
+
+  /* ========== HINT ========== */
+  .hint { font-size: 11px; color: var(--gray-300); margin-top: 2px; }
+
+  /* ========== PACKAGING DETAIL ========== */
+  .pkg-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 7px;
+    font-size: 13px;
+  }
+  .pkg-detail-row:nth-child(odd) { background: var(--gray-50); }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 1100px) {
+    .pkg-layout { grid-template-columns: 1fr 340px; }
+    .pkg-type-col { display: grid; grid-template-columns: repeat(3, 1fr); position: static; }
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .right-col { position: static; }
+    .pkg-layout { grid-template-columns: 1fr; }
+    .pkg-type-col { display: flex; flex-direction: row; flex-wrap: wrap; position: static; }
+    .pkg-right-col { position: static; }
+  }
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .top-nav { flex-direction: column; gap: 10px; align-items: flex-start; }
+    .top-nav h1 { font-size: 18px; }
+    .top-nav .tabs { width: 100%; overflow-x: auto; }
+    .top-nav .tab-btn { padding: 8px 14px; font-size: 13px; }
+    .card { padding: 14px; border-radius: 8px; }
+    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 8px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    .input-wrap input, .input-wrap select { height: 42px; font-size: 16px; }
+    .result-card { padding: 18px 14px; }
+    .result-card .total-price { font-size: 36px; }
+    .cost-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; }
+    .cost-item .ci-val { font-size: 14px; }
+    .chart-wrap { height: 200px; }
+    .items-row { padding: 6px 10px; font-size: 12px; }
+    .material-ratio-wrap { margin: 0 -14px; padding: 0 14px; }
+    .mat-table { font-size: 11px; min-width: 580px; }
+    input[type="number"] { font-size: 16px; }
+    .pkg-type-col { gap: 4px; padding: 10px 8px; }
+    .pkg-type-btn { padding: 8px 6px; font-size: 11px; }
+  }
+  @media (max-width: 380px) {
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
+    .cost-breakdown { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-<div class="hub">
-  <div class="hub-header">
-    <h1>成本测算工具集</h1>
-    <p>选择工具开始计算成本</p>
+
+<!-- ========== TOP NAV ========== -->
+<div class="top-nav">
+  <h1>成本测算工具</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
+    <button class="tab-btn" onclick="switchPage('pkg')">📦 包材测算</button>
+    <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
   </div>
-  <div class="cards">
-    <a class="tool-card" href="plug-wire.html">
-      <div class="icon">🔌</div>
-      <h2>插头线成本计价</h2>
-      <p>支持美规两芯/三芯多规格<br>线材规格 · 材质支数分配<br>配件 · 加工费 · 含税总成本</p>
-      <div class="arrow">进入工具 →</div>
-    </a>
-    <a class="tool-card" href="packaging-aluminum.html">
-      <div class="icon">📦</div>
-      <h2>包装 & 铝材成本测算</h2>
-      <p>纸盒 · 外箱 · 纸卡 · 珍珠棉<br>铝材原材料 · 加工 · 表面处理<br>含税成本实时自动计算</p>
-      <div class="arrow">进入工具 →</div>
-    </a>
-  </div>
-  <div class="footer">所有计算均在本地浏览器完成，数据不会上传至任何服务器</div>
 </div>
+
+<!-- ############################################################ -->
+<!-- PAGE 1: 插头线                                                  -->
+<!-- ############################################################ -->
+<div id="page-plug" class="page-panel active">
+<div class="layout">
+  <div class="left-col">
+
+    <!-- 快速预设 -->
+    <div class="card">
+      <div class="card-title">⚡ 快速预设 <span class="badge">美规 · 纯铜 · 点击快速填入</span></div>
+      <div style="font-size:12px;color:var(--gray-500);margin-bottom:10px;">芯数 × 线径 × 线长 三维组合</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--gray-400);padding-bottom:6px;border-bottom:1px solid var(--gray-100);margin-bottom:8px;">
+        <div></div><div>0.5mm²</div><div>0.824mm²</div><div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;">两芯</div>
+        <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
+        <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;"></div>
+        <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
+        <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
+        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;">三芯</div>
+        <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
+        <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;"></div>
+        <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
+        <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
+      </div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--gray-100);">
+        <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+      </div>
+    </div>
+
+    <!-- ① 产品基本信息 -->
+    <div class="card">
+      <div class="card-title">① 产品基本信息</div>
+      <div class="form-grid form-grid-3">
+        <div class="field">
+          <label>导体材质</label>
+          <div class="input-wrap">
+            <select id="conductorType" onchange="onConductorChange()">
+              <option value="纯铜">纯铜</option>
+              <option value="纯铝">纯铝</option>
+              <option value="纯铝+铜包铜">纯铝+铜包铜</option>
+              <option value="纯铜+纯铝">纯铜+纯铝</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>芯线数</label>
+          <div class="input-wrap">
+            <input type="number" id="coreCount" value="3" min="1" max="12" onchange="calcPlug()">
+            <span class="unit">芯</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>线长</label>
+          <div class="input-wrap">
+            <input type="number" id="wireLength" value="1.6" min="0.1" step="0.1" onchange="calcPlug()">
+            <span class="unit">M</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 线材规格参数 -->
+    <div class="card">
+      <div class="card-title">② 线材规格参数</div>
+      <div class="form-grid form-grid-3">
+        <div class="field">
+          <label>线径 (mm²)</label>
+          <div class="input-wrap">
+            <select id="wireSpec" onchange="onWireSpecChange()">
+              <option value="0.5">0.5 mm²</option>
+              <option value="0.824">0.824 mm²</option>
+              <option value="0.3">0.3 mm²</option>
+              <option value="0.75">0.75 mm²</option>
+              <option value="1">1 mm²</option>
+              <option value="1.5">1.5 mm²</option>
+              <option value="2">2 mm²</option>
+              <option value="2.5">2.5 mm²</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>单支直径 (mm) <span style="color:#c3daff">自动带出</span></label>
+          <div class="input-wrap">
+            <input type="number" id="strandDia" class="auto-fill" readonly>
+            <span class="unit">mm</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>总支数 <span style="color:#c3daff">自动带出</span></label>
+          <div class="input-wrap">
+            <input type="number" id="totalStrands" class="auto-fill" readonly>
+            <span class="unit">支</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>加捻损耗 <span style="color:#c3daff">自动计算</span></label>
+          <div class="input-wrap">
+            <input type="number" id="twistFactor" class="auto-fill" readonly step="0.01">
+          </div>
+        </div>
+        <div class="field">
+          <label>成品外径 (mm)</label>
+          <div class="input-wrap">
+            <input type="number" id="outerDia" value="7.8" min="1" step="0.1" onchange="calcPlug()">
+            <span class="unit">mm</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>胶皮材质</label>
+          <div class="input-wrap">
+            <select id="insulationType" onchange="onInsulationChange()">
+              <option value="PVC">PVC</option>
+              <option value="橡胶">橡胶</option>
+              <option value="硅胶">硅胶</option>
+              <option value="PE">PE</option>
+              <option value="XLPE">XLPE</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
+            <span style="font-size:11px;color:var(--gray-400);">密度：</span>
+            <span id="insulDensityDisplay" style="font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 8px;border-radius:4px;">1.35 g/cm³</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 原材料单价 -->
+    <div class="card">
+      <div class="card-title">③ 原材料单价</div>
+      <div class="form-grid form-grid-4">
+        <div class="field">
+          <label>铜原料单价</label>
+          <div class="input-wrap">
+            <input type="number" id="copperPrice" value="105" min="0" step="1" onchange="calcPlug()">
+            <span class="unit">元/kg</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>铝原料单价</label>
+          <div class="input-wrap">
+            <input type="number" id="aluminumPrice" value="39" min="0" step="1" onchange="calcPlug()">
+            <span class="unit">元/kg</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>铜包铜单价</label>
+          <div class="input-wrap">
+            <input type="number" id="ccaPrice" value="76" min="0" step="1" onchange="calcPlug()">
+            <span class="unit">元/kg</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>胶料价格</label>
+          <div class="input-wrap">
+            <input type="number" id="insulPrice" value="8" min="0" step="0.5" onchange="calcPlug()">
+            <span class="unit">元/kg</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 材质支数分配 -->
+    <div class="card">
+      <div class="card-title">④ 材质支数分配 <span class="badge" id="strandBadge">总支数：16</span></div>
+      <div class="material-ratio-wrap">
+        <table class="mat-table">
+          <thead>
+            <tr>
+              <th>材质</th>
+              <th>支数（可编辑）</th>
+              <th>密度 g/cm³</th>
+              <th>单价 元/kg</th>
+              <th>单支截面积 mm²</th>
+              <th>总截面积 mm²</th>
+              <th>每米重量 g</th>
+              <th>每米成本 元</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>铜线</td>
+              <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" onchange="calcPlug()"></td>
+              <td>8.9</td>
+              <td id="mt-copperPrice">105</td>
+              <td id="mt-strandArea">—</td>
+              <td id="mt-copperArea">—</td>
+              <td id="mt-copperWeight">—</td>
+              <td id="mt-copperCost">—</td>
+            </tr>
+            <tr>
+              <td>铝线</td>
+              <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" onchange="calcPlug()"></td>
+              <td>3.0</td>
+              <td id="mt-aluminumPrice">39</td>
+              <td id="mt-strandArea2">—</td>
+              <td id="mt-aluminumArea">—</td>
+              <td id="mt-aluminumWeight">—</td>
+              <td id="mt-aluminumCost">—</td>
+            </tr>
+            <tr>
+              <td>铜包铜线</td>
+              <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" onchange="calcPlug()"></td>
+              <td>8.6</td>
+              <td id="mt-ccaPrice">76</td>
+              <td id="mt-strandArea3">—</td>
+              <td id="mt-ccaArea">—</td>
+              <td id="mt-ccaWeight">—</td>
+              <td id="mt-ccaCost">—</td>
+            </tr>
+            <tr>
+              <td>合计</td>
+              <td id="mt-totalStrands" style="font-weight:700">16</td>
+              <td colspan="3"></td>
+              <td id="mt-totalArea" style="font-weight:700">—</td>
+              <td id="mt-totalWeight" style="font-weight:700">—</td>
+              <td id="mt-totalCost" style="font-weight:700;color:#1a6fc4">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px;">✅ 支数分配正确</div>
+    </div>
+
+    <!-- ⑤ 配件费用 -->
+    <div class="card">
+      <div class="card-title">⑤ 配件费用</div>
+      <table class="acc-table">
+        <thead>
+          <tr><th>配件</th><th>单价（元/个）</th><th>数量</th><th>小计（元）</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>插头</td>
+            <td><input type="number" id="plugPrice" value="1.2" min="0" step="0.1" onchange="calcPlug()"></td>
+            <td><input type="number" id="plugQty" value="1" min="0" onchange="calcPlug()"></td>
+            <td class="cost-cell" id="plugCost">1.20</td>
+          </tr>
+          <tr>
+            <td>开关</td>
+            <td><input type="number" id="switchPrice" value="1" min="0" step="0.1" onchange="calcPlug()"></td>
+            <td><input type="number" id="switchQty" value="0" min="0" onchange="calcPlug()"></td>
+            <td class="cost-cell" id="switchCost">0.00</td>
+          </tr>
+          <tr>
+            <td>端子</td>
+            <td><input type="number" id="terminalPrice" value="0.05" min="0" step="0.01" onchange="calcPlug()"></td>
+            <td><input type="number" id="terminalQty" value="0" min="0" onchange="calcPlug()"></td>
+            <td class="cost-cell" id="terminalCost">0.00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ⑥ 加工费 -->
+    <div class="card">
+      <div class="card-title">⑥ 加工费用</div>
+      <div class="form-grid form-grid-4">
+        <div class="field">
+          <label>辐照费</label>
+          <div class="input-wrap">
+            <input type="number" id="radFee" value="0" min="0" step="0.01" onchange="calcPlug()">
+            <span class="unit">元/米</span>
+          </div>
+          <span class="hint">× 线长自动计算</span>
+        </div>
+        <div class="field">
+          <label>尾部加工费</label>
+          <div class="input-wrap">
+            <input type="number" id="tailFee" value="0.3" min="0" step="0.05" onchange="calcPlug()">
+            <span class="unit">元/条</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>运费</label>
+          <div class="input-wrap">
+            <input type="number" id="shipFee" value="0.05" min="0" step="0.05" onchange="calcPlug()">
+            <span class="unit">元/条</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑦ 利润与税率 -->
+    <div class="card">
+      <div class="card-title">⑦ 利润与税率</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>利润率</label>
+          <div class="input-wrap">
+            <input type="number" id="profitRate" value="15" min="0" max="100" step="1" onchange="calcPlug()">
+            <span class="unit">%</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>税率</label>
+          <div class="input-wrap">
+            <input type="number" id="taxRate" value="10" min="0" max="30" step="1" onchange="calcPlug()">
+            <span class="unit">%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ========== 右侧结果区 ========== -->
+  <div class="right-col">
+
+    <!-- 总成本卡片 -->
+    <div class="result-card">
+      <div class="label">整条线含税总成本</div>
+      <div class="total-price"><span class="currency">¥</span><span id="totalCost">—</span></div>
+      <div class="per-unit">元/条（含利润 + 税）</div>
+      <div class="cost-breakdown">
+        <div class="cost-item">
+          <div class="ci-label">不含税小计</div>
+          <div class="ci-val">¥<span id="subTotal">—</span></div>
+        </div>
+        <div class="cost-item">
+          <div class="ci-label">利润</div>
+          <div class="ci-val">¥<span id="profitAmount">—</span></div>
+        </div>
+        <div class="cost-item">
+          <div class="ci-label">税额</div>
+          <div class="ci-val">¥<span id="taxAmount">—</span></div>
+        </div>
+        <div class="cost-item">
+          <div class="ci-label">每米线材成本</div>
+          <div class="ci-val">¥<span id="perMeterCost">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 成本明细 -->
+    <div class="card">
+      <div class="card-title">📊 成本分解明细</div>
+      <div class="tab-btns">
+        <button class="tab-btn-sm active" onclick="switchPlugTab('detail')">逐项明细</button>
+        <button class="tab-btn-sm" onclick="switchPlugTab('chart')">饼图分析</button>
+      </div>
+      <div class="tab-pane active" id="plug-tab-detail">
+        <div class="items-list" id="itemsList"></div>
+      </div>
+      <div class="tab-pane" id="plug-tab-chart">
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
+        <div id="chartLegend" style="margin-top:10px; font-size:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+    </div>
+
+    <!-- 公式说明 -->
+    <div class="card">
+      <div class="card-title">📝 计价公式说明</div>
+      <div style="font-size:12px; line-height:1.9; color:var(--gray-600)">
+        <div>① 单支截面积 = π × (单支直径/2)²</div>
+        <div>② 导体截面积 = 单支截面积 × 总支数</div>
+        <div>③ 导体重量(g/m) = 截面积 × 加捻损耗 × 密度</div>
+        <div>④ 导体成本(元/m) = 重量 × 单价 / 1000</div>
+        <div>⑤ 胶皮截面积 = 0.7854×外径² − 导体截面积×芯数</div>
+        <div>⑥ 胶皮成本(元/m) = 胶皮截面积 × 密度 × 胶料价 / 1000</div>
+        <div>⑦ 小计 = 每米线材成本×线长 + 加工费 + 配件费</div>
+        <div>⑧ 含税成本 = 小计 × (1+利润率%) × (1+税率%)</div>
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /layout -->
+</div><!-- /page-plug -->
+
+
+<!-- ############################################################ -->
+<!-- PAGE 2: 包材测算                                                  -->
+<!-- ############################################################ -->
+<div id="page-pkg" class="page-panel">
+<div class="pkg-layout">
+
+  <!-- 左侧：类型选择 -->
+  <div class="pkg-type-col">
+    <div style="font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:4px;text-align:center;">包装类型</div>
+    <button class="pkg-type-btn active" data-type="牛皮盒" onclick="selectPkgType('牛皮盒',this)">牛皮盒</button>
+    <button class="pkg-type-btn" data-type="外箱" onclick="selectPkgType('外箱',this)">外箱</button>
+    <button class="pkg-type-btn" data-type="纸卡" onclick="selectPkgType('纸卡',this)">纸卡</button>
+    <button class="pkg-type-btn" data-type="珍珠棉-粘底" onclick="selectPkgType('珍珠棉-粘底',this)">珍珠棉<br>(粘底)</button>
+    <button class="pkg-type-btn" data-type="珍珠棉-不粘底" onclick="selectPkgType('珍珠棉-不粘底',this)">珍珠棉<br>(不粘底)</button>
+    <button class="pkg-type-btn" data-type="珍珠棉片" onclick="selectPkgType('珍珠棉片',this)">珍珠棉片</button>
+  </div>
+
+  <!-- 中间：参数录入 -->
+  <div class="pkg-mid-col">
+    <div class="card">
+      <div class="card-title" id="pkgFormTitle">📦 牛皮盒 参数录入</div>
+      <div class="form-grid form-grid-3" id="pkgFormGrid">
+        <div class="field" id="pkgFieldL">
+          <label>长 <span class="unit-label">(mm)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgL" value="280" min="0" step="1" oninput="calcPkg()">
+          </div>
+        </div>
+        <div class="field" id="pkgFieldW">
+          <label>宽 <span class="unit-label">(mm)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgW" value="72" min="0" step="1" oninput="calcPkg()">
+          </div>
+        </div>
+        <div class="field" id="pkgFieldH">
+          <label>高 <span class="unit-label">(mm)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgH" value="150" min="0" step="1" oninput="calcPkg()">
+          </div>
+        </div>
+        <div class="field" id="pkgFieldPrice">
+          <label id="pkgPriceLabel">单价 <span class="unit-label">(元/张)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgPrice" value="1.61" min="0" step="0.01" oninput="calcPkg()">
+          </div>
+        </div>
+        <div class="field" id="pkgFieldMaterial">
+          <label>材质规格</label>
+          <div class="input-wrap">
+            <select id="pkgMaterial" onchange="calcPkg()">
+              <option value="3层加强芯瓦楞纸">3层加强芯瓦楞纸</option>
+              <option value="5层加强芯瓦楞纸">5层加强芯瓦楞纸 (外箱)</option>
+              <option value="16Kg/立方">珍珠棉 16Kg/立方</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="pkgFieldMarkup">
+          <label>加乘系数 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgMarkup" value="65" min="0" step="1" oninput="calcPkg()">
+          </div>
+        </div>
+        <div class="field" id="pkgFieldProcess">
+          <label>加工费 <span class="unit-label">(元)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="pkgProcess" value="0" min="0" step="0.01" oninput="calcPkg()">
+          </div>
+        </div>
+      </div>
+      <div id="pkgFormulaHint" style="margin-top:12px;padding:10px;background:var(--gray-50);border-radius:8px;font-size:12px;color:var(--gray-500);line-height:1.8;font-family:'Courier New',monospace;">
+        <strong>牛皮盒公式：</strong>面积 = ((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
+        <strong>材料成本</strong> = 面积 × 单价<br>
+        <strong>含税成本</strong> = 材料成本 × (1 + 加乘系数%)<br>
+        <strong>总成本</strong> = 含税成本 + 加工费
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧：结果展示 -->
+  <div class="pkg-right-col">
+    <div class="result-card" id="pkgResultCard">
+      <div class="label" id="pkgResultLabel">牛皮盒 含税总成本</div>
+      <div class="total-price"><span class="currency">¥ </span><span id="pkgResultTotal">0.0000</span></div>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">计算明细</div>
+      <div id="pkgDetailContent" style="font-size:13px;line-height:2;">
+        <div style="color:var(--gray-500);text-align:center;padding:16px 0;">请输入尺寸后自动计算</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">计价公式说明</div>
+      <div class="formula-box" id="pkgFormulaBox">
+        <strong>牛皮盒：</strong>面积=((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
+        <strong>外箱：</strong>面积=((长+宽)×2+30)/1000 × (宽+高)/1000<br>
+        <strong>纸卡：</strong>面积=(长/1000) × (宽/1000)<br>
+        <strong>珍珠棉(粘底)：</strong>体积=(长×宽×(高+3))/10⁹<br>
+        <strong>珍珠棉(不粘底/片)：</strong>体积=(长×宽×高)/10⁹<br>
+        ─────────────────<br>
+        材料成本 = 面积/体积 × 单价<br>
+        含税成本 = 材料成本 × (1 + 加乘系数%)<br>
+        总成本 = 含税成本 + 加工费
+      </div>
+    </div>
+  </div>
+
+</div><!-- /pkg-layout -->
+</div><!-- /page-pkg -->
+
+
+<!-- ############################################################ -->
+<!-- PAGE 3: 铝型材                                                  -->
+<!-- ############################################################ -->
+<div id="page-alu" class="page-panel">
+<div class="layout">
+  <div class="left-col">
+
+    <!-- ① 型材基础参数 -->
+    <div class="card">
+      <div class="card-title">① 型材基础参数</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>型材长度 <span class="unit-label">(mm)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluLength" value="1695" min="0" step="1" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>型材整条重量 <span class="unit-label">(克)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluWeight" value="389" min="0" step="1" oninput="calcAlu()">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:8px;font-size:13px;">
+        <span style="color:var(--gray-500);">每米重量（自动计算）：</span>
+        <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 克</strong>
+      </div>
+    </div>
+
+    <!-- ② 费用明细 -->
+    <div class="card">
+      <div class="card-title">② 费用明细</div>
+      <div class="form-grid form-grid-3">
+        <div class="field">
+          <label>原材料单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluRawPrice" value="24200" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>加工费单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluProcPrice" value="2200" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>表面处理单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluSurfPrice" value="800" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>包装费 <span class="unit-label">(元/条)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluPackFee" value="0" min="0" step="0.01" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>税率 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ========== 右侧结果区 ========== -->
+  <div class="right-col">
+
+    <div class="result-card">
+      <div class="label">铝材含税总成本（整条）</div>
+      <div class="total-price"><span class="currency">¥ </span><span id="aluResultTotal">11.5331</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本分解明细</div>
+      <div id="aluDetailList"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本占比</div>
+      <div class="chart-wrap"><canvas id="aluChart"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">计价公式说明</div>
+      <div class="formula-box">
+        每米重量 = 整条重量(g) ÷ 型材长度(mm) × 1000<br>
+        ─────────────────<br>
+        整条单价 = 单价(元/吨) × 整条重量(g) ÷ 1,000,000<br>
+        每米单价 = 单价(元/吨) × 每米重量(g) ÷ 1,000,000<br>
+        ─────────────────<br>
+        税负(整条) = (原材料+加工费+表面处理) × 税率%<br>
+        总成本(整条) = 原材料 + 加工费 + 表面处理 + 包装 + 税负
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /layout -->
+</div><!-- /page-alu -->
+
+
+<script>
+// ############################################################
+// PAGE SWITCHING
+// ############################################################
+function switchPage(page) {
+  var tabs = document.querySelectorAll('.top-nav .tab-btn');
+  tabs[0].classList.toggle('active', page === 'plug');
+  tabs[1].classList.toggle('active', page === 'pkg');
+  tabs[2].classList.toggle('active', page === 'alu');
+  var panels = document.querySelectorAll('.page-panel');
+  for (var i = 0; i < panels.length; i++) {
+    panels[i].classList.remove('active');
+  }
+  document.getElementById('page-' + page).classList.add('active');
+  if (page === 'plug') { /* already calculated */ }
+  if (page === 'alu') { calcAlu(); }
+  if (page === 'pkg') { calcPkg(); }
+}
+
+// ############################################################
+// PLUG-WIRE LOGIC
+// ############################################################
+var WIRE_SPECS = {
+  '0.5':   { '纯铜':{dia:0.2,strands:16},'纯铝':{dia:0.2,strands:16},'纯铝+铜包铜':{dia:0.2,strands:16},'纯铜+纯铝':{dia:0.2,strands:16} },
+  '0.824': { '纯铜':{dia:0.16,strands:41},'纯铝':{dia:0.2,strands:26},'纯铝+铜包铜':{dia:0.2,strands:26},'纯铜+纯铝':{dia:0.16,strands:41} },
+  '0.3':   { '纯铜':{dia:0.2,strands:11},'纯铝':{dia:0.2,strands:11},'纯铝+铜包铜':{dia:0.2,strands:11},'纯铜+纯铝':{dia:0.2,strands:11} },
+  '0.75':  { '纯铜':{dia:0.2,strands:24},'纯铝':{dia:0.2,strands:24},'纯铝+铜包铜':{dia:0.2,strands:24},'纯铜+纯铝':{dia:0.2,strands:24} },
+  '1':     { '纯铜':{dia:0.2,strands:32},'纯铝':{dia:0.2,strands:32},'纯铝+铜包铜':{dia:0.2,strands:32},'纯铜+纯铝':{dia:0.2,strands:32} },
+  '1.5':   { '纯铜':{dia:0.2,strands:48},'纯铝':{dia:0.2,strands:48},'纯铝+铜包铜':{dia:0.2,strands:48},'纯铜+纯铝':{dia:0.2,strands:48} },
+  '2':     { '纯铜':{dia:0.21,strands:56},'纯铝':{dia:0.21,strands:56},'纯铝+铜包铜':{dia:0.21,strands:56},'纯铜+纯铝':{dia:0.21,strands:56} },
+  '2.5':   { '纯铜':{dia:0.2,strands:77},'纯铝':{dia:0.2,strands:77},'纯铝+铜包铜':{dia:0.2,strands:77},'纯铜+纯铝':{dia:0.2,strands:77} },
+};
+var INSULATION_DENSITY = {'PVC':1.35,'橡胶':1.5,'硅胶':1.15,'PE':0.93,'XLPE':0.92};
+var MATERIAL_DENSITY = {copper:8.9, aluminum:3.0, cca:8.6};
+
+var BASE = {conductorType:'纯铜',insulationType:'PVC',plugPrice:1.2,plugQty:1,switchPrice:1.0,switchQty:0,terminalPrice:0.05,terminalQty:0,shipFee:0.05,radFee:0,tailFee:0.3,copperPrice:105,aluminumPrice:39,ccaPrice:76,insulPrice:8,profitRate:15,taxRate:10};
+var PRESETS = {
+  '2c-05-16': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:1.6,outerDia:7.0,tailFee:0.2}),
+  '2c-05-61': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:6.1,outerDia:7.0,tailFee:0.3}),
+  '2c-82-16': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.824',wireLength:1.6,outerDia:7.8,tailFee:0.2}),
+  '2c-82-61': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.824',wireLength:6.1,outerDia:7.8,tailFee:0.3}),
+  '3c-05-16': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.5',wireLength:1.6,outerDia:7.8,tailFee:0.3}),
+  '3c-05-61': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.5',wireLength:6.1,outerDia:7.8,tailFee:0.4}),
+  '3c-82-16': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.824',wireLength:1.6,outerDia:8.5,tailFee:0.3}),
+  '3c-82-61': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.824',wireLength:6.1,outerDia:8.5,tailFee:0.4}),
+};
+
+function applyPreset(key) {
+  var p = PRESETS[key]; if (!p) return;
+  setVal('conductorType', p.conductorType);
+  setVal('coreCount', p.coreCount);
+  setVal('wireLength', p.wireLength);
+  setVal('wireSpec', p.wireSpec);
+  setVal('outerDia', p.outerDia);
+  setVal('insulationType', p.insulationType);
+  setVal('plugPrice', p.plugPrice);
+  setVal('plugQty', p.plugQty);
+  setVal('switchPrice', p.switchPrice);
+  setVal('switchQty', p.switchQty);
+  setVal('terminalPrice', p.terminalPrice);
+  setVal('terminalQty', p.terminalQty);
+  setVal('tailFee', p.tailFee);
+  setVal('shipFee', p.shipFee);
+  setVal('radFee', p.radFee);
+  setVal('copperPrice', p.copperPrice);
+  setVal('aluminumPrice', p.aluminumPrice);
+  setVal('ccaPrice', p.ccaPrice);
+  setVal('insulPrice', p.insulPrice);
+  setVal('profitRate', p.profitRate);
+  setVal('taxRate', p.taxRate);
+  onInsulationChange(); onWireSpecChange();
+}
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.value = val;
+}
+function clearAll() {
+  var fields = ['coreCount','wireLength','wireSpec','strandDia','totalStrands','twistFactor',
+    'outerDia','copperStrands','aluminumStrands','ccaStrands',
+    'plugPrice','plugQty','switchPrice','switchQty','terminalPrice','terminalQty',
+    'tailFee','radFee','shipFee',
+    'copperPrice','aluminumPrice','ccaPrice','insulPrice','profitRate','taxRate'];
+  for (var i = 0; i < fields.length; i++) {
+    var el = document.getElementById(fields[i]); if (el) el.value = '';
+  }
+  setVal('conductorType', '纯铜');
+  setVal('insulationType', 'PVC');
+  onInsulationChange(); calcPlug();
+}
+
+function onConductorChange() { onWireSpecChange(); }
+function onWireSpecChange() {
+  var spec = document.getElementById('wireSpec').value;
+  var condType = document.getElementById('conductorType').value;
+  var specMap = WIRE_SPECS[spec];
+  if (!specMap) return;
+  var info = specMap[condType] || specMap['纯铜'];
+  var dia = info.dia;
+  var totalStrands = info.strands;
+  setVal('strandDia', dia);
+  setVal('totalStrands', totalStrands);
+  var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
+  setVal('twistFactor', (1 + 0.01 * coreCount).toFixed(2));
+  var copper = 0, aluminum = 0, cca = 0;
+  if (condType === '纯铜') { copper = totalStrands; }
+  else if (condType === '纯铝') { aluminum = totalStrands; }
+  else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
+  else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
+  setVal('copperStrands', copper);
+  setVal('aluminumStrands', aluminum);
+  setVal('ccaStrands', cca);
+  calcPlug();
+}
+function onInsulationChange() {
+  var type = document.getElementById('insulationType').value;
+  var density = INSULATION_DENSITY[type] || 1.35;
+  var el = document.getElementById('insulDensityDisplay');
+  if (el) el.textContent = density + ' g/cm³';
+  calcPlug();
+}
+
+var chartInstance = null;
+function calcPlug() {
+  var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
+  var wireLength = parseFloat(document.getElementById('wireLength').value) || 1.6;
+  var strandDia = parseFloat(document.getElementById('strandDia').value) || 0.2;
+  var outerDia = parseFloat(document.getElementById('outerDia').value) || 7.8;
+  var twistFactor = 1 + 0.01 * coreCount;
+  setVal('twistFactor', twistFactor.toFixed(2));
+  var copperStrands = parseInt(document.getElementById('copperStrands').value) || 0;
+  var aluminumStrands = parseInt(document.getElementById('aluminumStrands').value) || 0;
+  var ccaStrands = parseInt(document.getElementById('ccaStrands').value) || 0;
+  var totalStrands = copperStrands + aluminumStrands + ccaStrands;
+  var copperPrice = parseFloat(document.getElementById('copperPrice').value) || 0;
+  var aluminumPrice = parseFloat(document.getElementById('aluminumPrice').value) || 0;
+  var ccaPrice = parseFloat(document.getElementById('ccaPrice').value) || 0;
+  var insulPrice = parseFloat(document.getElementById('insulPrice').value) || 0;
+  var insulType = document.getElementById('insulationType').value;
+  var insulDensity = INSULATION_DENSITY[insulType] || 1.35;
+  var plugPrice = parseFloat(document.getElementById('plugPrice').value) || 0;
+  var plugQty = parseInt(document.getElementById('plugQty').value) || 0;
+  var switchPrice = parseFloat(document.getElementById('switchPrice').value) || 0;
+  var switchQty = parseInt(document.getElementById('switchQty').value) || 0;
+  var terminalPrice = parseFloat(document.getElementById('terminalPrice').value) || 0;
+  var terminalQty = parseInt(document.getElementById('terminalQty').value) || 0;
+  var radFee = parseFloat(document.getElementById('radFee').value) || 0;
+  var tailFee = parseFloat(document.getElementById('tailFee').value) || 0;
+  var shipFee = parseFloat(document.getElementById('shipFee').value) || 0;
+  var profitRate = (parseFloat(document.getElementById('profitRate').value) || 0) / 100;
+  var taxRate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
+
+  var strandArea = Math.PI * Math.pow(strandDia / 2, 2);
+  function calcMat(strands, density, price) {
+    var area = strands * strandArea;
+    var weight = area * twistFactor * density;
+    var cost = weight * price / 1000;
+    return { strands: strands, area: area, weight: weight, cost: cost };
+  }
+  var matCopper = calcMat(copperStrands, MATERIAL_DENSITY.copper, copperPrice);
+  var matAlum = calcMat(aluminumStrands, MATERIAL_DENSITY.aluminum, aluminumPrice);
+  var matCCA = calcMat(ccaStrands, MATERIAL_DENSITY.cca, ccaPrice);
+  var totalArea = matCopper.area + matAlum.area + matCCA.area;
+  var totalWeight = matCopper.weight + matAlum.weight + matCCA.weight;
+  var totalMatCost = matCopper.cost + matAlum.cost + matCCA.cost;
+  var conductorCostPerM = totalMatCost * coreCount;
+  var insulArea = 0.7854 * outerDia * outerDia - totalArea * coreCount;
+  var insulCostPerM = Math.max(0, insulArea * insulDensity * insulPrice / 1000);
+  var wireCostPerM = conductorCostPerM + insulCostPerM;
+  var plugCost = plugPrice * plugQty;
+  var switchCost = switchPrice * switchQty;
+  var terminalCost = terminalPrice * terminalQty;
+  var radCostTotal = radFee * wireLength;
+  var subtotal = wireCostPerM * wireLength + radCostTotal + plugCost + switchCost + tailFee + terminalCost + shipFee;
+  var profit = subtotal * profitRate;
+  var taxBase = subtotal + profit;
+  var taxAmt = taxBase * taxRate;
+  var total = subtotal + profit + taxAmt;
+
+  // strand check
+  var specStrands = parseInt(document.getElementById('totalStrands').value) || totalStrands;
+  var diff = totalStrands - specStrands;
+  document.getElementById('strandBadge').textContent = '总支数：' + specStrands;
+  document.getElementById('mt-totalStrands').textContent = totalStrands;
+  var checkMsg = document.getElementById('strandCheckMsg');
+  if (diff === 0) {
+    checkMsg.className = 'msg msg-ok';
+    checkMsg.textContent = '\u2705 支数分配正确（共 ' + totalStrands + ' 支）';
+  } else {
+    checkMsg.className = 'msg msg-warn';
+    checkMsg.textContent = '\u26a0 支数差异：已分配 ' + totalStrands + ' 支，规格要求 ' + specStrands + ' 支，差 ' + (diff > 0 ? '+' : '') + diff;
+  }
+
+  function fmt(n, d) {
+    d = d || 4;
+    if (isNaN(n)) return '\u2014';
+    return n.toFixed(d);
+  }
+  document.getElementById('mt-strandArea').textContent = fmt(strandArea);
+  document.getElementById('mt-strandArea2').textContent = fmt(strandArea);
+  document.getElementById('mt-strandArea3').textContent = fmt(strandArea);
+  document.getElementById('mt-copperPrice').textContent = copperPrice;
+  document.getElementById('mt-aluminumPrice').textContent = aluminumPrice;
+  document.getElementById('mt-ccaPrice').textContent = ccaPrice;
+  setText('mt-copperArea', fmt(matCopper.area));
+  setText('mt-copperWeight', fmt(matCopper.weight, 4));
+  setText('mt-copperCost', fmt(matCopper.cost, 4));
+  setText('mt-aluminumArea', fmt(matAlum.area));
+  setText('mt-aluminumWeight', fmt(matAlum.weight, 4));
+  setText('mt-aluminumCost', fmt(matAlum.cost, 4));
+  setText('mt-ccaArea', fmt(matCCA.area));
+  setText('mt-ccaWeight', fmt(matCCA.weight, 4));
+  setText('mt-ccaCost', fmt(matCCA.cost, 4));
+  setText('mt-totalArea', fmt(totalArea));
+  setText('mt-totalWeight', fmt(totalWeight, 4));
+  setText('mt-totalCost', fmt(totalMatCost, 4));
+
+  document.getElementById('plugCost').textContent = plugCost.toFixed(2);
+  document.getElementById('switchCost').textContent = switchCost.toFixed(2);
+  document.getElementById('terminalCost').textContent = terminalCost.toFixed(2);
+
+  document.getElementById('totalCost').textContent = total.toFixed(4);
+  document.getElementById('subTotal').textContent = subtotal.toFixed(4);
+  document.getElementById('profitAmount').textContent = profit.toFixed(4);
+  document.getElementById('taxAmount').textContent = taxAmt.toFixed(4);
+  document.getElementById('perMeterCost').textContent = wireCostPerM.toFixed(4);
+
+  // detail list
+  var items = [
+    { name: '导体材料成本', formula: '\u03a3\u6750\u8d28\u6bcf\u7c73\u6210\u672c \u00d7 ' + coreCount + '\u82af', val: conductorCostPerM, unit: '\u5143/\u7c73' },
+    { name: '\u6405\u5408\u622a\u9762\u79ef\uff08\u5bfc\u4f53\uff09', formula: '\u5355\u652f\u622a\u9762\u79ef \u00d7 \u603b\u652f\u6570', val: totalArea, unit: 'mm\u00b2' },
+    { name: '\u80f6\u76ae/\u62a4\u5957\u6210\u672c', formula: '\u80f6\u76ae\u622a\u9762\u79ef \u00d7 \u5bc6\u5ea6 \u00d7 \u80f6\u6599\u4ef7 / 1000', val: insulCostPerM, unit: '\u5143/\u7c73' },
+    { name: '\u6bcf\u7c73\u7ebf\u6750\u6210\u672c', formula: '\u5bfc\u4f53\u6210\u672c + \u80f6\u76ae\u6210\u672c', val: wireCostPerM, unit: '\u5143/\u7c73', highlight: true },
+    { name: '\u8f90\u7167\u8d39', formula: radFee + ' \u00d7 ' + wireLength + 'm', val: radCostTotal, unit: '\u5143' },
+    { name: '\u63d2\u5934\u6210\u672c', formula: plugPrice + ' \u00d7 ' + plugQty + '\u4e2a', val: plugCost, unit: '\u5143' },
+    { name: '\u5f00\u5173\u6210\u672c', formula: switchPrice + ' \u00d7 ' + switchQty + '\u4e2a', val: switchCost, unit: '\u5143' },
+    { name: '\u5c3e\u90e8\u52a0\u5de5\u8d39', formula: '\u63091\u6761\u8ba1', val: tailFee, unit: '\u5143' },
+    { name: '\u7aef\u5b50\u8d39', formula: terminalPrice + ' \u00d7 ' + terminalQty + '\u4e2a', val: terminalCost, unit: '\u5143' },
+    { name: '\u8fd0\u8d39', formula: '\u63091\u6761\u8ba1', val: shipFee, unit: '\u5143' },
+    { name: '\u5c0f\u8ba1\uff08\u4e0d\u542b\u5229\u6da6\u7a0e\uff09', formula: '\u6bcf\u7c73\u6210\u672c\u00d7' + wireLength + ' + \u52a0\u5de5\u8d39 + \u914d\u4ef6', val: subtotal, unit: '\u5143', total: true },
+    { name: '\u5229\u6da6\uff08' + (profitRate*100).toFixed(0) + '%\uff09', formula: '\u5c0f\u8ba1 \u00d7 ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '\u5143', total: true },
+    { name: '\u7a0e\u989d\uff08' + (taxRate*100).toFixed(0) + '%\uff09', formula: '(\u5c0f\u8ba1+\u5229\u6da6) \u00d7 ' + (taxRate*100).toFixed(0) + '%', val: taxAmt, unit: '\u5143', total: true },
+    { name: '\u2605 \u6574\u6761\u542b\u7a0e\u603b\u6210\u672c \u2605', formula: '\u5c0f\u8ba1 + \u5229\u6da6 + \u7a0e\u989d', val: total, unit: '\u5143', total: true },
+  ];
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var cls = '';
+    if (it.total) cls = 'total-row';
+    else if (it.highlight) cls = 'highlight-row';
+    html += '<div class="items-row ' + cls + '">';
+    html += '<div><div class="ir-name">' + (i+1) + '. ' + it.name + '</div><div class="ir-formula">' + it.formula + '</div></div>';
+    html += '<div class="ir-val">' + it.val.toFixed(4) + ' <span style="font-size:11px;font-weight:400;color:var(--gray-500)">' + it.unit + '</span></div>';
+    html += '</div>';
+  }
+  document.getElementById('itemsList').innerHTML = html;
+
+  // chart
+  var chartData = [
+    { label: '\u5bfc\u4f53\u6750\u6599', value: conductorCostPerM * wireLength, color: '#3b82f6' },
+    { label: '\u80f6\u76ae\u6210\u672c', value: insulCostPerM * wireLength, color: '#8b5cf6' },
+    { label: '\u8f90\u7167\u8d39', value: radCostTotal, color: '#06b6d4' },
+    { label: '\u63d2\u5934', value: plugCost, color: '#f59e0b' },
+    { label: '\u5f00\u5173', value: switchCost, color: '#ef4444' },
+    { label: '\u5c3e\u90e8\u52a0\u5de5', value: tailFee, color: '#10b981' },
+    { label: '\u7aef\u5b50', value: terminalCost, color: '#64748b' },
+    { label: '\u8fd0\u8d39', value: shipFee, color: '#94a3b8' },
+    { label: '\u5229\u6da6', value: profit, color: '#f97316' },
+    { label: '\u7a0e\u989d', value: taxAmt, color: '#e11d48' },
+  ].filter(function(d){ return d.value > 0; });
+  var ctx2 = document.getElementById('costChart');
+  if (chartInstance) {
+    chartInstance.data.labels = chartData.map(function(d){ return d.label; });
+    chartInstance.data.datasets[0].data = chartData.map(function(d){ return d.value; });
+    chartInstance.data.datasets[0].backgroundColor = chartData.map(function(d){ return d.color; });
+    chartInstance.update();
+  } else if (ctx2) {
+    chartInstance = new Chart(ctx2.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: chartData.map(function(d){ return d.label; }),
+        datasets: [{ data: chartData.map(function(d){ return d.value; }), backgroundColor: chartData.map(function(d){ return d.color; }), borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                return ctx.label + ': \u00a5' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+  var legendEl = document.getElementById('chartLegend');
+  legendEl.innerHTML = chartData.map(function(d){
+    return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': \u00a5' + d.value.toFixed(3) + '</span></div>';
+  }).join('');
+}
+function setText(id, text) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+function switchPlugTab(name) {
+  var btns = document.querySelectorAll('.tab-btn-sm');
+  btns[0].classList.toggle('active', name === 'detail');
+  btns[1].classList.toggle('active', name === 'chart');
+  document.getElementById('plug-tab-detail').classList.toggle('active', name === 'detail');
+  document.getElementById('plug-tab-chart').classList.toggle('active', name === 'chart');
+}
+
+// ############################################################
+// PACKAGING LOGIC (3-column: type left, params middle, result right)
+// ############################################################
+var currentPkgType = '牛皮盒';
+
+var PKG_PRESETS = {
+  '牛皮盒':      { l:280, w:72,  h:150, price:1.61,  markup:65,  process:0,   material:'3层加强芯瓦楞纸' },
+  '外箱':        { l:597, w:335, h:516, price:2.88,  markup:20.5, process:0,   material:'5层加强芯瓦楞纸' },
+  '纸卡':        { l:768, w:123, h:0,   price:1.61,  markup:60,  process:0,   material:'3层加强芯瓦楞纸' },
+  '珍珠棉-粘底': { l:220, w:200, h:21,  price:350,  markup:0,   process:0,   material:'16Kg/立方' },
+  '珍珠棉-不粘底':{ l:227, w:150, h:6,   price:320,  markup:0,   process:0,   material:'16Kg/立方' },
+  '珍珠棉片':    { l:120, w:110, h:5,   price:320,  markup:0,   process:0,   material:'16Kg/立方' },
+};
+
+function selectPkgType(type, btn) {
+  currentPkgType = type;
+  var btns = document.querySelectorAll('.pkg-type-btn');
+  for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('active'); }
+  if (btn) btn.classList.add('active');
+  var title = document.getElementById('pkgFormTitle');
+  title.textContent = type + ' 参数录入';
+  document.getElementById('pkgResultLabel').textContent = type + ' 含税总成本';
+  // Show/hide height field
+  document.getElementById('pkgFieldH').style.display = (type === '纸卡') ? 'none' : '';
+  // Show/hide markup field (pearl cotton types don't use markup)
+  var isPearl = type.indexOf('珍珠棉') !== -1;
+  document.getElementById('pkgFieldMarkup').style.display = isPearl ? 'none' : '';
+  // Price label
+  var priceLabel = document.getElementById('pkgPriceLabel');
+  if (isPearl) {
+    priceLabel.innerHTML = '单价 <span class="unit-label">(元/Kg)</span>';
+  } else {
+    priceLabel.innerHTML = '单价 <span class="unit-label">(元/张)</span>';
+  }
+  // Material select
+  var matSel = document.getElementById('pkgMaterial');
+  if (type === '外箱') matSel.value = '5层加强芯瓦楞纸';
+  else if (isPearl) matSel.value = '16Kg/立方';
+  else matSel.value = '3层加强芯瓦楞纸';
+  // Hide material field for pearl cotton
+  document.getElementById('pkgFieldMaterial').style.display = isPearl ? 'none' : '';
+  // Fill preset values
+  var p = PKG_PRESETS[type];
+  if (p) {
+    setVal('pkgL', p.l);
+    setVal('pkgW', p.w);
+    setVal('pkgH', p.h);
+    setVal('pkgPrice', p.price);
+    setVal('pkgMarkup', p.markup);
+    setVal('pkgProcess', p.process);
+  }
+  updatePkgFormulaHint(type);
+  calcPkg();
+}
+
+function updatePkgFormulaHint(type) {
+  var box = document.getElementById('pkgFormulaHint');
+  if (type === '牛皮盒') box.innerHTML = '<strong>\u725b\u76ae\u76d2\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)+15)/500 \u00d7 (\u5bbd+\u9ad8+\u5bbd/2+55)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  else if (type === '外箱') box.innerHTML = '<strong>\u5916\u7bb1\u516c\u5f0f\uff1a</strong>\u9762\u79ef = ((\u957f+\u5bbd)\u00d72+30)/1000 \u00d7 (\u5bbd+\u9ad8)/1000<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  else if (type === '纸卡') box.innerHTML = '<strong>\u7eb8\u5361\u516c\u5f0f\uff1a</strong>\u9762\u79ef = (\u957f/1000) \u00d7 (\u5bbd/1000)<br><strong>\u6750\u6599\u6210\u672c</strong> = \u9762\u79ef \u00d7 \u5355\u4ef7<br><strong>\u542b\u7a0e\u6210\u672c</strong> = \u6750\u6599\u6210\u672c \u00d7 (1 + \u52a0\u4e58\u7cfb\u6570%)<br><strong>\u603b\u6210\u672c</strong> = \u542b\u7a0e\u6210\u672c + \u52a0\u5de5\u8d39';
+  else if (type === '珍珠棉-粘底') box.innerHTML = '<strong>\u73ab\u73c0\u68c9(\u7c98\u5e95)\u516c\u5f0f\uff1a</strong>\u4f53\u79ef = (\u957f\u00d7\u5bbd\u00d7(\u9ad8+3))/10\u2079<br><strong>\u6750\u6599\u6210\u672c</strong> = \u4f53\u79ef \u00d7 \u5355\u4ef7(\u5143/Kg)<br><strong>\u603b\u6210\u672c</strong> = \u6750\u6599\u6210\u672c + \u52a0\u5de5\u8d39';
+  else box.innerHTML = '<strong>' + type + '\u516c\u5f0f\uff1a</strong>\u4f53\u79ef = (\u957f\u00d7\u5bbd\u00d7\u9ad8)/10\u2079<br><strong>\u6750\u6599\u6210\u672c</strong> = \u4f53\u79ef \u00d7 \u5355\u4ef7(\u5143/Kg)<br><strong>\u603b\u6210\u672c</strong> = \u6750\u6599\u6210\u672c + \u52a0\u5de5\u8d39';
+}
+
+function calcPkg() {
+  var type = currentPkgType;
+  var l = parseFloat(document.getElementById('pkgL').value) || 0;
+  var w = parseFloat(document.getElementById('pkgW').value) || 0;
+  var h = parseFloat(document.getElementById('pkgH').value) || 0;
+  var price = parseFloat(document.getElementById('pkgPrice').value) || 0;
+  var markup = parseFloat(document.getElementById('pkgMarkup').value) || 0;
+  var processFee = parseFloat(document.getElementById('pkgProcess').value) || 0;
+  var area = 0, volume = 0, sizeLabel = '';
+  if (type === '牛皮盒') {
+    area = ((l + w) + 15) / 500 * (w + h + w/2 + 55) / 1000;
+    sizeLabel = '\u9762\u79ef ' + area.toFixed(6) + ' \u33a1';
+  } else if (type === '外箱') {
+    area = ((l + w) * 2 + 30) / 1000 * (w + h) / 1000;
+    sizeLabel = '\u9762\u79ef ' + area.toFixed(6) + ' \u33a1';
+  } else if (type === '纸卡') {
+    area = (l / 1000) * (w / 1000);
+    sizeLabel = '\u9762\u79ef ' + area.toFixed(6) + ' \u33a1';
+  } else if (type === '珍珠棉-粘底') {
+    volume = (l * w * (h + 3)) / Math.pow(1000, 3);
+    sizeLabel = '\u4f53\u79ef ' + volume.toFixed(9) + ' m\u00b3';
+  } else {
+    volume = (l * w * h) / Math.pow(1000, 3);
+    sizeLabel = '\u4f53\u79ef ' + volume.toFixed(9) + ' m\u00b3';
+  }
+  var matCost = (area > 0 ? area : volume) * price;
+  var taxCost = matCost * (1 + markup / 100);
+  var total = taxCost + processFee;
+  document.getElementById('pkgResultTotal').textContent = total.toFixed(4);
+  // Detail
+  var dh = '';
+  dh += '<div style="padding:8px 0;color:var(--gray-600);"><strong>\u5c3a\u5bf8\uff1a</strong> ' + l + ' \u00d7 ' + w + (h > 0 ? ' \u00d7 ' + h : '') + ' mm &nbsp;\u2192&nbsp; ' + sizeLabel + '</div>';
+  dh += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">';
+  dh += '<div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--gray-500);">\u6750\u6599\u6210\u672c</div><div style="font-size:18px;font-weight:700;color:var(--primary-dark);">\u00a5 ' + matCost.toFixed(4) + '</div></div>';
+  dh += '<div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--gray-500);">\u542b\u7a0e\u6210\u672c (\u00d7' + (1+markup/100).toFixed(2) + ')</div><div style="font-size:18px;font-weight:700;color:var(--orange);">\u00a5 ' + taxCost.toFixed(4) + '</div></div>';
+  dh += '</div>';
+  if (processFee > 0) dh += '<div style="margin-top:8px;padding:8px 12px;background:var(--gray-50);border-radius:8px;"><span style="font-size:12px;color:var(--gray-500);">\u52a0\u5de5\u8d39\uff1a</span><strong style="color:var(--gray-900);">\u00a5 ' + processFee.toFixed(2) + '</strong></div>';
+  dh += '<div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,#1a6fc4,#0ea5e9);border-radius:8px;color:#fff;text-align:center;"><div style="font-size:12px;opacity:0.8;">\u603b\u6210\u672c\uff08\u542b\u7a0e\uff09</div><div style="font-size:24px;font-weight:800;">\u00a5 ' + total.toFixed(4) + '</div></div>';
+  document.getElementById('pkgDetailContent').innerHTML = dh;
+}
+
+// ############################################################
+// ALUMINUM LOGIC
+// ############################################################
+var aluChart = null;
+function calcAlu() {
+  var rawPrice  = parseFloat(document.getElementById('aluRawPrice').value) || 0;
+  var procPrice = parseFloat(document.getElementById('aluProcPrice').value) || 0;
+  var surfPrice = parseFloat(document.getElementById('aluSurfPrice').value) || 0;
+  var packFee   = parseFloat(document.getElementById('aluPackFee').value) || 0;
+  var length    = parseFloat(document.getElementById('aluLength').value) || 0;
+  var weight    = parseFloat(document.getElementById('aluWeight').value) || 0;
+  var taxRate   = (parseFloat(document.getElementById('aluTaxRate').value) || 0);
+  var weightPerM = length > 0 ? (weight / length * 1000) : 0;
+  var rawCostPiece  = rawPrice * weight / 1000000;
+  var procCostPiece = procPrice * weight / 1000000;
+  var surfCostPiece = surfPrice * weight / 1000000;
+  var taxPiece = (rawCostPiece + procCostPiece + surfCostPiece) * (taxRate / 100);
+  var totalPiece = rawCostPiece + procCostPiece + surfCostPiece + packFee + taxPiece;
+  document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 克';
+  document.getElementById('aluResultTotal').textContent = totalPiece.toFixed(4);
+  var rows = [
+    { label: '\u539f\u6750\u6599', val: rawCostPiece },
+    { label: '\u52a0\u5de5\u8d39', val: procCostPiece },
+    { label: '\u8868\u9762\u5904\u7406', val: surfCostPiece },
+    { label: '\u5305\u88c5', val: packFee },
+    { label: '\u7a0e\u8d1f (' + taxRate + '%)', val: taxPiece },
+  ];
+  var dh = '';
+  for (var i = 0; i < rows.length; i++) {
+    dh += '<div class="items-row"><span class="ir-label">' + rows[i].label + '</span><span class="ir-val">\u00a5 ' + rows[i].val.toFixed(4) + '</span></div>';
+  }
+  dh += '<div class="items-row total-row"><span class="ir-label">\u603b\u6210\u672c\uff08\u6574\u6761\u00b7\u542b\u7a0e\uff09</span><span class="ir-val">\u00a5 ' + totalPiece.toFixed(4) + '</span></div>';
+  document.getElementById('aluDetailList').innerHTML = dh;
+  // Chart
+  var ctx3 = document.getElementById('aluChart');
+  if (!ctx3) return;
+  var colors = ['#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ef4444'];
+  if (aluChart) {
+    aluChart.data.datasets[0].data = rows.map(function(r){ return r.val; });
+    aluChart.update();
+  } else {
+    aluChart = new Chart(ctx3.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: rows.map(function(r){ return r.label; }),
+        datasets: [{ data: rows.map(function(r){ return r.val; }), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                return ctx.label + ': \u00a5' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ############################################################
+// INIT
+// ############################################################
+window.addEventListener('DOMContentLoaded', function() {
+  onInsulationChange();
+  onWireSpecChange();
+  selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
+  calcAlu();
+});
+</script>
 </body>
 </html>
