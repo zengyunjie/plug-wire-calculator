@@ -441,7 +441,7 @@
   <h1>成本测算工具</h1>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
-    <button class="tab-btn" onclick="switchPage('pkg')">📦 包材测算</button>
+    <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
   </div>
 </div>
@@ -876,9 +876,9 @@
           </div>
         </div>
         <div class="field" id="pkgFieldMarkup">
-          <label>加乘系数 <span class="unit-label">(%)</span></label>
+          <label>系数 <span class="unit-label">(小数，如0.65)</span></label>
           <div class="input-wrap">
-            <input type="number" id="pkgMarkup" value="65" min="0" step="1" oninput="calcPkg()">
+            <input type="number" id="pkgMarkup" value="0.65" min="0" step="0.01" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldProcess">
@@ -888,10 +888,13 @@
           </div>
         </div>
       </div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="preset-btn" onclick="clearPkg()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+      </div>
       <div id="pkgFormulaHint" style="margin-top:12px;padding:10px;background:var(--gray-50);border-radius:8px;font-size:12px;color:var(--gray-500);line-height:1.8;font-family:'Courier New',monospace;">
         <strong>牛皮盒公式：</strong>面积 = ((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
         <strong>材料成本</strong> = 面积 × 单价<br>
-        <strong>含税成本</strong> = 材料成本 × (1 + 加乘系数%)<br>
+        <strong>含税成本</strong> = 材料成本 × (1 + 系数)<br>
         <strong>总成本</strong> = 含税成本 + 加工费
       </div>
     </div>
@@ -919,7 +922,7 @@
         <strong>珍珠棉(不粘底/片)：</strong>体积=(长×宽×高)/10⁹<br>
         ─────────────────<br>
         材料成本 = 面积/体积 × 单价<br>
-        含税成本 = 材料成本 × (1 + 加乘系数%)<br>
+        含税成本 = 材料成本 × (1 + 系数)<br>
         总成本 = 含税成本 + 加工费
       </div>
     </div>
@@ -993,6 +996,9 @@
             <input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()">
           </div>
         </div>
+      </div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="preset-btn" onclick="clearAlu()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
       </div>
     </div>
 
@@ -1441,7 +1447,7 @@ function calcPkg() {
     sizeLabel = '\u4f53\u79ef ' + volume.toFixed(9) + ' m\u00b3';
   }
   var matCost = (area > 0 ? area : volume) * price;
-  var taxCost = matCost * (1 + markup / 100);
+  var taxCost = matCost * (1 + markup);
   var total = taxCost + processFee;
   document.getElementById('pkgResultTotal').textContent = total.toFixed(4);
   // Detail
@@ -1449,7 +1455,7 @@ function calcPkg() {
   dh += '<div style="padding:8px 0;color:var(--gray-600);"><strong>\u5c3a\u5bf8\uff1a</strong> ' + l + ' \u00d7 ' + w + (h > 0 ? ' \u00d7 ' + h : '') + ' mm &nbsp;\u2192&nbsp; ' + sizeLabel + '</div>';
   dh += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">';
   dh += '<div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--gray-500);">\u6750\u6599\u6210\u672c</div><div style="font-size:18px;font-weight:700;color:var(--primary-dark);">\u00a5 ' + matCost.toFixed(4) + '</div></div>';
-  dh += '<div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--gray-500);">\u542b\u7a0e\u6210\u672c (\u00d7' + (1+markup/100).toFixed(2) + ')</div><div style="font-size:18px;font-weight:700;color:var(--orange);">\u00a5 ' + taxCost.toFixed(4) + '</div></div>';
+  dh += '<div style="background:var(--gray-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--gray-500);">\u542b\u7a0e\u6210\u672c (\u00d7' + (1+markup).toFixed(2) + ')</div><div style="font-size:18px;font-weight:700;color:var(--orange);">\u00a5 ' + taxCost.toFixed(4) + '</div></div>';
   dh += '</div>';
   if (processFee > 0) dh += '<div style="margin-top:8px;padding:8px 12px;background:var(--gray-50);border-radius:8px;"><span style="font-size:12px;color:var(--gray-500);">\u52a0\u5de5\u8d39\uff1a</span><strong style="color:var(--gray-900);">\u00a5 ' + processFee.toFixed(2) + '</strong></div>';
   dh += '<div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,#1a6fc4,#0ea5e9);border-radius:8px;color:#fff;text-align:center;"><div style="font-size:12px;opacity:0.8;">\u603b\u6210\u672c\uff08\u542b\u7a0e\uff09</div><div style="font-size:24px;font-weight:800;">\u00a5 ' + total.toFixed(4) + '</div></div>';
@@ -1521,6 +1527,25 @@ function calcAlu() {
       }
     });
   }
+}
+
+// ############################################################
+// CLEAR FUNCTIONS
+// ############################################################
+function clearPkg() {
+  ['pkgL','pkgW','pkgH','pkgPrice','pkgMarkup','pkgProcess'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('pkgMaterial').selectedIndex = 0;
+  calcPkg();
+}
+function clearAlu() {
+  ['aluLength','aluWeight','aluRawPrice','aluProcPrice','aluSurfPrice','aluPackFee','aluTaxRate'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  calcAlu();
 }
 
 // ############################################################
