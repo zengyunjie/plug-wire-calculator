@@ -58,38 +58,57 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--slate-200);
-    padding: 12px 20px;
-    display: flex; align-items: center; gap: 16px;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
   }
   .top-nav .logo {
     display: flex; align-items: center; gap: 8px;
-    font-size: 18px; font-weight: 800; color: var(--slate-900);
+    font-size: 17px; font-weight: 800; color: var(--slate-900);
     white-space: nowrap; text-decoration: none;
   }
   .top-nav .logo .dot {
-    width: 28px; height: 28px; border-radius: 8px;
+    width: 26px; height: 26px; border-radius: 7px;
     background: var(--primary);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .top-nav .logo .dot svg { width: 16px; height: 16px; color: #fff; }
+  .top-nav .logo .dot svg { width: 15px; height: 15px; color: #fff; }
   .top-nav .nav-back {
     font-size: 13px; font-weight: 600; color: var(--slate-500);
     text-decoration: none; transition: color 0.2s;
-    white-space: nowrap;
+    white-space: nowrap; margin-left: auto;
   }
   .top-nav .nav-back:hover { color: var(--primary); }
 
+  /* ========== MOBILE RESULT BAR ========== */
+  .mobile-result-bar {
+    display: none;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    color: #fff; padding: 14px 16px;
+    position: sticky; top: 50px; z-index: 99;
+    box-shadow: var(--shadow-lg);
+  }
+  .mobile-result-bar .mrb-top {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .mobile-result-bar .mrb-label { font-size: 11px; opacity: 0.8; font-weight: 500; }
+  .mobile-result-bar .mrb-total { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); }
+  .mobile-result-bar .mrb-meta {
+    display: flex; gap: 16px; margin-top: 6px; font-size: 12px;
+  }
+  .mobile-result-bar .mrb-meta span { opacity: 0.75; }
+
   /* ========== PAGE TABS ========== */
   .page-tabs {
-    max-width: 1340px; margin: 0 auto; padding: 16px 20px 0;
+    max-width: 1340px; margin: 0 auto; padding: 14px 20px 0;
     display: flex; gap: 2px;
   }
   .page-tab-btn {
-    padding: 10px 24px; border: none; background: var(--slate-100);
+    padding: 9px 22px; border: none; background: var(--slate-100);
     border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-    font-size: 14px; font-weight: 600; color: var(--slate-500);
+    font-size: 13px; font-weight: 600; color: var(--slate-500);
     cursor: pointer; transition: all 0.2s; font-family: inherit;
+    flex: 1; text-align: center;
   }
   .page-tab-btn.active {
     background: #fff; color: var(--primary);
@@ -103,22 +122,34 @@
     display: grid; grid-template-columns: 1fr 400px;
     gap: 20px; align-items: start;
   }
-  .left-col { display: flex; flex-direction: column; gap: 16px; }
-  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 84px; }
+  .left-col { display: flex; flex-direction: column; gap: 12px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 74px; }
 
   /* ========== CARD ========== */
   .card {
     background: #fff; border-radius: var(--radius);
-    box-shadow: var(--shadow-sm); padding: 20px;
+    box-shadow: var(--shadow-sm); padding: 16px 18px;
     border: 1px solid var(--slate-200);
     transition: box-shadow 0.2s;
   }
   .card:hover { box-shadow: var(--shadow); }
   .card-title {
     font-size: 14px; font-weight: 700; color: var(--slate-800);
-    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-    padding-bottom: 12px; border-bottom: 1px solid var(--slate-100);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--slate-100);
+    cursor: pointer; user-select: none;
+    -webkit-user-select: none;
   }
+  .card-title .collapse-arrow {
+    margin-left: auto; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--slate-100);
+    transition: transform 0.25s; font-size: 12px; color: var(--slate-500);
+    flex-shrink: 0;
+  }
+  .card.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .card.collapsed .card-body { display: none; }
+  .card.collapsed .card-title { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
   .badge {
     background: var(--primary-light); color: var(--primary);
     font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
@@ -129,20 +160,20 @@
   }
 
   /* ========== FORM GRID ========== */
-  .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 
-  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
   .field label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
   .field .unit-label { font-size: 11px; color: var(--slate-400); font-weight: 400; }
 
   .input-wrap { position: relative; display: flex; align-items: center; }
   .input-wrap input,
   .input-wrap select {
-    width: 100%; height: 40px; padding: 0 12px;
+    width: 100%; height: 38px; padding: 0 10px;
     border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm);
-    font-size: 14px; color: var(--slate-900); background: #fff;
+    font-size: 13px; color: var(--slate-900); background: #fff;
     outline: none; -webkit-appearance: none; appearance: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-family: inherit;
@@ -154,18 +185,14 @@
   }
   .input-wrap select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center;
-    padding-right: 32px; cursor: pointer;
-  }
-  .input-wrap input.auto-fill {
-    background: var(--primary-light); border-color: #FED7AA;
-    color: var(--primary-dark); font-weight: 600; cursor: default;
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 30px; cursor: pointer;
   }
 
   /* ========== TYPE GRID ========== */
   .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .type-btn {
-    padding: 10px 6px; border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
+    padding: 9px 6px; border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
     background: #fff; font-size: 12px; font-weight: 600; color: var(--slate-600);
     cursor: pointer; transition: all 0.2s; text-align: center;
     font-family: inherit;
@@ -179,24 +206,24 @@
   /* ========== RESULT CARD ========== */
   .result-card {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    color: #fff; border-radius: var(--radius); padding: 24px 20px;
+    color: #fff; border-radius: var(--radius); padding: 22px 18px;
     text-align: center; box-shadow: var(--shadow-lg);
   }
   .result-label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; font-weight: 500; }
-  .total-price { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-  .total-price .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
-  .cost-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
+  .total-price { font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .total-price .currency { font-size: 20px; vertical-align: super; margin-right: 2px; }
+  .cost-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
   .cost-item {
     background: rgba(255,255,255,0.15); border-radius: var(--radius-sm);
-    padding: 10px 12px; text-align: left;
+    padding: 8px 10px; text-align: left;
   }
-  .cost-item .ci-label { font-size: 11px; opacity: 0.75; font-weight: 500; }
-  .cost-item .ci-val { font-size: 16px; font-weight: 700; font-family: var(--font-mono); }
+  .cost-item .ci-label { font-size: 10px; opacity: 0.75; font-weight: 500; }
+  .cost-item .ci-val { font-size: 15px; font-weight: 700; font-family: var(--font-mono); }
 
   /* ========== ITEMS ROWS ========== */
   .items-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; border-bottom: 1px solid var(--slate-100); font-size: 13px;
+    padding: 8px 12px; border-bottom: 1px solid var(--slate-100); font-size: 13px;
   }
   .items-row:last-child { border-bottom: none; }
   .items-row .ir-label { color: var(--slate-600); font-weight: 500; }
@@ -205,26 +232,31 @@
     background: var(--primary-light); border-radius: 6px;
     border-bottom: none;
   }
-  .items-row.highlight-row .ir-val { color: var(--primary-dark); font-size: 16px; }
+  .items-row.highlight-row .ir-val { color: var(--primary-dark); font-size: 15px; }
   .items-row.total-row {
     background: var(--primary-light); font-weight: 700;
     border-top: 2px solid var(--slate-200); border-bottom: none;
     border-radius: var(--radius-sm);
   }
-  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 18px; }
+  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 17px; }
 
   /* ========== CHART ========== */
-  .chart-wrap { position: relative; height: 220px; margin-top: 16px; }
+  .chart-wrap { position: relative; height: 200px; margin-top: 14px; }
 
   /* ========== FORMULA BOX ========== */
   .formula-box {
     background: var(--slate-50); border-radius: var(--radius-sm);
-    padding: 14px 16px; margin-top: 12px; font-size: 12px;
-    color: var(--slate-600); line-height: 1.9;
+    padding: 12px 14px; margin-top: 10px; font-size: 11px;
+    color: var(--slate-600); line-height: 1.8;
     font-family: var(--font-mono); border: 1px solid var(--slate-100);
   }
 
-  /* ========== PACKAGING ITEM TABLE ========== */
+  /* ========== PACKAGING ITEM TABLE (desktop) ========== */
+  .pkg-table-header {
+    display: grid; grid-template-columns: 1fr 80px 80px 80px 40px; gap: 8px;
+    font-size: 11px; font-weight: 600; color: var(--slate-500);
+    padding-bottom: 8px; border-bottom: 1px solid var(--slate-100); margin-bottom: 4px;
+  }
   .pkg-item-row {
     display: grid; grid-template-columns: 1fr 80px 80px 80px 40px; gap: 8px;
     align-items: center; padding: 8px 0; border-bottom: 1px solid var(--slate-100);
@@ -244,49 +276,89 @@
   }
   .add-row-btn:hover { border-color: var(--primary); background: var(--primary-light); }
 
+  /* Mobile packaging item cards */
+  .pkg-mobile-cards { display: none; flex-direction: column; gap: 8px; }
+  .pkg-mobile-card {
+    background: var(--slate-50); border-radius: var(--radius-sm);
+    border: 1px solid var(--slate-200); padding: 10px 12px;
+    display: flex; flex-direction: column; gap: 6px;
+    position: relative;
+  }
+  .pkg-mobile-card .pmc-header {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pkg-mobile-card .pmc-tag { font-size: 12px; }
+  .pkg-mobile-card .pmc-del {
+    width: 28px; height: 28px; border: none; background: #fef2f2; color: #ef4444;
+    border-radius: 6px; cursor: pointer; font-size: 14px; display: flex;
+    align-items: center; justify-content: center;
+  }
+  .pkg-mobile-card .pmc-info {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    font-size: 12px; color: var(--slate-600);
+  }
+  .pkg-mobile-card .pmc-info strong { color: var(--primary-dark); }
+
   /* ========== FOOTER ========== */
   .site-footer {
-    text-align: center; padding: 24px 20px; margin-top: 40px;
+    text-align: center; padding: 20px 16px; margin-top: 32px;
     font-size: 12px; color: var(--slate-400);
     border-top: 1px solid var(--slate-200);
   }
 
-  /* ========== RESPONSIVE ========== */
+  /* ================================================================ */
+  /*  RESPONSIVE                                                       */
+  /* ================================================================ */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
     .page-tabs { padding: 12px 12px 0; }
-    .page-tab-btn { padding: 8px 18px; font-size: 13px; }
+    .page-tab-btn { padding: 8px 16px; font-size: 13px; }
   }
   @media (max-width: 768px) {
-    .top-nav { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .top-nav { padding: 8px 12px; gap: 8px; }
     .top-nav .logo { font-size: 15px; }
-    .top-nav .logo .dot { width: 24px; height: 24px; border-radius: 6px; }
-    .top-nav .nav-back { font-size: 12px; }
-    .layout { padding: 12px; gap: 12px; }
-    .card { padding: 16px; border-radius: var(--radius-sm); }
-    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 10px; }
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .input-wrap input, .input-wrap select { height: 44px; font-size: 16px; }
-    .result-card { padding: 20px 16px; }
+    .top-nav .logo .dot { width: 22px; height: 22px; border-radius: 6px; }
+    .top-nav .logo .dot svg { width: 13px; height: 13px; }
+    .top-nav .nav-back { font-size: 11px; }
+    .page-tabs { padding: 10px 10px 0; }
+    .page-tab-btn { padding: 8px 14px; font-size: 12px; }
+    .layout { padding: 10px; gap: 10px; }
+    .card { padding: 12px 14px; border-radius: var(--radius-sm); }
+    .card-title { font-size: 13px; margin-bottom: 8px; padding-bottom: 8px; }
+    .card-title .collapse-arrow { width: 20px; height: 20px; font-size: 10px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .input-wrap input, .input-wrap select { height: 40px; font-size: 16px; }
+    .result-card { padding: 18px 14px; }
     .total-price { font-size: 32px; }
     .cost-breakdown { gap: 6px; }
     .type-grid { grid-template-columns: repeat(2, 1fr); }
-    .chart-wrap { height: 180px; }
-    .pkg-item-row { grid-template-columns: 1fr 60px 60px 60px 36px; font-size: 12px; }
-    .site-footer { padding: 16px; margin-top: 24px; font-size: 11px; }
+    .chart-wrap { height: 160px; }
+    .site-footer { padding: 14px; margin-top: 20px; font-size: 11px; }
     input[type="number"], input[type="text"], select, textarea { font-size: 16px !important; }
+    /* Desktop right-col hidden on mobile */
+    .right-col { display: none; }
+    /* Mobile result bar visible */
+    .mobile-result-bar { display: block; }
   }
-  @media (max-width: 480px) {
-    .top-nav .logo { font-size: 14px; }
+  @media (max-width: 640px) {
+    /* Type grid → 3 column compact */
+    .type-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .type-btn { padding: 8px 4px; font-size: 11px; }
+    /* Desktop pkg item rows hidden, mobile cards shown */
+    .pkg-table-header { display: none; }
+    .pkg-item-row { display: none; }
+    .pkg-mobile-cards { display: flex; }
+    .mobile-result-bar { top: 44px; }
+    .mobile-result-bar .mrb-total { font-size: 24px; }
+    .mobile-result-bar .mrb-meta { font-size: 11px; gap: 12px; }
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
-    .total-price { font-size: 28px; }
-    .cost-breakdown { grid-template-columns: 1fr; }
-    .type-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 380px) {
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
-    .pkg-item-row { grid-template-columns: 1fr; gap: 6px; }
+    .total-price { font-size: 26px; }
+    .type-grid { grid-template-columns: 1fr 1fr; }
+    .cost-breakdown { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -298,13 +370,22 @@
     <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     包装 & 铝材成本测算
   </div>
-  <a class="nav-back" href="index.html">← 返回工具集首页</a>
+  <a class="nav-back" href="index.html">← 返回首页</a>
+</div>
+
+<!-- ========== MOBILE RESULT BAR ========== -->
+<div class="mobile-result-bar" id="mobileResultBar">
+  <div class="mrb-top">
+    <div class="mrb-label"><span id="mobileResultLabel">含税总成本</span></div>
+    <div class="mrb-total">¥<span id="mobileResultTotal">—</span></div>
+  </div>
+  <div class="mrb-meta" id="mobileResultMeta"></div>
 </div>
 
 <!-- ========== PAGE TABS ========== -->
 <div class="page-tabs">
-  <button class="page-tab-btn active" onclick="switchTab('pkg')">📦 包装成本测算</button>
-  <button class="page-tab-btn" onclick="switchTab('alu')">🔩 铝材成本测算</button>
+  <button class="page-tab-btn active" onclick="switchTab('pkg')">📦 包装成本</button>
+  <button class="page-tab-btn" onclick="switchTab('alu')">🔩 铝材成本</button>
 </div>
 
 <div class="layout">
@@ -312,10 +393,13 @@
 
     <!-- ==================== 包装成本 ==================== -->
     <div id="tab-pkg">
-      <!-- 添加包装项 -->
       <div class="card">
-        <div class="card-title">添加包装项</div>
-        <div style="margin-bottom:12px;font-size:12px;color:var(--slate-500);">选择类型并填入尺寸和单价</div>
+        <div class="card-title" onclick="toggleSection(this)">
+          添加包装项
+          <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="card-body">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--slate-500);">选择类型并填入尺寸和单价</div>
         <div class="type-grid" id="typeGrid">
           <button class="type-btn active" onclick="selectType('纸盒')" data-type="纸盒">纸盒</button>
           <button class="type-btn" onclick="selectType('外箱')" data-type="外箱">外箱</button>
@@ -324,7 +408,7 @@
           <button class="type-btn" onclick="selectType('珍珠棉-不粘底')" data-type="珍珠棉-不粘底">珍珠棉(不粘底)</button>
           <button class="type-btn" onclick="selectType('珍珠棉片')" data-type="珍珠棉片">珍珠棉片</button>
         </div>
-        <div style="margin-top:14px;">
+        <div style="margin-top:12px;">
           <div class="form-grid-4" id="pkgInputGrid">
             <div class="field">
               <label>长<span class="unit-label">(mm)</span></label>
@@ -361,21 +445,30 @@
               <div class="input-wrap"><input type="number" id="pkgProcess" value="0" min="0" step="0.01"></div>
             </div>
             <div class="field" style="display:flex;align-items:flex-end;">
-              <button onclick="addPkgItem()" style="width:100%;height:40px;border:none;background:var(--primary);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">+ 添加</button>
+              <button onclick="addPkgItem()" style="width:100%;height:38px;border:none;background:var(--primary);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">+ 添加</button>
             </div>
           </div>
         </div>
+        </div>
       </div>
 
-      <!-- 已添加的包装项列表 -->
+      <!-- 包装项清单 -->
       <div class="card">
-        <div class="card-title">包装项清单 <span class="badge" id="pkgCount">0 项</span></div>
-        <div id="pkgList" style="min-height:60px;font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">
-          尚未添加任何包装项，请在上方选择类型后点击「添加」
+        <div class="card-title" onclick="toggleSection(this)">
+          包装项清单 <span class="badge" id="pkgCount">0 项</span>
+          <span class="collapse-arrow">▼</span>
         </div>
+        <div class="card-body">
+        <!-- Desktop list -->
+        <div id="pkgListDesktop" style="min-height:60px;font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">
+          尚未添加任何包装项
+        </div>
+        <!-- Mobile cards -->
+        <div class="pkg-mobile-cards" id="pkgListMobile"></div>
         <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--slate-200);display:flex;justify-content:space-between;font-size:15px;font-weight:700;">
           <span>包装总成本（含税）</span>
           <span id="pkgTotal" style="color:var(--primary-dark);">¥ 0.0000</span>
+        </div>
         </div>
       </div>
     </div>
@@ -383,7 +476,11 @@
     <!-- ==================== 铝材成本 ==================== -->
     <div id="tab-alu" style="display:none;">
       <div class="card">
-        <div class="card-title">① 型材基础参数</div>
+        <div class="card-title" onclick="toggleSection(this)">
+          ① 型材基础参数
+          <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="card-body">
         <div class="form-grid-2">
           <div class="field">
             <label>型材长度<span class="unit-label">(MM)</span></label>
@@ -398,10 +495,15 @@
           <span style="color:var(--slate-500);">每米重量（自动计算）：</span>
           <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 克</strong>
         </div>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-title">② 费用明细</div>
+        <div class="card-title" onclick="toggleSection(this)">
+          ② 费用明细
+          <span class="collapse-arrow">▼</span>
+        </div>
+        <div class="card-body">
         <div class="form-grid-2">
           <div class="field">
             <label>原材料单价<span class="unit-label">(元/吨)</span></label>
@@ -424,13 +526,13 @@
             <div class="input-wrap"><input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()"></div>
           </div>
         </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ==================== 右侧结果面板 ==================== -->
+  <!-- ==================== 右侧结果面板 (desktop) ==================== -->
   <div class="right-col">
-    <!-- 包装结果 -->
     <div id="result-pkg">
       <div class="result-card">
         <div class="result-label">包装含税总成本</div>
@@ -458,7 +560,6 @@
       </div>
     </div>
 
-    <!-- 铝材结果 -->
     <div id="result-alu" style="display:none;">
       <div class="result-card">
         <div class="result-label">铝材含税总成本（整条）</div>
@@ -510,8 +611,24 @@ function switchTab(tab) {
   document.getElementById('tab-alu').style.display = tab === 'alu' ? '' : 'none';
   document.getElementById('result-pkg').style.display = tab === 'pkg' ? '' : 'none';
   document.getElementById('result-alu').style.display = tab === 'alu' ? '' : 'none';
+  updateMobileResult(tab);
   if (tab === 'alu') calcAlu();
   if (tab === 'pkg') calcPkg();
+}
+
+function updateMobileResult(tab) {
+  var label = document.getElementById('mobileResultLabel');
+  var total = document.getElementById('mobileResultTotal');
+  var meta = document.getElementById('mobileResultMeta');
+  if (tab === 'pkg') {
+    if (label) label.textContent = '包装含税总成本';
+    if (total) total.textContent = document.getElementById('pkgResultTotal').textContent;
+    if (meta) meta.innerHTML = '<span>项数 <strong id="mobilePkgCount">0</strong></span>';
+  } else {
+    if (label) label.textContent = '铝材含税总成本';
+    if (total) total.textContent = document.getElementById('aluResultTotal').textContent;
+    if (meta) meta.innerHTML = '<span>每米 <strong id="mobileAluWeightPM">—</strong> g</span>';
+  }
 }
 
 // ============================================================
@@ -542,7 +659,6 @@ function selectType(type) {
     materialSel.value = type === '外箱' ? '5层加强芯瓦楞纸' : '3层加强芯瓦楞纸';
   }
 
-  // Preset dimensions per type
   const presets = {
     '纸盒':     { l: 280, w: 72,  h: 150, price: 1.61, markup: 65 },
     '外箱':     { l: 597, w: 335, h: 516, price: 2.88, markup: 20.5 },
@@ -624,28 +740,49 @@ function removePkgItem(id) {
 }
 
 function renderPkgList() {
-  const el = document.getElementById('pkgList');
   document.getElementById('pkgCount').textContent = pkgItems.length + ' 项';
+  var mobileCount = document.getElementById('mobilePkgCount');
+  if (mobileCount) mobileCount.textContent = pkgItems.length;
+
+  const elDesktop = document.getElementById('pkgListDesktop');
+  const elMobile = document.getElementById('pkgListMobile');
 
   if (pkgItems.length === 0) {
-    el.innerHTML = '<div style="font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">尚未添加任何包装项</div>';
+    elDesktop.innerHTML = '<div style="font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">尚未添加任何包装项</div>';
+    elMobile.innerHTML = '<div style="font-size:13px;color:var(--slate-500);text-align:center;padding:12px 0;">尚未添加任何包装项</div>';
     return;
   }
 
-  let html = '<div style="font-size:11px;color:var(--slate-500);padding-bottom:8px;border-bottom:1px solid var(--slate-100);margin-bottom:4px;">';
-  html += '<div style="display:grid;grid-template-columns:1fr 80px 80px 80px 40px;gap:8px;"><span>类型</span><span>尺寸</span><span>材料成本</span><span>含税成本</span><span></span></div></div>';
-
+  // Desktop list (table style)
+  let htmlD = '<div class="pkg-table-header"><span>类型</span><span>尺寸</span><span>材料成本</span><span>含税成本</span><span></span></div>';
   pkgItems.forEach(item => {
-    html += '<div class="pkg-item-row">';
-    html += '<span><span class="pkg-type-tag">' + item.type + '</span></span>';
-    html += '<span style="font-size:12px;">' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + '</span>';
-    html += '<span style="font-weight:600;">¥' + item._calc.matCost.toFixed(4) + '</span>';
-    html += '<span style="font-weight:700;color:var(--primary-dark);">¥' + item._calc.total.toFixed(4) + '</span>';
-    html += '<button class="del-btn" onclick="removePkgItem(' + item.id + ')">×</button>';
-    html += '</div>';
+    htmlD += '<div class="pkg-item-row">';
+    htmlD += '<span><span class="pkg-type-tag">' + item.type + '</span></span>';
+    htmlD += '<span style="font-size:12px;">' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + '</span>';
+    htmlD += '<span style="font-weight:600;">¥' + item._calc.matCost.toFixed(4) + '</span>';
+    htmlD += '<span style="font-weight:700;color:var(--primary-dark);">¥' + item._calc.total.toFixed(4) + '</span>';
+    htmlD += '<button class="del-btn" onclick="removePkgItem(' + item.id + ')">×</button>';
+    htmlD += '</div>';
   });
+  elDesktop.innerHTML = htmlD;
 
-  el.innerHTML = html;
+  // Mobile cards
+  let htmlM = '';
+  pkgItems.forEach(item => {
+    htmlM += '<div class="pkg-mobile-card">';
+    htmlM += '<div class="pmc-header">';
+    htmlM += '<span class="pkg-type-tag pmc-tag">' + item.type + '</span>';
+    htmlM += '<button class="pmc-del" onclick="removePkgItem(' + item.id + ')">×</button>';
+    htmlM += '</div>';
+    htmlM += '<div class="pmc-info">';
+    htmlM += '<span>尺寸: ' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + '</span>';
+    htmlM += '<span>材料: <strong>¥' + item._calc.matCost.toFixed(4) + '</strong></span>';
+    htmlM += '<span>' + item._calc.sizeLabel + '</span>';
+    htmlM += '<span>含税: <strong>¥' + item._calc.total.toFixed(4) + '</strong></span>';
+    htmlM += '</div>';
+    htmlM += '</div>';
+  });
+  elMobile.innerHTML = htmlM;
 }
 
 function calcPkg() {
@@ -655,7 +792,10 @@ function calcPkg() {
   document.getElementById('pkgTotal').textContent = '¥ ' + grandTotal.toFixed(4);
   document.getElementById('pkgResultTotal').textContent = grandTotal.toFixed(4);
 
-  // Detail list
+  // Update mobile bar
+  var mobTotal = document.getElementById('mobileResultTotal');
+  if (mobTotal) mobTotal.textContent = grandTotal.toFixed(4);
+
   const detailEl = document.getElementById('pkgDetailList');
   if (pkgItems.length === 0) {
     detailEl.innerHTML = '<div style="font-size:12px;color:var(--slate-500);text-align:center;padding:16px 0;">添加包装项后自动展示</div>';
@@ -694,30 +834,28 @@ function calcAlu() {
 
   const weightPerM = length > 0 ? (weight / length * 1000) : 0;
 
-  // Per-piece costs
   const rawCostPiece    = rawPrice * weight / 1000000;
   const procCostPiece   = procPrice * weight / 1000000;
   const surfCostPiece   = surfPrice * weight / 1000000;
 
-  // Per-meter costs
   const rawCostMeter    = rawPrice * weightPerM / 1000000;
   const procCostMeter   = procPrice * weightPerM / 1000000;
   const surfCostMeter   = surfPrice * weightPerM / 1000000;
 
-  // Tax on piece
   const taxPiece = (rawCostPiece + procCostPiece + surfCostPiece) * (taxRate / 100);
 
-  // Totals
   const totalPiece = rawCostPiece + procCostPiece + surfCostPiece + packFee + taxPiece;
   const totalMeter = rawCostMeter + procCostMeter + surfCostMeter;
 
-  // Display weight per meter
   document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 克';
-
-  // Result total
   document.getElementById('aluResultTotal').textContent = totalPiece.toFixed(4);
 
-  // Detail list
+  // Update mobile bar
+  var mobTotal = document.getElementById('mobileResultTotal');
+  if (mobTotal) mobTotal.textContent = totalPiece.toFixed(4);
+  var mobWeightPM = document.getElementById('mobileAluWeightPM');
+  if (mobWeightPM) mobWeightPM.textContent = weightPerM.toFixed(2);
+
   const detailEl = document.getElementById('aluDetailList');
   let html = '';
 
@@ -736,7 +874,6 @@ function calcAlu() {
     html += '</div>';
   });
 
-  // Sub row for per-meter
   html += '<div class="items-row highlight-row">';
   html += '<span class="ir-label">不含税小计（每米）</span>';
   html += '<span class="ir-val">¥' + totalMeter.toFixed(4) + '</span>';
@@ -749,7 +886,6 @@ function calcAlu() {
 
   detailEl.innerHTML = html;
 
-  // Chart
   updateAluChart([
     rawCostPiece, procCostPiece, surfCostPiece, packFee, taxPiece
   ], [
@@ -761,7 +897,7 @@ function updateAluChart(data, labels) {
   const ctx = document.getElementById('aluChart');
   if (!ctx) return;
 
-  const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ef4444'];
+  const colors = ['#3b82f6', '#10B981', '#f59e0b', '#8b5cf6', '#ef4444'];
 
   if (aluChart) aluChart.destroy();
   aluChart = new Chart(ctx, {
@@ -792,6 +928,12 @@ function updateAluChart(data, labels) {
       }
     }
   });
+}
+
+// Collapse toggle
+function toggleSection(titleEl) {
+  var card = titleEl.parentElement;
+  card.classList.toggle('collapsed');
 }
 
 // ============================================================
