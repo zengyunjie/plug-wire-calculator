@@ -58,27 +58,46 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--slate-200);
-    padding: 12px 20px;
-    display: flex; align-items: center; gap: 16px;
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 12px;
   }
   .top-nav .logo {
     display: flex; align-items: center; gap: 8px;
-    font-size: 18px; font-weight: 800; color: var(--slate-900);
+    font-size: 17px; font-weight: 800; color: var(--slate-900);
     white-space: nowrap; text-decoration: none;
   }
   .top-nav .logo .dot {
-    width: 28px; height: 28px; border-radius: 8px;
+    width: 26px; height: 26px; border-radius: 7px;
     background: var(--primary);
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
   }
-  .top-nav .logo .dot svg { width: 16px; height: 16px; color: #fff; }
+  .top-nav .logo .dot svg { width: 15px; height: 15px; color: #fff; }
   .top-nav .nav-back {
     font-size: 13px; font-weight: 600; color: var(--slate-500);
     text-decoration: none; transition: color 0.2s;
-    white-space: nowrap;
+    white-space: nowrap; margin-left: auto;
   }
   .top-nav .nav-back:hover { color: var(--primary); }
+
+  /* ========== MOBILE RESULT BAR ========== */
+  .mobile-result-bar {
+    display: none;
+    background: linear-gradient(135deg, var(--slate-900), #1E3A5F);
+    color: #fff; padding: 14px 16px;
+    position: sticky; top: 52px; z-index: 99;
+    box-shadow: var(--shadow-lg);
+  }
+  .mobile-result-bar .mrb-top {
+    display: flex; justify-content: space-between; align-items: baseline;
+  }
+  .mobile-result-bar .mrb-label { font-size: 11px; opacity: 0.7; font-weight: 500; }
+  .mobile-result-bar .mrb-total { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); }
+  .mobile-result-bar .mrb-meta {
+    display: flex; gap: 16px; margin-top: 6px; font-size: 12px;
+  }
+  .mobile-result-bar .mrb-meta span { opacity: 0.7; }
+  .mobile-result-bar .mrb-meta strong { font-family: var(--font-mono); }
 
   /* ========== LAYOUT ========== */
   .layout {
@@ -86,43 +105,55 @@
     display: grid; grid-template-columns: 1fr 400px;
     gap: 20px; align-items: start;
   }
-  .left-col { display: flex; flex-direction: column; gap: 16px; }
-  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 84px; }
+  .left-col { display: flex; flex-direction: column; gap: 12px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 76px; }
 
   /* ========== CARD ========== */
   .card {
     background: #fff; border-radius: var(--radius);
-    box-shadow: var(--shadow-sm); padding: 20px;
+    box-shadow: var(--shadow-sm); padding: 16px 18px;
     border: 1px solid var(--slate-200);
     transition: box-shadow 0.2s;
   }
   .card:hover { box-shadow: var(--shadow); }
   .card-title {
     font-size: 14px; font-weight: 700; color: var(--slate-800);
-    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-    padding-bottom: 12px; border-bottom: 1px solid var(--slate-100);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--slate-100);
+    cursor: pointer; user-select: none;
+    -webkit-user-select: none;
   }
   .card-title .badge {
     background: var(--primary-light); color: var(--primary);
     font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
   }
+  .card-title .collapse-arrow {
+    margin-left: auto; width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; background: var(--slate-100);
+    transition: transform 0.25s; font-size: 12px; color: var(--slate-500);
+    flex-shrink: 0;
+  }
+  .card.collapsed .collapse-arrow { transform: rotate(-90deg); }
+  .card.collapsed .card-body { display: none; }
+  .card.collapsed .card-title { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
   /* ========== FORM GRID ========== */
-  .form-grid { display: grid; gap: 12px; }
+  .form-grid { display: grid; gap: 10px; }
   .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
   .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
   .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
-  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
   .field label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
   .field .unit-label { font-size: 11px; color: var(--slate-400); font-weight: 400; }
 
   .input-wrap { position: relative; display: flex; align-items: center; }
   .input-wrap input,
   .input-wrap select {
-    width: 100%; height: 40px; padding: 0 12px;
+    width: 100%; height: 38px; padding: 0 10px;
     border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm);
-    font-size: 14px; color: var(--slate-900); background: #fff;
+    font-size: 13px; color: var(--slate-900); background: #fff;
     outline: none; -webkit-appearance: none; appearance: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-family: inherit;
@@ -133,13 +164,13 @@
     box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
   .input-wrap .unit {
-    position: absolute; right: 12px; font-size: 11px;
+    position: absolute; right: 10px; font-size: 11px;
     color: var(--slate-400); pointer-events: none; font-weight: 500;
   }
   .input-wrap select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center;
-    padding-right: 32px; cursor: pointer;
+    background-repeat: no-repeat; background-position: right 10px center;
+    padding-right: 30px; cursor: pointer;
   }
   .input-wrap input.auto-fill {
     background: var(--primary-light); border-color: #BFDBFE;
@@ -147,74 +178,81 @@
   }
 
   /* ========== PRESET BUTTONS ========== */
-  .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
   .preset-btn {
-    padding: 6px 14px; background: var(--primary-light);
+    padding: 6px 12px; background: var(--primary-light);
     color: var(--primary-dark); border: 1px solid #BFDBFE;
     border-radius: 20px; font-size: 12px; font-weight: 600;
     cursor: pointer; transition: all 0.15s; font-family: inherit;
+    white-space: nowrap;
   }
   .preset-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .preset-grid-mobile {
+    display: none;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px; margin-bottom: 12px;
+  }
+  .preset-grid-mobile .preset-btn { text-align: center; padding: 8px 6px; }
 
   /* ========== RESULT CARD ========== */
   .result-card {
     background: linear-gradient(135deg, var(--slate-900), #1E3A5F);
-    color: #fff; border-radius: var(--radius); padding: 24px 20px;
+    color: #fff; border-radius: var(--radius); padding: 22px 18px;
     text-align: center; box-shadow: var(--shadow-lg);
   }
   .result-card .label { font-size: 13px; opacity: 0.75; margin-bottom: 4px; font-weight: 500; }
-  .result-card .total-price { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-  .result-card .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
+  .result-card .total-price { font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .result-card .currency { font-size: 20px; vertical-align: super; margin-right: 2px; }
   .result-card .per-unit { font-size: 12px; opacity: 0.65; margin-top: 4px; }
   .cost-breakdown {
     margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
   }
   .cost-item {
     background: rgba(255,255,255,0.12); border-radius: var(--radius-sm);
-    padding: 10px 12px; text-align: left;
+    padding: 8px 10px; text-align: left;
   }
-  .cost-item .ci-label { font-size: 11px; opacity: 0.7; font-weight: 500; }
-  .cost-item .ci-val { font-size: 16px; font-weight: 700; font-family: var(--font-mono); }
+  .cost-item .ci-label { font-size: 10px; opacity: 0.7; font-weight: 500; }
+  .cost-item .ci-val { font-size: 15px; font-weight: 700; font-family: var(--font-mono); }
 
   /* ========== ITEMS LIST ========== */
-  .items-list { display: flex; flex-direction: column; gap: 3px; }
+  .items-list { display: flex; flex-direction: column; gap: 1px; }
   .items-row {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px;
+    padding: 7px 10px; border-radius: var(--radius-sm); font-size: 12px;
   }
   .items-row:nth-child(odd) { background: var(--slate-50); }
   .items-row .ir-name { color: var(--slate-600); font-weight: 500; }
-  .items-row .ir-formula { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+  .items-row .ir-formula { font-size: 10px; color: var(--slate-400); margin-top: 2px; }
   .items-row .ir-val { font-weight: 700; color: var(--slate-900); font-family: var(--font-mono); }
   .items-row.highlight-row { background: var(--green-light); border: 1px solid #A7F3D0; }
-  .items-row.highlight-row .ir-val { color: #059669; font-size: 15px; }
+  .items-row.highlight-row .ir-val { color: #059669; font-size: 14px; }
   .items-row.total-row {
     background: var(--primary-light); border: 1px solid #BFDBFE;
     border-radius: var(--radius-sm);
   }
-  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 16px; }
+  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 15px; }
 
   /* ========== CHART ========== */
-  .chart-wrap { position: relative; height: 220px; }
+  .chart-wrap { position: relative; height: 200px; }
 
   /* ========== FORMULA BOX ========== */
   .formula-box {
     background: var(--slate-50); border-radius: var(--radius-sm);
-    padding: 14px 16px; margin-top: 12px; font-size: 12px;
-    color: var(--slate-600); line-height: 1.9;
+    padding: 12px 14px; margin-top: 10px; font-size: 11px;
+    color: var(--slate-600); line-height: 1.8;
     font-family: var(--font-mono); border: 1px solid var(--slate-100);
   }
 
   /* ========== ACCESSORIES TABLE ========== */
-  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
-  .acc-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .acc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .acc-table th {
-    background: var(--slate-50); padding: 9px 12px; text-align: left;
+    background: var(--slate-50); padding: 8px 10px; text-align: left;
     font-weight: 600; font-size: 12px; color: var(--slate-500);
     border-bottom: 2px solid var(--slate-200);
   }
   .acc-table td {
-    padding: 8px 12px; border-bottom: 1px solid var(--slate-100);
+    padding: 7px 10px; border-bottom: 1px solid var(--slate-100);
     vertical-align: middle;
   }
   .acc-table td input {
@@ -227,35 +265,91 @@
   .acc-table td.cost-cell { font-weight: 700; color: var(--orange); font-family: var(--font-mono); }
   .acc-table td.auto-cell { color: var(--primary-dark); font-weight: 600; background: var(--primary-light); border-radius: 5px; }
 
+  /* Accessories card layout on mobile */
+  .acc-cards { display: none; flex-direction: column; gap: 8px; }
+  .acc-card-item {
+    background: var(--slate-50); border-radius: var(--radius-sm);
+    border: 1px solid var(--slate-200); padding: 10px 12px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .acc-card-item .aci-name { font-weight: 700; font-size: 13px; color: var(--slate-800); grid-column: 1 / -1; }
+  .acc-card-item .aci-field label { display: block; font-size: 10px; color: var(--slate-500); margin-bottom: 2px; }
+  .acc-card-item .aci-field input {
+    width: 100%; height: 36px; padding: 0 8px;
+    border: 1.5px solid var(--slate-200); border-radius: 6px;
+    font-size: 14px; outline: none; font-family: inherit;
+  }
+  .acc-card-item .aci-field input:focus { border-color: var(--primary); }
+  .acc-card-item .aci-cost {
+    grid-column: 1 / -1; text-align: right;
+    font-size: 13px; color: var(--slate-500);
+  }
+  .acc-card-item .aci-cost strong { color: var(--orange); font-family: var(--font-mono); font-size: 15px; }
+
   /* ========== MATERIAL RATIO TABLE ========== */
-  .material-ratio-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
-  .mat-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
+  .material-ratio-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mat-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .mat-table th {
-    background: var(--slate-50); padding: 9px 10px; text-align: center;
-    font-weight: 600; font-size: 12px; color: var(--slate-500);
+    background: var(--slate-50); padding: 8px 8px; text-align: center;
+    font-weight: 600; font-size: 11px; color: var(--slate-500);
     border-bottom: 2px solid var(--slate-200);
   }
   .mat-table th:first-child { text-align: left; }
   .mat-table td {
-    padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--slate-100);
-    font-size: 13px;
+    padding: 6px 8px; text-align: center; border-bottom: 1px solid var(--slate-100);
+    font-size: 12px;
   }
   .mat-table td:first-child { text-align: left; font-weight: 600; }
   .mat-table .editable-cell input {
-    width: 64px; height: 32px; padding: 0 6px;
+    width: 56px; height: 30px; padding: 0 6px;
     border: 1.5px solid var(--slate-200); border-radius: 6px;
     font-size: 13px; text-align: center; outline: none; font-family: inherit;
   }
   .mat-table .editable-cell input:focus { border-color: var(--primary); }
   .mat-table tr:last-child td { font-weight: 700; border-top: 2px solid var(--slate-200); }
 
+  /* Material cards on mobile */
+  .mat-cards { display: none; flex-direction: column; gap: 8px; }
+  .mat-card-item {
+    background: var(--slate-50); border-radius: var(--radius-sm);
+    border: 1px solid var(--slate-200); padding: 10px 12px;
+  }
+  .mat-card-item .mci-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px;
+  }
+  .mat-card-item .mci-name { font-weight: 700; font-size: 13px; color: var(--slate-800); }
+  .mat-card-item .mci-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; font-size: 11px; margin-bottom: 4px;
+  }
+  .mat-card-item .mci-row .mci-kv { }
+  .mat-card-item .mci-row .mci-kv .mci-label { color: var(--slate-500); }
+  .mat-card-item .mci-row .mci-kv .mci-val { font-weight: 600; font-family: var(--font-mono); color: var(--slate-800); }
+  .mat-card-item .mci-input-row {
+    display: flex; align-items: center; gap: 8px;
+    padding-top: 6px; border-top: 1px solid var(--slate-200);
+  }
+  .mat-card-item .mci-input-row label { font-size: 11px; color: var(--slate-500); white-space: nowrap; }
+  .mat-card-item .mci-input-row input {
+    width: 60px; height: 32px; padding: 0 6px;
+    border: 1.5px solid var(--slate-200); border-radius: 6px;
+    font-size: 14px; text-align: center; outline: none; font-family: inherit;
+  }
+  .mat-card-item .mci-input-row input:focus { border-color: var(--primary); }
+  .mat-card-total {
+    background: var(--primary-light); border: 1px solid #BFDBFE;
+    border-radius: var(--radius-sm); padding: 10px 12px;
+  }
+  .mat-card-total .mci-row .mci-val { color: var(--primary-dark); }
+
   /* ========== TAB PANE ========== */
   .tab-btns {
     display: flex; gap: 2px; background: var(--slate-100);
-    padding: 3px; border-radius: var(--radius-sm); margin-bottom: 14px;
+    padding: 3px; border-radius: var(--radius-sm); margin-bottom: 12px;
   }
   .tab-btn-sm {
-    flex: 1; padding: 7px 0; border: none; background: none;
+    flex: 1; padding: 6px 0; border: none; background: none;
     border-radius: 6px; font-size: 12px; font-weight: 600;
     color: var(--slate-500); cursor: pointer; transition: all 0.2s;
     font-family: inherit;
@@ -268,61 +362,76 @@
   .tab-pane.active { display: block; }
 
   /* ========== MSG ========== */
-  .msg { font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 6px; }
+  .msg { font-size: 12px; padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 6px; }
   .msg-warn { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
   .msg-ok { background: var(--green-light); color: #059669; border: 1px solid #A7F3D0; }
 
   /* ========== HINT ========== */
-  .hint { font-size: 11px; color: var(--slate-400); margin-top: 3px; }
+  .hint { font-size: 10px; color: var(--slate-400); margin-top: 2px; }
 
   /* ========== FOOTER ========== */
   .site-footer {
-    text-align: center; padding: 24px 20px; margin-top: 40px;
+    text-align: center; padding: 20px 16px; margin-top: 32px;
     font-size: 12px; color: var(--slate-400);
     border-top: 1px solid var(--slate-200);
   }
 
-  /* ========== RESPONSIVE ========== */
+  /* ================================================================ */
+  /*  RESPONSIVE                                                       */
+  /* ================================================================ */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
   }
   @media (max-width: 768px) {
-    .top-nav { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .top-nav { padding: 8px 12px; gap: 8px; }
     .top-nav .logo { font-size: 15px; }
-    .top-nav .logo .dot { width: 24px; height: 24px; border-radius: 6px; }
-    .top-nav .nav-back { font-size: 12px; }
-    .layout { padding: 12px; gap: 12px; }
-    .card { padding: 16px; border-radius: var(--radius-sm); }
-    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 10px; }
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .input-wrap input, .input-wrap select { height: 44px; font-size: 16px; }
-    .result-card { padding: 20px 16px; }
-    .result-card .total-price { font-size: 36px; }
+    .top-nav .logo .dot { width: 22px; height: 22px; border-radius: 6px; }
+    .top-nav .logo .dot svg { width: 13px; height: 13px; }
+    .top-nav .nav-back { font-size: 11px; }
+    .layout { padding: 10px; gap: 10px; }
+    .card { padding: 12px 14px; border-radius: var(--radius-sm); }
+    .card-title { font-size: 13px; margin-bottom: 8px; padding-bottom: 8px; }
+    .card-title .collapse-arrow { width: 20px; height: 20px; font-size: 10px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .input-wrap input, .input-wrap select { height: 40px; font-size: 16px; }
+    .result-card { padding: 18px 14px; }
+    .result-card .total-price { font-size: 32px; }
     .cost-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .cost-item .ci-val { font-size: 14px; }
-    .chart-wrap { height: 180px; }
-    .items-row { padding: 7px 10px; font-size: 12px; }
-    .acc-table th, .acc-table td { padding: 6px 8px; font-size: 12px; }
-    .acc-table td input { height: 36px; font-size: 16px; }
-    .mat-table { font-size: 11px; min-width: 600px; }
-    .mat-table td { padding: 5px 6px; }
-    .mat-table th, .mat-table td { font-size: 11px; }
-    .formula-box { font-size: 11px; padding: 10px 12px; }
-    .site-footer { padding: 16px; margin-top: 24px; font-size: 11px; }
+    .cost-item .ci-val { font-size: 13px; }
+    .chart-wrap { height: 160px; }
+    .items-row { padding: 6px 8px; font-size: 11px; }
+    .formula-box { font-size: 10px; padding: 10px 12px; }
+    .site-footer { padding: 14px; margin-top: 20px; font-size: 11px; }
     input[type="number"], input[type="text"], select, textarea { font-size: 16px !important; }
     .preset-grid { gap: 4px; }
     .preset-btn { padding: 5px 10px; font-size: 11px; }
+    /* Desktop result card hidden on mobile */
+    .right-col { display: none; }
+    /* Mobile result bar visible */
+    .mobile-result-bar { display: block; }
   }
-  @media (max-width: 480px) {
-    .top-nav .logo { font-size: 14px; }
+  @media (max-width: 640px) {
+    /* Tables → Card layout */
+    .acc-table { display: none; }
+    .acc-cards { display: flex; }
+    .mat-table { display: none; }
+    .mat-cards { display: flex; }
+    /* Quick Presets → compact */
+    .desktop-presets { display: none; }
+    .preset-grid-mobile { display: grid; }
+    /* Form grid: single column for dense fields */
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
-    .cost-breakdown { grid-template-columns: 1fr; }
-    .result-card .total-price { font-size: 30px; }
-    .preset-btn { padding: 5px 8px; font-size: 11px; }
+    .form-grid-single { grid-template-columns: 1fr !important; }
+    .mobile-result-bar { top: 46px; }
+    .mobile-result-bar .mrb-total { font-size: 24px; }
+    .mobile-result-bar .mrb-meta { font-size: 11px; gap: 12px; }
   }
   @media (max-width: 380px) {
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
+    .cost-breakdown { grid-template-columns: 1fr; }
+    .mobile-result-bar .mrb-total { font-size: 22px; }
+    .acc-card-item { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -334,41 +443,76 @@
     <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
     插头线成本计价
   </div>
-  <a class="nav-back" href="index.html">← 返回工具集首页</a>
+  <a class="nav-back" href="index.html">← 返回首页</a>
+</div>
+
+<!-- ========== MOBILE RESULT BAR (visible only ≤768px) ========== -->
+<div class="mobile-result-bar">
+  <div class="mrb-top">
+    <div class="mrb-label">含税总成本</div>
+    <div class="mrb-total">¥<span id="mobileTotalCost">—</span></div>
+  </div>
+  <div class="mrb-meta">
+    <span>每米成本 <strong>¥<span id="mobilePerMeter">—</span></strong></span>
+    <span>不含税 <strong>¥<span id="mobileSubTotal">—</span></strong></span>
+    <span>利润 <strong>¥<span id="mobileProfit">—</span></strong></span>
+  </div>
 </div>
 
 <div class="layout">
   <div class="left-col">
 
-    <!-- 快速预设 -->
+    <!-- 快速预设 (desktop) -->
     <div class="card">
-      <div class="card-title">⚡ 快速预设 <span class="badge">美规 · 纯铜 · 点击快速填入</span></div>
-      <div style="font-size:12px;color:var(--slate-500);margin-bottom:10px;">芯数 × 线径 × 线长 三维组合</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--slate-400);padding-bottom:6px;border-bottom:1px solid var(--slate-100);margin-bottom:8px;">
-        <div></div><div>0.5mm²</div><div>0.824mm²</div><div></div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ⚡ 快速预设 <span class="badge">美规 · 纯铜</span>
+        <span class="collapse-arrow">▼</span>
       </div>
-      <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;">
-        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">两芯</div>
-        <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
-        <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
-        <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
-        <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">三芯</div>
-        <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
-        <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
-        <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
-        <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
-      </div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--slate-100);">
-        <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+      <div class="card-body">
+        <div class="desktop-presets">
+          <div style="font-size:12px;color:var(--slate-500);margin-bottom:8px;">芯数 × 线径 × 线长 三维组合</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--slate-400);padding-bottom:6px;border-bottom:1px solid var(--slate-100);margin-bottom:8px;">
+            <div></div><div>0.5mm²</div><div>0.824mm²</div><div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;">
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">两芯</div>
+            <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
+            <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
+            <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
+            <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">三芯</div>
+            <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
+            <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
+            <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
+            <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
+          </div>
+        </div>
+        <!-- Mobile presets: compact 2-col grid -->
+        <div class="preset-grid-mobile">
+          <button class="preset-btn" onclick="applyPreset('2c-05-16')">两芯 0.5mm² 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-82-16')">两芯 0.824mm² 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-05-61')">两芯 0.5mm² 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-82-61')">两芯 0.824mm² 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-05-16')">三芯 0.5mm² 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-82-16')">三芯 0.824mm² 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-05-61')">三芯 0.5mm² 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-82-61')">三芯 0.824mm² 6.1m</button>
+        </div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--slate-100);">
+          <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+        </div>
       </div>
     </div>
 
     <!-- ① 产品基本信息 -->
     <div class="card">
-      <div class="card-title">① 产品基本信息</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ① 产品基本信息
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
           <label>导体材质</label>
@@ -396,11 +540,16 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- ② 线材规格参数 -->
     <div class="card">
-      <div class="card-title">② 线材规格参数</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ② 线材规格参数
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
           <label>线径 (mm²)</label>
@@ -418,21 +567,21 @@
           </div>
         </div>
         <div class="field">
-          <label>单支直径 (mm) <span style="color:#94A3B8">自动带出</span></label>
+          <label>单支直径 (mm) <span style="color:#94A3B8">自动</span></label>
           <div class="input-wrap">
             <input type="number" id="strandDia" class="auto-fill" readonly>
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
-          <label>总支数 <span style="color:#94A3B8">自动带出</span></label>
+          <label>总支数 <span style="color:#94A3B8">自动</span></label>
           <div class="input-wrap">
             <input type="number" id="totalStrands" class="auto-fill" readonly>
             <span class="unit">支</span>
           </div>
         </div>
         <div class="field">
-          <label>加捻损耗 <span style="color:#94A3B8">自动计算</span></label>
+          <label>加捻损耗 <span style="color:#94A3B8">自动</span></label>
           <div class="input-wrap">
             <input type="number" id="twistFactor" class="auto-fill" readonly step="0.01">
           </div>
@@ -455,17 +604,22 @@
               <option value="XLPE">XLPE</option>
             </select>
           </div>
-          <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
-            <span style="font-size:11px;color:var(--slate-400);">密度：</span>
-            <span id="insulDensityDisplay" style="font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 8px;border-radius:4px;">1.35 g/cm³</span>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
+            <span style="font-size:10px;color:var(--slate-400);">密度：</span>
+            <span id="insulDensityDisplay" style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:4px;">1.35 g/cm³</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
 
     <!-- ③ 原材料单价 -->
     <div class="card">
-      <div class="card-title">③ 原材料单价</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ③ 原材料单价
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
       <div class="form-grid form-grid-4">
         <div class="field">
           <label>铜原料单价</label>
@@ -496,20 +650,26 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- ④ 材质支数分配 -->
     <div class="card">
-      <div class="card-title">④ 材质支数分配 <span class="badge" id="strandBadge">总支数：16</span></div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ④ 材质支数分配 <span class="badge" id="strandBadge">总支数：16</span>
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
+      <!-- Desktop table -->
       <div class="material-ratio-wrap">
         <table class="mat-table">
           <thead>
             <tr>
               <th>材质</th>
-              <th>支数（可编辑）</th>
+              <th>支数</th>
               <th>密度 g/cm³</th>
               <th>单价 元/kg</th>
-              <th>单支截面积 mm²</th>
+              <th>截面积 mm²</th>
               <th>总截面积 mm²</th>
               <th>每米重量 g</th>
               <th>每米成本 元</th>
@@ -557,12 +717,70 @@
           </tbody>
         </table>
       </div>
+      <!-- Mobile material cards -->
+      <div class="mat-cards" id="matCards">
+        <div class="mat-card-item">
+          <div class="mci-header"><span class="mci-name">🔶 铜线</span></div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">密度</div><div class="mci-val">8.9 g/cm³</div></div>
+            <div class="mci-kv"><div class="mci-label">单价</div><div class="mci-val" id="mcm-copperPrice">105</div></div>
+            <div class="mci-kv"><div class="mci-label">截面积</div><div class="mci-val" id="mcm-copperArea">—</div></div>
+          </div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-copperWeight">—</div></div>
+            <div class="mci-kv"><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-copperCost" style="color:var(--primary-dark)">—</div></div>
+            <div class="mci-kv"></div>
+          </div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="copperStrands_m" value="16" min="0" onchange="syncMobileStrands()"></div>
+        </div>
+        <div class="mat-card-item">
+          <div class="mci-header"><span class="mci-name">⬜ 铝线</span></div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">密度</div><div class="mci-val">3.0 g/cm³</div></div>
+            <div class="mci-kv"><div class="mci-label">单价</div><div class="mci-val" id="mcm-aluminumPrice">39</div></div>
+            <div class="mci-kv"><div class="mci-label">截面积</div><div class="mci-val" id="mcm-aluminumArea">—</div></div>
+          </div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-aluminumWeight">—</div></div>
+            <div class="mci-kv"><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-aluminumCost" style="color:var(--primary-dark)">—</div></div>
+            <div class="mci-kv"></div>
+          </div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="aluminumStrands_m" value="0" min="0" onchange="syncMobileStrands()"></div>
+        </div>
+        <div class="mat-card-item">
+          <div class="mci-header"><span class="mci-name">🟤 铜包铜线</span></div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">密度</div><div class="mci-val">8.6 g/cm³</div></div>
+            <div class="mci-kv"><div class="mci-label">单价</div><div class="mci-val" id="mcm-ccaPrice">76</div></div>
+            <div class="mci-kv"><div class="mci-label">截面积</div><div class="mci-val" id="mcm-ccaArea">—</div></div>
+          </div>
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-ccaWeight">—</div></div>
+            <div class="mci-kv"><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-ccaCost" style="color:var(--primary-dark)">—</div></div>
+            <div class="mci-kv"></div>
+          </div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="ccaStrands_m" value="0" min="0" onchange="syncMobileStrands()"></div>
+        </div>
+        <div class="mat-card-total">
+          <div class="mci-row">
+            <div class="mci-kv"><div class="mci-label">合计支数</div><div class="mci-val" id="mcm-totalStrands">16</div></div>
+            <div class="mci-kv"><div class="mci-label">总截面积</div><div class="mci-val" id="mcm-totalArea">—</div></div>
+            <div class="mci-kv"><div class="mci-label">总每米成本</div><div class="mci-val" id="mcm-totalCost" style="color:var(--primary-dark)">—</div></div>
+          </div>
+        </div>
+      </div>
       <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px;">✅ 支数分配正确</div>
+      </div>
     </div>
 
     <!-- ⑤ 配件费用 -->
     <div class="card">
-      <div class="card-title">⑤ 配件费用</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ⑤ 配件费用
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
+      <!-- Desktop table -->
       <div class="table-wrap">
       <table class="acc-table">
         <thead>
@@ -590,11 +808,37 @@
         </tbody>
       </table>
       </div>
+      <!-- Mobile accessory cards -->
+      <div class="acc-cards">
+        <div class="acc-card-item">
+          <span class="aci-name">🔌 插头</span>
+          <div class="aci-field"><label>单价 (元)</label><input type="number" id="plugPrice_m" value="1.2" min="0" step="0.1" onchange="syncAccField('plugPrice')"></div>
+          <div class="aci-field"><label>数量</label><input type="number" id="plugQty_m" value="1" min="0" onchange="syncAccField('plugQty')"></div>
+          <div class="aci-cost">小计 <strong id="plugCost_m">¥1.20</strong></div>
+        </div>
+        <div class="acc-card-item">
+          <span class="aci-name">🔘 开关</span>
+          <div class="aci-field"><label>单价 (元)</label><input type="number" id="switchPrice_m" value="1" min="0" step="0.1" onchange="syncAccField('switchPrice')"></div>
+          <div class="aci-field"><label>数量</label><input type="number" id="switchQty_m" value="0" min="0" onchange="syncAccField('switchQty')"></div>
+          <div class="aci-cost">小计 <strong id="switchCost_m">¥0.00</strong></div>
+        </div>
+        <div class="acc-card-item">
+          <span class="aci-name">🔧 端子</span>
+          <div class="aci-field"><label>单价 (元)</label><input type="number" id="terminalPrice_m" value="0.05" min="0" step="0.01" onchange="syncAccField('terminalPrice')"></div>
+          <div class="aci-field"><label>数量</label><input type="number" id="terminalQty_m" value="0" min="0" onchange="syncAccField('terminalQty')"></div>
+          <div class="aci-cost">小计 <strong id="terminalCost_m">¥0.00</strong></div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <!-- ⑥ 加工费 -->
     <div class="card">
-      <div class="card-title">⑥ 加工费用</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ⑥ 加工费用
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
           <label>辐照费</label>
@@ -619,11 +863,16 @@
           </div>
         </div>
       </div>
+      </div>
     </div>
 
     <!-- ⑦ 利润与税率 -->
     <div class="card">
-      <div class="card-title">⑦ 利润与税率</div>
+      <div class="card-title" onclick="toggleSection(this)">
+        ⑦ 利润与税率
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
       <div class="form-grid form-grid-2">
         <div class="field">
           <label>利润率</label>
@@ -640,11 +889,53 @@
           </div>
         </div>
       </div>
+      </div>
+    </div>
+
+    <!-- ⑧ 成本明细 & 图表 (visible only on mobile since right-col is hidden) -->
+    <div class="card" style="display:none;" id="mobileDetailCard">
+      <div class="card-title">
+        📊 成本分解明细
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
+      <div class="tab-btns">
+        <button class="tab-btn-sm active" onclick="switchPlugTab('detail')">逐项明细</button>
+        <button class="tab-btn-sm" onclick="switchPlugTab('chart')">饼图分析</button>
+      </div>
+      <div class="tab-pane active" id="plug-tab-detail-m">
+        <div class="items-list" id="itemsListMobile"></div>
+      </div>
+      <div class="tab-pane" id="plug-tab-chart-m">
+        <div class="chart-wrap"><canvas id="costChartMobile"></canvas></div>
+        <div id="chartLegendMobile" style="margin-top:10px; font-size:11px; display:flex; flex-wrap:wrap; gap:6px;"></div>
+      </div>
+      </div>
+    </div>
+
+    <!-- ⑨ 公式说明 (mobile) -->
+    <div class="card" style="display:none;" id="mobileFormulaCard">
+      <div class="card-title" onclick="toggleSection(this)">
+        📝 计价公式说明
+        <span class="collapse-arrow">▼</span>
+      </div>
+      <div class="card-body">
+      <div class="formula-box">
+        <div>① 单支截面积 = π × (单支直径/2)²</div>
+        <div>② 导体截面积 = 单支截面积 × 总支数</div>
+        <div>③ 导体重量(g/m) = 截面积 × 加捻损耗 × 密度</div>
+        <div>④ 导体成本(元/m) = 重量 × 单价 / 1000</div>
+        <div>⑤ 胶皮截面积 = 0.7854×外径² − 导体截面积×芯数</div>
+        <div>⑥ 胶皮成本(元/m) = 胶皮截面积 × 密度 × 胶料价 / 1000</div>
+        <div>⑦ 小计 = 每米线材成本×线长 + 加工费 + 配件费</div>
+        <div>⑧ 含税成本 = 小计 × (1+利润率%) × (1+税率%)</div>
+      </div>
+      </div>
     </div>
 
   </div><!-- /left-col -->
 
-  <!-- ========== 右侧结果区 ========== -->
+  <!-- ========== 右侧结果区 (desktop only) ========== -->
   <div class="right-col">
 
     <!-- 总成本卡片 -->
@@ -746,12 +1037,12 @@ function applyPreset(key) {
   setVal('wireSpec', p.wireSpec);
   setVal('outerDia', p.outerDia);
   setVal('insulationType', p.insulationType);
-  setVal('plugPrice', p.plugPrice);
-  setVal('plugQty', p.plugQty);
-  setVal('switchPrice', p.switchPrice);
-  setVal('switchQty', p.switchQty);
-  setVal('terminalPrice', p.terminalPrice);
-  setVal('terminalQty', p.terminalQty);
+  setVal('plugPrice', p.plugPrice); setVal('plugPrice_m', p.plugPrice);
+  setVal('plugQty', p.plugQty); setVal('plugQty_m', p.plugQty);
+  setVal('switchPrice', p.switchPrice); setVal('switchPrice_m', p.switchPrice);
+  setVal('switchQty', p.switchQty); setVal('switchQty_m', p.switchQty);
+  setVal('terminalPrice', p.terminalPrice); setVal('terminalPrice_m', p.terminalPrice);
+  setVal('terminalQty', p.terminalQty); setVal('terminalQty_m', p.terminalQty);
   setVal('tailFee', p.tailFee);
   setVal('shipFee', p.shipFee);
   setVal('radFee', p.radFee);
@@ -772,7 +1063,9 @@ function clearAll() {
     'outerDia','copperStrands','aluminumStrands','ccaStrands',
     'plugPrice','plugQty','switchPrice','switchQty','terminalPrice','terminalQty',
     'tailFee','radFee','shipFee',
-    'copperPrice','aluminumPrice','ccaPrice','insulPrice','profitRate','taxRate'];
+    'copperPrice','aluminumPrice','ccaPrice','insulPrice','profitRate','taxRate',
+    'plugPrice_m','plugQty_m','switchPrice_m','switchQty_m','terminalPrice_m','terminalQty_m',
+    'copperStrands_m','aluminumStrands_m','ccaStrands_m'];
   for (var i = 0; i < fields.length; i++) {
     var el = document.getElementById(fields[i]); if (el) el.value = '';
   }
@@ -799,9 +1092,9 @@ function onWireSpecChange() {
   else if (condType === '纯铝') { aluminum = totalStrands; }
   else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
   else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
-  setVal('copperStrands', copper);
-  setVal('aluminumStrands', aluminum);
-  setVal('ccaStrands', cca);
+  setVal('copperStrands', copper); setVal('copperStrands_m', copper);
+  setVal('aluminumStrands', aluminum); setVal('aluminumStrands_m', aluminum);
+  setVal('ccaStrands', cca); setVal('ccaStrands_m', cca);
   calcPlug();
 }
 function onInsulationChange() {
@@ -812,7 +1105,21 @@ function onInsulationChange() {
   calcPlug();
 }
 
+// Sync mobile fields with desktop
+function syncMobileStrands() {
+  setVal('copperStrands', document.getElementById('copperStrands_m').value);
+  setVal('aluminumStrands', document.getElementById('aluminumStrands_m').value);
+  setVal('ccaStrands', document.getElementById('ccaStrands_m').value);
+  calcPlug();
+}
+function syncAccField(name) {
+  var mv = document.getElementById(name + '_m').value;
+  setVal(name, mv);
+  calcPlug();
+}
+
 var chartInstance = null;
+var chartInstanceMobile = null;
 function calcPlug() {
   var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
   var wireLength = parseFloat(document.getElementById('wireLength').value) || 1.6;
@@ -874,6 +1181,7 @@ function calcPlug() {
   var diff = totalStrands - specStrands;
   document.getElementById('strandBadge').textContent = '总支数：' + specStrands;
   document.getElementById('mt-totalStrands').textContent = totalStrands;
+  document.getElementById('mcm-totalStrands').textContent = totalStrands;
   var checkMsg = document.getElementById('strandCheckMsg');
   if (diff === 0) {
     checkMsg.className = 'msg msg-ok';
@@ -888,6 +1196,7 @@ function calcPlug() {
     if (isNaN(n)) return '—';
     return n.toFixed(d);
   }
+  // Desktop mat table
   document.getElementById('mt-strandArea').textContent = fmt(strandArea);
   document.getElementById('mt-strandArea2').textContent = fmt(strandArea);
   document.getElementById('mt-strandArea3').textContent = fmt(strandArea);
@@ -907,15 +1216,42 @@ function calcPlug() {
   setText('mt-totalWeight', fmt(totalWeight, 4));
   setText('mt-totalCost', fmt(totalMatCost, 4));
 
+  // Mobile mat cards
+  setText('mcm-copperPrice', copperPrice);
+  setText('mcm-aluminumPrice', aluminumPrice);
+  setText('mcm-ccaPrice', ccaPrice);
+  setText('mcm-copperArea', fmt(matCopper.area));
+  setText('mcm-copperWeight', fmt(matCopper.weight, 4));
+  setText('mcm-copperCost', fmt(matCopper.cost, 4));
+  setText('mcm-aluminumArea', fmt(matAlum.area));
+  setText('mcm-aluminumWeight', fmt(matAlum.weight, 4));
+  setText('mcm-aluminumCost', fmt(matAlum.cost, 4));
+  setText('mcm-ccaArea', fmt(matCCA.area));
+  setText('mcm-ccaWeight', fmt(matCCA.weight, 4));
+  setText('mcm-ccaCost', fmt(matCCA.cost, 4));
+  setText('mcm-totalArea', fmt(totalArea));
+  setText('mcm-totalCost', fmt(totalMatCost, 4));
+
+  // Accessory costs
   document.getElementById('plugCost').textContent = plugCost.toFixed(2);
   document.getElementById('switchCost').textContent = switchCost.toFixed(2);
   document.getElementById('terminalCost').textContent = terminalCost.toFixed(2);
+  setText('plugCost_m', '¥' + plugCost.toFixed(2));
+  setText('switchCost_m', '¥' + switchCost.toFixed(2));
+  setText('terminalCost_m', '¥' + terminalCost.toFixed(2));
 
+  // Desktop result
   document.getElementById('totalCost').textContent = total.toFixed(4);
   document.getElementById('subTotal').textContent = subtotal.toFixed(4);
   document.getElementById('profitAmount').textContent = profit.toFixed(4);
   document.getElementById('taxAmount').textContent = taxAmt.toFixed(4);
   document.getElementById('perMeterCost').textContent = wireCostPerM.toFixed(4);
+
+  // Mobile result bar
+  setText('mobileTotalCost', total.toFixed(4));
+  setText('mobilePerMeter', wireCostPerM.toFixed(4));
+  setText('mobileSubTotal', subtotal.toFixed(4));
+  setText('mobileProfit', profit.toFixed(4));
 
   // detail list
   var items = [
@@ -946,8 +1282,10 @@ function calcPlug() {
     html += '</div>';
   }
   document.getElementById('itemsList').innerHTML = html;
+  var elMobile = document.getElementById('itemsListMobile');
+  if (elMobile) elMobile.innerHTML = html;
 
-  // chart
+  // chart data
   var chartData = [
     { label: '导体材料', value: conductorCostPerM * wireLength, color: '#3b82f6' },
     { label: '胶皮成本', value: insulCostPerM * wireLength, color: '#8b5cf6' },
@@ -960,60 +1298,103 @@ function calcPlug() {
     { label: '利润', value: profit, color: '#f97316' },
     { label: '税额', value: taxAmt, color: '#e11d48' },
   ].filter(function(d){ return d.value > 0; });
-  var ctx2 = document.getElementById('costChart');
-  if (chartInstance) {
-    chartInstance.data.labels = chartData.map(function(d){ return d.label; });
-    chartInstance.data.datasets[0].data = chartData.map(function(d){ return d.value; });
-    chartInstance.data.datasets[0].backgroundColor = chartData.map(function(d){ return d.color; });
-    chartInstance.update();
-  } else if (ctx2) {
-    chartInstance = new Chart(ctx2.getContext('2d'), {
-      type: 'doughnut',
-      data: {
-        labels: chartData.map(function(d){ return d.label; }),
-        datasets: [{ data: chartData.map(function(d){ return d.value; }), backgroundColor: chartData.map(function(d){ return d.color; }), borderWidth: 2, borderColor: '#fff' }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function(ctx) {
-                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
-                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+
+  function renderChart(ctxId, instance) {
+    var ctx = document.getElementById(ctxId);
+    if (!ctx) return instance;
+    if (instance) {
+      instance.data.labels = chartData.map(function(d){ return d.label; });
+      instance.data.datasets[0].data = chartData.map(function(d){ return d.value; });
+      instance.data.datasets[0].backgroundColor = chartData.map(function(d){ return d.color; });
+      instance.update();
+      return instance;
+    } else {
+      return new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: chartData.map(function(d){ return d.label; }),
+          datasets: [{ data: chartData.map(function(d){ return d.value; }), backgroundColor: chartData.map(function(d){ return d.color; }), borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                  var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                  return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    }
   }
-  var legendEl = document.getElementById('chartLegend');
-  legendEl.innerHTML = chartData.map(function(d){
-    return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': ¥' + d.value.toFixed(3) + '</span></div>';
-  }).join('');
+  chartInstance = renderChart('costChart', chartInstance);
+  chartInstanceMobile = renderChart('costChartMobile', chartInstanceMobile);
+
+  function renderLegend(elId) {
+    var el = document.getElementById(elId);
+    if (!el) return;
+    el.innerHTML = chartData.map(function(d){
+      return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': ¥' + d.value.toFixed(3) + '</span></div>';
+    }).join('');
+  }
+  renderLegend('chartLegend');
+  renderLegend('chartLegendMobile');
 }
 function setText(id, text) {
   var el = document.getElementById(id);
   if (el) el.textContent = text;
 }
 function switchPlugTab(name) {
-  var btns = document.querySelectorAll('.tab-btn-sm');
-  btns[0].classList.toggle('active', name === 'detail');
-  btns[1].classList.toggle('active', name === 'chart');
-  document.getElementById('plug-tab-detail').classList.toggle('active', name === 'detail');
-  document.getElementById('plug-tab-chart').classList.toggle('active', name === 'chart');
+  document.querySelectorAll('.tab-btn-sm').forEach(function(b, i) {
+    b.classList.toggle('active', (name === 'detail' ? i === 0 : i === 1));
+  });
+  var tabsD = document.querySelectorAll('#plug-tab-detail, #plug-tab-chart');
+  var tabsM = document.querySelectorAll('#plug-tab-detail-m, #plug-tab-chart-m');
+  tabsD.forEach(function(t) {
+    t.classList.toggle('active', t.id === 'plug-tab-' + name || t.id === 'plug-tab-' + name + '-m');
+  });
+  tabsM.forEach(function(t) {
+    t.classList.toggle('active', t.id === 'plug-tab-' + name + '-m');
+  });
 }
 
-// ############################################################
-// INIT
-// ############################################################
+// Collapse toggle
+function toggleSection(titleEl) {
+  var card = titleEl.parentElement;
+  card.classList.toggle('collapsed');
+}
+
+// Init
 window.addEventListener('DOMContentLoaded', function() {
+  // Show mobile-only cards on small screens
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var mobileDetail = document.getElementById('mobileDetailCard');
+  var mobileFormula = document.getElementById('mobileFormulaCard');
+  if (isMobile && mobileDetail && mobileFormula) {
+    mobileDetail.style.display = '';
+    mobileFormula.style.display = '';
+  }
+  // Sync mobile input fields initially
   onInsulationChange();
   onWireSpecChange();
+});
+
+// Handle resize for mobile cards visibility
+window.addEventListener('resize', function() {
+  var isMobile = window.matchMedia('(max-width: 768px)').matches;
+  var mobileDetail = document.getElementById('mobileDetailCard');
+  var mobileFormula = document.getElementById('mobileFormulaCard');
+  if (mobileDetail && mobileFormula) {
+    mobileDetail.style.display = isMobile ? '' : 'none';
+    mobileFormula.style.display = isMobile ? '' : 'none';
+  }
 });
 </script>
 </body>
