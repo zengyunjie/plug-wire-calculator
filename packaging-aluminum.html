@@ -2,137 +2,232 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+<meta name="theme-color" content="#0F172A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>包装 & 铝材成本测算</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --primary: #e97316;
-    --primary-light: #fff7ed;
-    --primary-dark: #c2410c;
+    --primary: #F97316;
+    --primary-light: #FFF7ED;
+    --primary-dark: #EA580C;
     --accent: #0ea5e9;
-    --green: #22c55e;
-    --green-light: #f0fdf4;
-    --orange: #f97316;
-    --orange-light: #fff7ed;
-    --red: #ef4444;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-900: #111827;
-    --border-radius: 10px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --green: #10B981;
+    --green-light: #ECFDF5;
+    --orange: #F59E0B;
+    --orange-light: #FFFBEB;
+    --red: #F43F5E;
+    --red-light: #FFF1F2;
+    --slate-50: #F8FAFC;
+    --slate-100: #F1F5F9;
+    --slate-200: #E2E8F0;
+    --slate-300: #CBD5E1;
+    --slate-400: #94A3B8;
+    --slate-500: #64748B;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1E293B;
+    --slate-900: #0F172A;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.10);
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(135deg, #f9731610 0%, #ef444420 100%);
-    background-color: #f0f4f8;
-    color: var(--gray-700);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--slate-50);
+    color: var(--slate-700);
     min-height: 100vh;
-    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  .app-header { text-align: center; margin-bottom: 20px; }
-  .app-header h1 { font-size: 24px; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-  .app-header p { font-size: 13px; color: var(--gray-500); }
-  .nav-back {
-    display: inline-block; margin-bottom: 12px; font-size: 13px; color: var(--primary);
-    text-decoration: none; font-weight: 600;
-  }
-  .nav-back:hover { text-decoration: underline; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 0; margin-bottom: 20px; background: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow); overflow: hidden; }
-  .tab-btn {
-    flex: 1; padding: 14px; text-align: center; font-size: 14px; font-weight: 600;
-    border: none; background: #fff; color: var(--gray-500); cursor: pointer;
-    transition: all 0.2s; border-bottom: 3px solid transparent;
+  /* ========== TOP NAV ========== */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 16px;
   }
-  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-light); }
+  .top-nav .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 18px; font-weight: 800; color: var(--slate-900);
+    white-space: nowrap; text-decoration: none;
+  }
+  .top-nav .logo .dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .top-nav .logo .dot svg { width: 16px; height: 16px; color: #fff; }
+  .top-nav .nav-back {
+    font-size: 13px; font-weight: 600; color: var(--slate-500);
+    text-decoration: none; transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .top-nav .nav-back:hover { color: var(--primary); }
 
-  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
+  /* ========== PAGE TABS ========== */
+  .page-tabs {
+    max-width: 1340px; margin: 0 auto; padding: 16px 20px 0;
+    display: flex; gap: 2px;
+  }
+  .page-tab-btn {
+    padding: 10px 24px; border: none; background: var(--slate-100);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    font-size: 14px; font-weight: 600; color: var(--slate-500);
+    cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .page-tab-btn.active {
+    background: #fff; color: var(--primary);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+  }
+  .page-tab-btn:hover { color: var(--primary); }
+
+  /* ========== LAYOUT ========== */
+  .layout {
+    max-width: 1340px; margin: 0 auto; padding: 20px;
+    display: grid; grid-template-columns: 1fr 400px;
+    gap: 20px; align-items: start;
+  }
   .left-col { display: flex; flex-direction: column; gap: 16px; }
-  .right-col { position: sticky; top: 20px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 84px; }
 
+  /* ========== CARD ========== */
   .card {
-    background: #fff; border-radius: var(--border-radius); box-shadow: var(--shadow);
-    padding: 20px; transition: box-shadow 0.2s;
+    background: #fff; border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); padding: 20px;
+    border: 1px solid var(--slate-200);
+    transition: box-shadow 0.2s;
   }
-  .card:hover { box-shadow: var(--shadow-lg); }
-  .card-title { font-size: 15px; font-weight: 700; color: var(--gray-900); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-100); }
-  .badge { font-size: 11px; font-weight: 500; color: var(--gray-500); background: var(--gray-100); padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .card:hover { box-shadow: var(--shadow); }
+  .card-title {
+    font-size: 14px; font-weight: 700; color: var(--slate-800);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--slate-100);
+  }
+  .badge {
+    background: var(--primary-light); color: var(--primary);
+    font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
+  }
+  .pkg-type-tag {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 4px; background: var(--primary-light); color: var(--primary-dark);
+  }
 
-  /* Form */
-  .form-grid, .form-grid-2, .form-grid-3, .form-grid-4 {
-    display: grid; gap: 14px;
-  }
-  .form-grid-2 { grid-template-columns: 1fr 1fr; }
-  .form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-  .form-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 4px; }
-  .field .unit { font-size: 11px; color: var(--gray-500); margin-left: 4px; }
-  .input-wrap input, .input-wrap select {
-    width: 100%; height: 40px; border: 1.5px solid var(--gray-200); border-radius: 8px;
-    padding: 0 12px; font-size: 14px; color: var(--gray-900); background: var(--gray-50);
-    transition: border-color 0.2s, background 0.2s; outline: none;
-  }
-  .input-wrap input:focus, .input-wrap select:focus { border-color: var(--primary); background: #fff; }
+  /* ========== FORM GRID ========== */
+  .form-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .form-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-  /* Type selector */
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
+  .field .unit-label { font-size: 11px; color: var(--slate-400); font-weight: 400; }
+
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap input,
+  .input-wrap select {
+    width: 100%; height: 40px; padding: 0 12px;
+    border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm);
+    font-size: 14px; color: var(--slate-900); background: #fff;
+    outline: none; -webkit-appearance: none; appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+  }
+  .input-wrap input:focus,
+  .input-wrap select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+  }
+  .input-wrap select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
+  }
+  .input-wrap input.auto-fill {
+    background: var(--primary-light); border-color: #FED7AA;
+    color: var(--primary-dark); font-weight: 600; cursor: default;
+  }
+
+  /* ========== TYPE GRID ========== */
   .type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .type-btn {
-    padding: 10px 6px; border: 2px solid var(--gray-200); border-radius: 8px;
-    background: #fff; font-size: 12px; font-weight: 600; color: var(--gray-600);
+    padding: 10px 6px; border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
+    background: #fff; font-size: 12px; font-weight: 600; color: var(--slate-600);
     cursor: pointer; transition: all 0.2s; text-align: center;
+    font-family: inherit;
   }
   .type-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .type-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); }
+  .type-btn.active {
+    border-color: var(--primary); background: var(--primary-light);
+    color: var(--primary-dark); box-shadow: 0 0 0 2px rgba(249,115,22,0.15);
+  }
 
-  /* Result card */
+  /* ========== RESULT CARD ========== */
   .result-card {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    border-radius: var(--border-radius); box-shadow: var(--shadow-lg);
-    padding: 28px 24px; color: #fff;
+    color: #fff; border-radius: var(--radius); padding: 24px 20px;
+    text-align: center; box-shadow: var(--shadow-lg);
   }
-  .result-label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; }
-  .total-price { font-size: 40px; font-weight: 800; letter-spacing: -1px; }
-  .total-price .currency { font-size: 18px; font-weight: 600; }
+  .result-label { font-size: 13px; opacity: 0.85; margin-bottom: 4px; font-weight: 500; }
+  .total-price { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .total-price .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
   .cost-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
-  .cost-item { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 10px 12px; }
-  .cost-item .ci-label { font-size: 11px; opacity: 0.75; }
-  .cost-item .ci-val { font-size: 16px; font-weight: 700; margin-top: 2px; }
+  .cost-item {
+    background: rgba(255,255,255,0.15); border-radius: var(--radius-sm);
+    padding: 10px 12px; text-align: left;
+  }
+  .cost-item .ci-label { font-size: 11px; opacity: 0.75; font-weight: 500; }
+  .cost-item .ci-val { font-size: 16px; font-weight: 700; font-family: var(--font-mono); }
 
-  /* Items rows */
+  /* ========== ITEMS ROWS ========== */
   .items-row {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; border-bottom: 1px solid var(--gray-100); font-size: 13px;
+    padding: 10px 14px; border-bottom: 1px solid var(--slate-100); font-size: 13px;
   }
   .items-row:last-child { border-bottom: none; }
-  .items-row .ir-label { color: var(--gray-600); }
-  .items-row .ir-val { font-weight: 700; color: var(--gray-900); }
-  .items-row.highlight-row { background: var(--primary-light); border-radius: 6px; }
+  .items-row .ir-label { color: var(--slate-600); font-weight: 500; }
+  .items-row .ir-val { font-weight: 700; color: var(--slate-900); font-family: var(--font-mono); }
+  .items-row.highlight-row {
+    background: var(--primary-light); border-radius: 6px;
+    border-bottom: none;
+  }
   .items-row.highlight-row .ir-val { color: var(--primary-dark); font-size: 16px; }
-  .items-row.total-row { background: var(--gray-50); font-weight: 700; border-top: 2px solid var(--gray-200); }
+  .items-row.total-row {
+    background: var(--primary-light); font-weight: 700;
+    border-top: 2px solid var(--slate-200); border-bottom: none;
+    border-radius: var(--radius-sm);
+  }
   .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 18px; }
 
-  /* Chart */
-  .chart-wrap { height: 220px; margin-top: 16px; }
+  /* ========== CHART ========== */
+  .chart-wrap { position: relative; height: 220px; margin-top: 16px; }
 
-  /* Formula display */
+  /* ========== FORMULA BOX ========== */
   .formula-box {
-    background: var(--gray-50); border-radius: 8px; padding: 12px 16px; margin-top: 12px;
-    font-size: 12px; color: var(--gray-600); line-height: 1.8; font-family: 'Courier New', monospace;
+    background: var(--slate-50); border-radius: var(--radius-sm);
+    padding: 14px 16px; margin-top: 12px; font-size: 12px;
+    color: var(--slate-600); line-height: 1.9;
+    font-family: var(--font-mono); border: 1px solid var(--slate-100);
   }
 
-  /* Item table for packaging */
+  /* ========== PACKAGING ITEM TABLE ========== */
   .pkg-item-row {
     display: grid; grid-template-columns: 1fr 80px 80px 80px 40px; gap: 8px;
-    align-items: center; padding: 8px 0; border-bottom: 1px solid var(--gray-100);
+    align-items: center; padding: 8px 0; border-bottom: 1px solid var(--slate-100);
     font-size: 13px;
   }
   .pkg-item-row:last-child { border-bottom: none; }
@@ -143,54 +238,73 @@
   }
   .pkg-item-row .del-btn:hover { background: #fee2e2; }
   .add-row-btn {
-    width: 100%; padding: 10px; border: 2px dashed var(--gray-200); border-radius: 8px;
+    width: 100%; padding: 10px; border: 2px dashed var(--slate-200); border-radius: var(--radius-sm);
     background: #fff; color: var(--primary); font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.2s; margin-top: 8px;
+    cursor: pointer; transition: all 0.2s; margin-top: 8px; font-family: inherit;
   }
   .add-row-btn:hover { border-color: var(--primary); background: var(--primary-light); }
-  .pkg-type-tag {
-    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
-    border-radius: 4px; background: var(--primary-light); color: var(--primary-dark);
+
+  /* ========== FOOTER ========== */
+  .site-footer {
+    text-align: center; padding: 24px 20px; margin-top: 40px;
+    font-size: 12px; color: var(--slate-400);
+    border-top: 1px solid var(--slate-200);
   }
 
-  /* Responsive */
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
+    .page-tabs { padding: 12px 12px 0; }
+    .page-tab-btn { padding: 8px 18px; font-size: 13px; }
   }
-  @media (max-width: 640px) {
-    body { padding: 10px; }
-    .app-header h1 { font-size: 20px; }
-    .card { padding: 14px; }
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr !important; gap: 10px; }
-    .input-wrap input, .input-wrap select { height: 42px; font-size: 16px; }
-    .type-grid { grid-template-columns: repeat(2, 1fr); }
-    .result-card .total-price { font-size: 32px; }
+  @media (max-width: 768px) {
+    .top-nav { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .top-nav .logo { font-size: 15px; }
+    .top-nav .logo .dot { width: 24px; height: 24px; border-radius: 6px; }
+    .top-nav .nav-back { font-size: 12px; }
+    .layout { padding: 12px; gap: 12px; }
+    .card { padding: 16px; border-radius: var(--radius-sm); }
+    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 10px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .input-wrap input, .input-wrap select { height: 44px; font-size: 16px; }
+    .result-card { padding: 20px 16px; }
+    .total-price { font-size: 32px; }
     .cost-breakdown { gap: 6px; }
+    .type-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-wrap { height: 180px; }
     .pkg-item-row { grid-template-columns: 1fr 60px 60px 60px 36px; font-size: 12px; }
-    input[type="number"] { font-size: 16px; }
+    .site-footer { padding: 16px; margin-top: 24px; font-size: 11px; }
+    input[type="number"], input[type="text"], select, textarea { font-size: 16px !important; }
+  }
+  @media (max-width: 480px) {
+    .top-nav .logo { font-size: 14px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
+    .total-price { font-size: 28px; }
+    .cost-breakdown { grid-template-columns: 1fr; }
+    .type-grid { grid-template-columns: 1fr 1fr; }
   }
   @media (max-width: 380px) {
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
-    .type-grid { grid-template-columns: 1fr 1fr; }
-    .cost-breakdown { grid-template-columns: 1fr; }
     .pkg-item-row { grid-template-columns: 1fr; gap: 6px; }
   }
 </style>
 </head>
 <body>
 
-<a class="nav-back" href="index.html">← 返回工具集首页</a>
-
-<div class="app-header">
-  <h1>📦 包装 & 铝材成本测算</h1>
-  <p>实时计算含税成本，支持纸盒/外箱/纸卡/珍珠棉/铝材等多种类型</p>
+<!-- ========== TOP NAV ========== -->
+<div class="top-nav">
+  <div class="logo">
+    <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    包装 & 铝材成本测算
+  </div>
+  <a class="nav-back" href="index.html">← 返回工具集首页</a>
 </div>
 
-<!-- Tabs -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('pkg')">📦 包装成本测算</button>
-  <button class="tab-btn" onclick="switchTab('alu')">🔩 铝材成本测算</button>
+<!-- ========== PAGE TABS ========== -->
+<div class="page-tabs">
+  <button class="page-tab-btn active" onclick="switchTab('pkg')">📦 包装成本测算</button>
+  <button class="page-tab-btn" onclick="switchTab('alu')">🔩 铝材成本测算</button>
 </div>
 
 <div class="layout">
@@ -201,7 +315,7 @@
       <!-- 添加包装项 -->
       <div class="card">
         <div class="card-title">添加包装项</div>
-        <div style="margin-bottom:12px;font-size:12px;color:var(--gray-500);">选择类型并填入尺寸和单价</div>
+        <div style="margin-bottom:12px;font-size:12px;color:var(--slate-500);">选择类型并填入尺寸和单价</div>
         <div class="type-grid" id="typeGrid">
           <button class="type-btn active" onclick="selectType('纸盒')" data-type="纸盒">纸盒</button>
           <button class="type-btn" onclick="selectType('外箱')" data-type="外箱">外箱</button>
@@ -213,19 +327,19 @@
         <div style="margin-top:14px;">
           <div class="form-grid-4" id="pkgInputGrid">
             <div class="field">
-              <label>长<span class="unit">(mm)</span></label>
+              <label>长<span class="unit-label">(mm)</span></label>
               <div class="input-wrap"><input type="number" id="pkgL" value="280" min="0" step="1"></div>
             </div>
             <div class="field">
-              <label>宽<span class="unit">(mm)</span></label>
+              <label>宽<span class="unit-label">(mm)</span></label>
               <div class="input-wrap"><input type="number" id="pkgW" value="72" min="0" step="1"></div>
             </div>
             <div class="field" id="pkgHField">
-              <label>高<span class="unit">(mm)</span></label>
+              <label>高<span class="unit-label">(mm)</span></label>
               <div class="input-wrap"><input type="number" id="pkgH" value="150" min="0" step="1"></div>
             </div>
             <div class="field">
-              <label id="priceLabel">单价<span class="unit">(元/张)</span></label>
+              <label id="priceLabel">单价<span class="unit-label">(元/张)</span></label>
               <div class="input-wrap"><input type="number" id="pkgPrice" value="1.61" min="0" step="0.01"></div>
             </div>
             <div class="field">
@@ -239,15 +353,15 @@
               </div>
             </div>
             <div class="field">
-              <label>加乘系数<span class="unit">(%)</span></label>
+              <label>加乘系数<span class="unit-label">(%)</span></label>
               <div class="input-wrap"><input type="number" id="pkgMarkup" value="65" min="0" step="1"></div>
             </div>
             <div class="field">
-              <label>加工费<span class="unit">(元)</span></label>
+              <label>加工费<span class="unit-label">(元)</span></label>
               <div class="input-wrap"><input type="number" id="pkgProcess" value="0" min="0" step="0.01"></div>
             </div>
             <div class="field" style="display:flex;align-items:flex-end;">
-              <button onclick="addPkgItem()" style="width:100%;height:40px;border:none;background:var(--primary);color:#fff;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">+ 添加</button>
+              <button onclick="addPkgItem()" style="width:100%;height:40px;border:none;background:var(--primary);color:#fff;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">+ 添加</button>
             </div>
           </div>
         </div>
@@ -256,10 +370,10 @@
       <!-- 已添加的包装项列表 -->
       <div class="card">
         <div class="card-title">包装项清单 <span class="badge" id="pkgCount">0 项</span></div>
-        <div id="pkgList" style="min-height:60px;font-size:13px;color:var(--gray-500);text-align:center;padding:20px 0;">
+        <div id="pkgList" style="min-height:60px;font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">
           尚未添加任何包装项，请在上方选择类型后点击「添加」
         </div>
-        <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--gray-200);display:flex;justify-content:space-between;font-size:15px;font-weight:700;">
+        <div style="margin-top:12px;padding-top:12px;border-top:2px solid var(--slate-200);display:flex;justify-content:space-between;font-size:15px;font-weight:700;">
           <span>包装总成本（含税）</span>
           <span id="pkgTotal" style="color:var(--primary-dark);">¥ 0.0000</span>
         </div>
@@ -272,16 +386,16 @@
         <div class="card-title">① 型材基础参数</div>
         <div class="form-grid-2">
           <div class="field">
-            <label>型材长度<span class="unit">(MM)</span></label>
+            <label>型材长度<span class="unit-label">(MM)</span></label>
             <div class="input-wrap"><input type="number" id="aluLength" value="1695" min="0" step="1" oninput="calcAlu()"></div>
           </div>
           <div class="field">
-            <label>型材整条重量<span class="unit">(克)</span></label>
+            <label>型材整条重量<span class="unit-label">(克)</span></label>
             <div class="input-wrap"><input type="number" id="aluWeight" value="389" min="0" step="1" oninput="calcAlu()"></div>
           </div>
         </div>
-        <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:8px;font-size:13px;">
-          <span style="color:var(--gray-500);">每米重量（自动计算）：</span>
+        <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:var(--radius-sm);font-size:13px;">
+          <span style="color:var(--slate-500);">每米重量（自动计算）：</span>
           <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 克</strong>
         </div>
       </div>
@@ -290,23 +404,23 @@
         <div class="card-title">② 费用明细</div>
         <div class="form-grid-2">
           <div class="field">
-            <label>原材料单价<span class="unit">(元/吨)</span></label>
+            <label>原材料单价<span class="unit-label">(元/吨)</span></label>
             <div class="input-wrap"><input type="number" id="aluRawPrice" value="24200" min="0" step="100" oninput="calcAlu()"></div>
           </div>
           <div class="field">
-            <label>加工费单价<span class="unit">(元/吨)</span></label>
+            <label>加工费单价<span class="unit-label">(元/吨)</span></label>
             <div class="input-wrap"><input type="number" id="aluProcPrice" value="2200" min="0" step="100" oninput="calcAlu()"></div>
           </div>
           <div class="field">
-            <label>表面处理单价<span class="unit">(元/吨)</span></label>
+            <label>表面处理单价<span class="unit-label">(元/吨)</span></label>
             <div class="input-wrap"><input type="number" id="aluSurfPrice" value="800" min="0" step="100" oninput="calcAlu()"></div>
           </div>
           <div class="field">
-            <label>包装费<span class="unit">(元/条)</span></label>
+            <label>包装费<span class="unit-label">(元/条)</span></label>
             <div class="input-wrap"><input type="number" id="aluPackFee" value="0" min="0" step="0.01" oninput="calcAlu()"></div>
           </div>
           <div class="field">
-            <label>税率<span class="unit">(%)</span></label>
+            <label>税率<span class="unit-label">(%)</span></label>
             <div class="input-wrap"><input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()"></div>
           </div>
         </div>
@@ -324,7 +438,7 @@
       </div>
       <div class="card" style="margin-top:12px;">
         <div class="card-title">逐项明细</div>
-        <div id="pkgDetailList" style="font-size:12px;color:var(--gray-500);text-align:center;padding:16px 0;">
+        <div id="pkgDetailList" style="font-size:12px;color:var(--slate-500);text-align:center;padding:16px 0;">
           添加包装项后自动展示
         </div>
       </div>
@@ -374,6 +488,9 @@
   </div>
 </div>
 
+<!-- Footer -->
+<div class="site-footer">包装 & 铝材成本测算工具 · 实时计算含税成本</div>
+
 <script>
 // ============================================================
 //  State
@@ -386,7 +503,7 @@ let aluChart = null;
 //  Tab switching
 // ============================================================
 function switchTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+  document.querySelectorAll('.page-tab-btn').forEach((b, i) => {
     b.classList.toggle('active', (tab === 'pkg' ? i === 0 : i === 1));
   });
   document.getElementById('tab-pkg').style.display = tab === 'pkg' ? '' : 'none';
@@ -418,10 +535,10 @@ function selectType(type) {
   }
 
   if (type.includes('珍珠棉')) {
-    priceLabel.innerHTML = '单价<span class="unit">(元/Kg)</span>';
+    priceLabel.innerHTML = '单价<span class="unit-label">(元/Kg)</span>';
     materialSel.value = '16Kg/立方';
   } else {
-    priceLabel.innerHTML = '单价<span class="unit">(元/张)</span>';
+    priceLabel.innerHTML = '单价<span class="unit-label">(元/张)</span>';
     materialSel.value = type === '外箱' ? '5层加强芯瓦楞纸' : '3层加强芯瓦楞纸';
   }
 
@@ -466,7 +583,6 @@ function calcPkgItem(item) {
     volume = (l * w * (h + 3)) / Math.pow(1000, 3);
     sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
   } else {
-    // 珍珠棉-不粘底, 珍珠棉片
     volume = (l * w * h) / Math.pow(1000, 3);
     sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
   }
@@ -512,11 +628,11 @@ function renderPkgList() {
   document.getElementById('pkgCount').textContent = pkgItems.length + ' 项';
 
   if (pkgItems.length === 0) {
-    el.innerHTML = '<div style="font-size:13px;color:var(--gray-500);text-align:center;padding:20px 0;">尚未添加任何包装项</div>';
+    el.innerHTML = '<div style="font-size:13px;color:var(--slate-500);text-align:center;padding:20px 0;">尚未添加任何包装项</div>';
     return;
   }
 
-  let html = '<div style="font-size:11px;color:var(--gray-500);padding-bottom:8px;border-bottom:1px solid var(--gray-100);margin-bottom:4px;">';
+  let html = '<div style="font-size:11px;color:var(--slate-500);padding-bottom:8px;border-bottom:1px solid var(--slate-100);margin-bottom:4px;">';
   html += '<div style="display:grid;grid-template-columns:1fr 80px 80px 80px 40px;gap:8px;"><span>类型</span><span>尺寸</span><span>材料成本</span><span>含税成本</span><span></span></div></div>';
 
   pkgItems.forEach(item => {
@@ -542,7 +658,7 @@ function calcPkg() {
   // Detail list
   const detailEl = document.getElementById('pkgDetailList');
   if (pkgItems.length === 0) {
-    detailEl.innerHTML = '<div style="font-size:12px;color:var(--gray-500);text-align:center;padding:16px 0;">添加包装项后自动展示</div>';
+    detailEl.innerHTML = '<div style="font-size:12px;color:var(--slate-500);text-align:center;padding:16px 0;">添加包装项后自动展示</div>';
     return;
   }
 
@@ -553,7 +669,7 @@ function calcPkg() {
     dhtml += '<span class="ir-label">' + (i + 1) + '. ' + item.type + ' (' + item.l + '×' + item.w + (item.h > 0 ? '×' + item.h : '') + ')</span>';
     dhtml += '<span class="ir-val">¥ ' + c.total.toFixed(4) + '</span>';
     dhtml += '</div>';
-    dhtml += '<div class="items-row" style="padding:6px 14px 10px;font-size:12px;color:var(--gray-500);border-bottom:1px solid var(--gray-100);">';
+    dhtml += '<div class="items-row" style="padding:6px 14px 10px;font-size:12px;color:var(--slate-500);border-bottom:1px solid var(--slate-100);">';
     dhtml += '<span>' + c.sizeLabel + ' → 材料 ¥' + c.matCost.toFixed(4) + ' × (1+' + item.markup + '%) → ¥' + c.taxCost.toFixed(4) + ' + 加工¥' + item.processFee.toFixed(2) + '</span>';
     dhtml += '</div>';
   });

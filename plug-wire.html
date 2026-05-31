@@ -2,512 +2,371 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+<meta name="theme-color" content="#0F172A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>插头线成本计价工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --primary: #1a6fc4;
-    --primary-light: #e8f3ff;
-    --accent: #0ea5e9;
-    --green: #22c55e;
-    --green-light: #f0fdf4;
-    --orange: #f97316;
-    --orange-light: #fff7ed;
-    --red: #ef4444;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-500: #6b7280;
-    --gray-600: #4b5563;
-    --gray-700: #374151;
-    --gray-900: #111827;
-    --border-radius: 10px;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+    --primary: #3B82F6;
+    --primary-light: #EFF6FF;
+    --primary-dark: #2563EB;
+    --accent: #60A5FA;
+    --green: #10B981;
+    --green-light: #ECFDF5;
+    --orange: #F59E0B;
+    --orange-light: #FFFBEB;
+    --red: #F43F5E;
+    --red-light: #FFF1F2;
+    --slate-50: #F8FAFC;
+    --slate-100: #F1F5F9;
+    --slate-200: #E2E8F0;
+    --slate-300: #CBD5E1;
+    --slate-400: #94A3B8;
+    --slate-500: #64748B;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1E293B;
+    --slate-900: #0F172A;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.10);
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: linear-gradient(135deg, #667eea10 0%, #764ba220 100%);
-    background-color: #f0f4f8;
-    color: var(--gray-700);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--slate-50);
+    color: var(--slate-700);
     min-height: 100vh;
-    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  .app-header {
-    text-align: center;
-    margin-bottom: 24px;
+  /* ========== TOP NAV ========== */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 12px 20px;
+    display: flex; align-items: center; gap: 16px;
   }
-  .app-header h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--gray-900);
-    margin-bottom: 4px;
+  .top-nav .logo {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 18px; font-weight: 800; color: var(--slate-900);
+    white-space: nowrap; text-decoration: none;
   }
-  .app-header p {
-    font-size: 14px;
-    color: var(--gray-500);
+  .top-nav .logo .dot {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
+  .top-nav .logo .dot svg { width: 16px; height: 16px; color: #fff; }
+  .top-nav .nav-back {
+    font-size: 13px; font-weight: 600; color: var(--slate-500);
+    text-decoration: none; transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .top-nav .nav-back:hover { color: var(--primary); }
 
+  /* ========== LAYOUT ========== */
   .layout {
-    max-width: 1280px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 420px;
-    gap: 20px;
-    align-items: start;
+    max-width: 1340px; margin: 0 auto; padding: 20px;
+    display: grid; grid-template-columns: 1fr 400px;
+    gap: 20px; align-items: start;
   }
-
   .left-col { display: flex; flex-direction: column; gap: 16px; }
-  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 20px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 84px; }
 
+  /* ========== CARD ========== */
   .card {
-    background: #fff;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    padding: 20px;
+    background: #fff; border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); padding: 20px;
+    border: 1px solid var(--slate-200);
+    transition: box-shadow 0.2s;
   }
+  .card:hover { box-shadow: var(--shadow); }
   .card-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--gray-100);
+    font-size: 14px; font-weight: 700; color: var(--slate-800);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--slate-100);
   }
   .card-title .badge {
-    background: var(--primary-light);
-    color: var(--primary);
-    font-size: 11px;
-    padding: 1px 7px;
-    border-radius: 20px;
-    font-weight: 600;
+    background: var(--primary-light); color: var(--primary);
+    font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
   }
 
-  /* Grid Forms */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
-  }
+  /* ========== FORM GRID ========== */
+  .form-grid { display: grid; gap: 12px; }
   .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
   .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
   .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
 
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .field label {
-    font-size: 12px;
-    color: var(--gray-500);
-    font-weight: 500;
-  }
-  .field .unit-label {
-    font-size: 11px;
-    color: var(--gray-300);
-  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
+  .field .unit-label { font-size: 11px; color: var(--slate-400); font-weight: 400; }
 
-  .input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
+  .input-wrap { position: relative; display: flex; align-items: center; }
   .input-wrap input,
   .input-wrap select {
-    width: 100%;
-    height: 38px;
-    padding: 0 10px;
-    border: 1.5px solid var(--gray-200);
-    border-radius: 7px;
-    font-size: 14px;
-    color: var(--gray-900);
-    background: #fff;
-    transition: border-color .2s, box-shadow .2s;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
+    width: 100%; height: 40px; padding: 0 12px;
+    border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm);
+    font-size: 14px; color: var(--slate-900); background: #fff;
+    outline: none; -webkit-appearance: none; appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
   }
   .input-wrap input:focus,
   .input-wrap select:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(26,111,196,.1);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
   .input-wrap .unit {
-    position: absolute;
-    right: 10px;
-    font-size: 11px;
-    color: var(--gray-300);
-    pointer-events: none;
+    position: absolute; right: 12px; font-size: 11px;
+    color: var(--slate-400); pointer-events: none; font-weight: 500;
   }
   .input-wrap select {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 28px;
-    cursor: pointer;
+    background-repeat: no-repeat; background-position: right 12px center;
+    padding-right: 32px; cursor: pointer;
   }
-  /* auto-filled (readonly) */
   .input-wrap input.auto-fill {
-    background: var(--primary-light);
-    border-color: #c3daff;
-    color: var(--primary);
-    font-weight: 600;
-    cursor: not-allowed;
+    background: var(--primary-light); border-color: #BFDBFE;
+    color: var(--primary-dark); font-weight: 600; cursor: default;
   }
 
-  /* accessories table */
-  .acc-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
+  /* ========== PRESET BUTTONS ========== */
+  .preset-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .preset-btn {
+    padding: 6px 14px; background: var(--primary-light);
+    color: var(--primary-dark); border: 1px solid #BFDBFE;
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
   }
+  .preset-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  /* ========== RESULT CARD ========== */
+  .result-card {
+    background: linear-gradient(135deg, var(--slate-900), #1E3A5F);
+    color: #fff; border-radius: var(--radius); padding: 24px 20px;
+    text-align: center; box-shadow: var(--shadow-lg);
+  }
+  .result-card .label { font-size: 13px; opacity: 0.75; margin-bottom: 4px; font-weight: 500; }
+  .result-card .total-price { font-size: 44px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
+  .result-card .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
+  .result-card .per-unit { font-size: 12px; opacity: 0.65; margin-top: 4px; }
+  .cost-breakdown {
+    margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .cost-item {
+    background: rgba(255,255,255,0.12); border-radius: var(--radius-sm);
+    padding: 10px 12px; text-align: left;
+  }
+  .cost-item .ci-label { font-size: 11px; opacity: 0.7; font-weight: 500; }
+  .cost-item .ci-val { font-size: 16px; font-weight: 700; font-family: var(--font-mono); }
+
+  /* ========== ITEMS LIST ========== */
+  .items-list { display: flex; flex-direction: column; gap: 3px; }
+  .items-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px;
+  }
+  .items-row:nth-child(odd) { background: var(--slate-50); }
+  .items-row .ir-name { color: var(--slate-600); font-weight: 500; }
+  .items-row .ir-formula { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+  .items-row .ir-val { font-weight: 700; color: var(--slate-900); font-family: var(--font-mono); }
+  .items-row.highlight-row { background: var(--green-light); border: 1px solid #A7F3D0; }
+  .items-row.highlight-row .ir-val { color: #059669; font-size: 15px; }
+  .items-row.total-row {
+    background: var(--primary-light); border: 1px solid #BFDBFE;
+    border-radius: var(--radius-sm);
+  }
+  .items-row.total-row .ir-val { color: var(--primary-dark); font-size: 16px; }
+
+  /* ========== CHART ========== */
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* ========== FORMULA BOX ========== */
+  .formula-box {
+    background: var(--slate-50); border-radius: var(--radius-sm);
+    padding: 14px 16px; margin-top: 12px; font-size: 12px;
+    color: var(--slate-600); line-height: 1.9;
+    font-family: var(--font-mono); border: 1px solid var(--slate-100);
+  }
+
+  /* ========== ACCESSORIES TABLE ========== */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+  .acc-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
   .acc-table th {
-    background: var(--gray-50);
-    padding: 7px 10px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--gray-500);
-    border-bottom: 1px solid var(--gray-200);
+    background: var(--slate-50); padding: 9px 12px; text-align: left;
+    font-weight: 600; font-size: 12px; color: var(--slate-500);
+    border-bottom: 2px solid var(--slate-200);
   }
   .acc-table td {
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--gray-100);
+    padding: 8px 12px; border-bottom: 1px solid var(--slate-100);
     vertical-align: middle;
   }
-  .acc-table tr:last-child td { border-bottom: none; }
   .acc-table td input {
-    width: 100%;
-    height: 32px;
-    padding: 0 8px;
-    border: 1.5px solid var(--gray-200);
-    border-radius: 6px;
-    font-size: 13px;
-    color: var(--gray-900);
-    outline: none;
+    width: 100%; height: 34px; padding: 0 8px;
+    border: 1.5px solid var(--slate-200); border-radius: 6px;
+    font-size: 13px; color: var(--slate-900); outline: none;
+    font-family: inherit;
   }
-  .acc-table td input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px rgba(26,111,196,.1);
-  }
-  .acc-table td.cost-cell {
-    font-weight: 700;
-    color: var(--orange);
-  }
-  .acc-table td.auto-cell {
-    color: var(--primary);
-    font-weight: 600;
-    background: var(--primary-light);
-    border-radius: 4px;
-  }
+  .acc-table td input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+  .acc-table td.cost-cell { font-weight: 700; color: var(--orange); font-family: var(--font-mono); }
+  .acc-table td.auto-cell { color: var(--primary-dark); font-weight: 600; background: var(--primary-light); border-radius: 5px; }
 
-  /* Material ratio */
-  .material-ratio-wrap { overflow-x: auto; }
-  .mat-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
+  /* ========== MATERIAL RATIO TABLE ========== */
+  .material-ratio-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px; }
+  .mat-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 700px; }
   .mat-table th {
-    background: var(--gray-50);
-    padding: 7px 10px;
-    text-align: center;
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--gray-500);
-    border-bottom: 1px solid var(--gray-200);
+    background: var(--slate-50); padding: 9px 10px; text-align: center;
+    font-weight: 600; font-size: 12px; color: var(--slate-500);
+    border-bottom: 2px solid var(--slate-200);
   }
   .mat-table th:first-child { text-align: left; }
   .mat-table td {
-    padding: 6px 10px;
-    text-align: center;
-    border-bottom: 1px solid var(--gray-100);
+    padding: 7px 10px; text-align: center; border-bottom: 1px solid var(--slate-100);
     font-size: 13px;
   }
   .mat-table td:first-child { text-align: left; font-weight: 600; }
-  .mat-table tr:last-child td { font-weight: 700; border-top: 2px solid var(--gray-200); }
   .mat-table .editable-cell input {
-    width: 70px;
-    height: 30px;
-    padding: 0 6px;
-    border: 1.5px solid var(--gray-200);
-    border-radius: 5px;
-    font-size: 13px;
-    text-align: center;
-    outline: none;
+    width: 64px; height: 32px; padding: 0 6px;
+    border: 1.5px solid var(--slate-200); border-radius: 6px;
+    font-size: 13px; text-align: center; outline: none; font-family: inherit;
   }
-  .mat-table .editable-cell input:focus {
-    border-color: var(--primary);
-  }
-  .mat-table .check-cell {
-    font-weight: 700;
-  }
-  .mat-table .check-ok { color: var(--green); }
-  .mat-table .check-err { color: var(--red); }
+  .mat-table .editable-cell input:focus { border-color: var(--primary); }
+  .mat-table tr:last-child td { font-weight: 700; border-top: 2px solid var(--slate-200); }
 
-  /* Result panel */
-  .result-card {
-    background: linear-gradient(135deg, #1a6fc4, #0ea5e9);
-    color: #fff;
-    border-radius: var(--border-radius);
-    padding: 24px 20px;
-    text-align: center;
-    box-shadow: var(--shadow-lg);
-  }
-  .result-card .label { font-size: 13px; opacity: .8; margin-bottom: 4px; }
-  .result-card .total-price {
-    font-size: 44px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1;
-  }
-  .result-card .currency { font-size: 22px; vertical-align: super; margin-right: 2px; }
-  .result-card .per-unit { font-size: 12px; opacity: .7; margin-top: 4px; }
-
-  .cost-breakdown {
-    margin-top: 14px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-  .cost-item {
-    background: rgba(255,255,255,0.15);
-    border-radius: 7px;
-    padding: 8px 10px;
-    text-align: left;
-  }
-  .cost-item .ci-label { font-size: 11px; opacity: .75; }
-  .cost-item .ci-val { font-size: 16px; font-weight: 700; }
-  .cost-item.full-width { grid-column: span 2; }
-
-  /* Itemized list */
-  .items-list { display: flex; flex-direction: column; gap: 4px; }
-  .items-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    border-radius: 7px;
-    font-size: 13px;
-  }
-  .items-row:nth-child(odd) { background: var(--gray-50); }
-  .items-row .ir-name { color: var(--gray-600); }
-  .items-row .ir-formula { font-size: 11px; color: var(--gray-300); margin-top: 1px; }
-  .items-row .ir-val { font-weight: 700; color: var(--gray-900); }
-  .items-row.highlight-row { background: var(--green-light); }
-  .items-row.highlight-row .ir-val { color: var(--green); font-size: 15px; }
-  .items-row.total-row { background: #eff6ff; border: 1px solid #bfdbfe; }
-  .items-row.total-row .ir-val { color: var(--primary); font-size: 16px; }
-
-  /* Chart */
-  .chart-wrap { position: relative; height: 220px; }
-
-  /* Validation message */
-  .msg { font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-top: 4px; }
-  .msg-warn { background: #fff7ed; color: var(--orange); border: 1px solid #fed7aa; }
-  .msg-ok { background: var(--green-light); color: var(--green); border: 1px solid #bbf7d0; }
-
-  /* Tabs */
+  /* ========== TAB PANE ========== */
   .tab-btns {
-    display: flex;
-    gap: 2px;
-    background: var(--gray-100);
-    padding: 3px;
-    border-radius: 8px;
-    margin-bottom: 14px;
+    display: flex; gap: 2px; background: var(--slate-100);
+    padding: 3px; border-radius: var(--radius-sm); margin-bottom: 14px;
   }
-  .tab-btn {
-    flex: 1;
-    padding: 6px 0;
-    border: none;
-    background: none;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gray-500);
-    cursor: pointer;
-    transition: all .2s;
+  .tab-btn-sm {
+    flex: 1; padding: 7px 0; border: none; background: none;
+    border-radius: 6px; font-size: 12px; font-weight: 600;
+    color: var(--slate-500); cursor: pointer; transition: all 0.2s;
+    font-family: inherit;
   }
-  .tab-btn.active {
-    background: #fff;
-    color: var(--primary);
-    box-shadow: 0 1px 4px rgba(0,0,0,.1);
+  .tab-btn-sm.active {
+    background: #fff; color: var(--primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
 
-  /* Presets */
-  .preset-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .preset-btn {
-    padding: 5px 12px;
-    background: var(--primary-light);
-    color: var(--primary);
-    border: 1px solid #c3daff;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .preset-btn:hover { background: var(--primary); color: #fff; }
+  /* ========== MSG ========== */
+  .msg { font-size: 12px; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 6px; }
+  .msg-warn { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+  .msg-ok { background: var(--green-light); color: #059669; border: 1px solid #A7F3D0; }
 
-  /* hint text */
-  .hint { font-size: 11px; color: var(--gray-300); margin-top: 2px; }
+  /* ========== HINT ========== */
+  .hint { font-size: 11px; color: var(--slate-400); margin-top: 3px; }
 
+  /* ========== FOOTER ========== */
+  .site-footer {
+    text-align: center; padding: 24px 20px; margin-top: 40px;
+    font-size: 12px; color: var(--slate-400);
+    border-top: 1px solid var(--slate-200);
+  }
+
+  /* ========== RESPONSIVE ========== */
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
     .right-col { position: static; }
   }
-
-  /* ==================== 手机端适配 ==================== */
-  @media (max-width: 640px) {
-    body { padding: 10px; }
-    .app-header h1 { font-size: 20px; }
-    .app-header p { font-size: 12px; }
-    .app-header { margin-bottom: 14px; }
-    .card { padding: 14px; border-radius: 8px; }
-    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 8px; }
-
-    /* 表单网格全部单列 */
-    .form-grid,
-    .form-grid-2,
-    .form-grid-3,
-    .form-grid-4 {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 10px;
-    }
-    .form-grid .field { min-width: 0; }
-
-    /* 输入框高度适配触摸 */
-    .input-wrap input,
-    .input-wrap select {
-      height: 42px;
-      font-size: 16px; /* 防止iOS自动缩放 */
-    }
-
-    /* 预设网格 - 手机端2列 */
-    .card [style*="grid-template-columns:repeat(4"] {
-      grid-template-columns: 1fr 1fr !important;
-    }
-    .preset-btn {
-      padding: 8px 6px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    /* 材质分配表横向滚动 */
-    .material-ratio-wrap {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      margin: 0 -14px;
-      padding: 0 14px;
-    }
-    .mat-table {
-      font-size: 11px;
-      min-width: 580px;
-    }
-    .mat-table th, .mat-table td { padding: 6px 4px; }
-    .mat-table .editable-cell input { width: 52px; }
-
-    /* 配件费用表横向滚动 */
-    .acc-table { font-size: 12px; }
-
-    /* 结果面板 */
-    .result-card { padding: 18px 14px; }
+  @media (max-width: 768px) {
+    .top-nav { padding: 10px 14px; gap: 10px; flex-wrap: wrap; }
+    .top-nav .logo { font-size: 15px; }
+    .top-nav .logo .dot { width: 24px; height: 24px; border-radius: 6px; }
+    .top-nav .nav-back { font-size: 12px; }
+    .layout { padding: 12px; gap: 12px; }
+    .card { padding: 16px; border-radius: var(--radius-sm); }
+    .card-title { font-size: 13px; margin-bottom: 10px; padding-bottom: 10px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .input-wrap input, .input-wrap select { height: 44px; font-size: 16px; }
+    .result-card { padding: 20px 16px; }
     .result-card .total-price { font-size: 36px; }
-    .result-card .currency { font-size: 18px; }
     .cost-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .cost-item { padding: 6px 8px; }
     .cost-item .ci-val { font-size: 14px; }
-    .cost-item.full-width { grid-column: span 2; }
-
-    /* 饼图高度 */
-    .chart-wrap { height: 200px; }
-
-    /* 明细行 */
-    .items-row { padding: 6px 10px; font-size: 12px; }
-    .items-row .ir-val { font-size: 13px; }
-    .items-row.highlight-row .ir-val { font-size: 14px; }
-    .items-row.total-row .ir-val { font-size: 14px; }
-
-    /* 标签按钮 */
-    .tab-btn { font-size: 12px; padding: 7px 0; }
-
-    /* 禁止 iOS 输入框缩放 */
-    input[type="number"] { font-size: 16px; }
+    .chart-wrap { height: 180px; }
+    .items-row { padding: 7px 10px; font-size: 12px; }
+    .acc-table th, .acc-table td { padding: 6px 8px; font-size: 12px; }
+    .acc-table td input { height: 36px; font-size: 16px; }
+    .mat-table { font-size: 11px; min-width: 600px; }
+    .mat-table td { padding: 5px 6px; }
+    .mat-table th, .mat-table td { font-size: 11px; }
+    .formula-box { font-size: 11px; padding: 10px 12px; }
+    .site-footer { padding: 16px; margin-top: 24px; font-size: 11px; }
+    input[type="number"], input[type="text"], select, textarea { font-size: 16px !important; }
+    .preset-grid { gap: 4px; }
+    .preset-btn { padding: 5px 10px; font-size: 11px; }
   }
-
-  /* 超小屏 (<=380px) */
-  @media (max-width: 380px) {
-    .form-grid,
-    .form-grid-2,
-    .form-grid-3,
-    .form-grid-4 {
-      grid-template-columns: 1fr !important;
-    }
-    .card [style*="grid-template-columns:repeat(4"] {
-      grid-template-columns: 1fr !important;
-    }
-    .result-card .total-price { font-size: 30px; }
+  @media (max-width: 480px) {
+    .top-nav .logo { font-size: 14px; }
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
     .cost-breakdown { grid-template-columns: 1fr; }
-    .cost-item.full-width { grid-column: span 1; }
+    .result-card .total-price { font-size: 30px; }
+    .preset-btn { padding: 5px 8px; font-size: 11px; }
+  }
+  @media (max-width: 380px) {
+    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
   }
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <h1>🔌 插头线成本计价工具</h1>
-  <p>基于实际BOM结构，实时计算导体 + 胶皮 + 配件 + 利润税率的完整成本</p>
+<!-- ========== TOP NAV ========== -->
+<div class="top-nav">
+  <div class="logo">
+    <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    插头线成本计价
+  </div>
+  <a class="nav-back" href="index.html">← 返回工具集首页</a>
 </div>
 
 <div class="layout">
-  <!-- ========== 左侧输入区 ========== -->
   <div class="left-col">
 
     <!-- 快速预设 -->
     <div class="card">
       <div class="card-title">⚡ 快速预设 <span class="badge">美规 · 纯铜 · 点击快速填入</span></div>
-      <div style="font-size:12px;color:var(--gray-500);margin-bottom:10px;">芯数 × 线径 × 线长 三维组合</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--gray-400);padding-bottom:6px;border-bottom:1px solid var(--gray-100);margin-bottom:8px;">
+      <div style="font-size:12px;color:var(--slate-500);margin-bottom:10px;">芯数 × 线径 × 线长 三维组合</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--slate-400);padding-bottom:6px;border-bottom:1px solid var(--slate-100);margin-bottom:8px;">
         <div></div><div>0.5mm²</div><div>0.824mm²</div><div></div>
       </div>
       <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;">
-        <!-- header col -->
-        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;">两芯</div>
+        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">两芯</div>
         <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
         <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
         <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
         <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;">三芯</div>
+        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">三芯</div>
         <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
         <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
-        <div style="font-size:12px;font-weight:700;color:var(--gray-500);text-align:right;padding-right:8px;"></div>
+        <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
         <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
         <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
       </div>
-      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--gray-100);">
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--slate-100);">
         <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
       </div>
     </div>
 
-    <!-- 一、产品基本信息 -->
+    <!-- ① 产品基本信息 -->
     <div class="card">
       <div class="card-title">① 产品基本信息</div>
       <div class="form-grid form-grid-3">
@@ -525,21 +384,21 @@
         <div class="field">
           <label>芯线数</label>
           <div class="input-wrap">
-            <input type="number" id="coreCount" value="3" min="1" max="12" onchange="calc()">
+            <input type="number" id="coreCount" value="3" min="1" max="12" onchange="calcPlug()">
             <span class="unit">芯</span>
           </div>
         </div>
         <div class="field">
           <label>线长</label>
           <div class="input-wrap">
-            <input type="number" id="wireLength" value="1.6" min="0.1" step="0.1" onchange="calc()">
+            <input type="number" id="wireLength" value="1.6" min="0.1" step="0.1" onchange="calcPlug()">
             <span class="unit">M</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 二、线材规格参数 -->
+    <!-- ② 线材规格参数 -->
     <div class="card">
       <div class="card-title">② 线材规格参数</div>
       <div class="form-grid form-grid-3">
@@ -559,21 +418,21 @@
           </div>
         </div>
         <div class="field">
-          <label>单支直径 (mm) <span style="color:#c3daff">自动带出</span></label>
+          <label>单支直径 (mm) <span style="color:#94A3B8">自动带出</span></label>
           <div class="input-wrap">
             <input type="number" id="strandDia" class="auto-fill" readonly>
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
-          <label>总支数 <span style="color:#c3daff">自动带出</span></label>
+          <label>总支数 <span style="color:#94A3B8">自动带出</span></label>
           <div class="input-wrap">
             <input type="number" id="totalStrands" class="auto-fill" readonly>
             <span class="unit">支</span>
           </div>
         </div>
         <div class="field">
-          <label>加捻损耗 <span style="color:#c3daff">自动计算</span></label>
+          <label>加捻损耗 <span style="color:#94A3B8">自动计算</span></label>
           <div class="input-wrap">
             <input type="number" id="twistFactor" class="auto-fill" readonly step="0.01">
           </div>
@@ -581,7 +440,7 @@
         <div class="field">
           <label>成品外径 (mm)</label>
           <div class="input-wrap">
-            <input type="number" id="outerDia" value="7.8" min="1" step="0.1" onchange="calc()">
+            <input type="number" id="outerDia" value="7.8" min="1" step="0.1" onchange="calcPlug()">
             <span class="unit">mm</span>
           </div>
         </div>
@@ -597,49 +456,49 @@
             </select>
           </div>
           <div style="display:flex;align-items:center;gap:4px;margin-top:4px;">
-            <span style="font-size:11px;color:var(--gray-400);">密度：</span>
+            <span style="font-size:11px;color:var(--slate-400);">密度：</span>
             <span id="insulDensityDisplay" style="font-size:12px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 8px;border-radius:4px;">1.35 g/cm³</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 三、原材料单价 -->
+    <!-- ③ 原材料单价 -->
     <div class="card">
       <div class="card-title">③ 原材料单价</div>
       <div class="form-grid form-grid-4">
         <div class="field">
           <label>铜原料单价</label>
           <div class="input-wrap">
-            <input type="number" id="copperPrice" value="105" min="0" step="1" onchange="calc()">
+            <input type="number" id="copperPrice" value="105" min="0" step="1" onchange="calcPlug()">
             <span class="unit">元/kg</span>
           </div>
         </div>
         <div class="field">
           <label>铝原料单价</label>
           <div class="input-wrap">
-            <input type="number" id="aluminumPrice" value="39" min="0" step="1" onchange="calc()">
+            <input type="number" id="aluminumPrice" value="39" min="0" step="1" onchange="calcPlug()">
             <span class="unit">元/kg</span>
           </div>
         </div>
         <div class="field">
           <label>铜包铜单价</label>
           <div class="input-wrap">
-            <input type="number" id="ccaPrice" value="76" min="0" step="1" onchange="calc()">
+            <input type="number" id="ccaPrice" value="76" min="0" step="1" onchange="calcPlug()">
             <span class="unit">元/kg</span>
           </div>
         </div>
         <div class="field">
           <label>胶料价格</label>
           <div class="input-wrap">
-            <input type="number" id="insulPrice" value="8" min="0" step="0.5" onchange="calc()">
+            <input type="number" id="insulPrice" value="8" min="0" step="0.5" onchange="calcPlug()">
             <span class="unit">元/kg</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 四、材质支数分配 -->
+    <!-- ④ 材质支数分配 -->
     <div class="card">
       <div class="card-title">④ 材质支数分配 <span class="badge" id="strandBadge">总支数：16</span></div>
       <div class="material-ratio-wrap">
@@ -656,10 +515,10 @@
               <th>每米成本 元</th>
             </tr>
           </thead>
-          <tbody id="matTableBody">
+          <tbody>
             <tr>
               <td>铜线</td>
-              <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" onchange="calc()"></td>
+              <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" onchange="calcPlug()"></td>
               <td>8.9</td>
               <td id="mt-copperPrice">105</td>
               <td id="mt-strandArea">—</td>
@@ -669,7 +528,7 @@
             </tr>
             <tr>
               <td>铝线</td>
-              <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" onchange="calc()"></td>
+              <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" onchange="calcPlug()"></td>
               <td>3.0</td>
               <td id="mt-aluminumPrice">39</td>
               <td id="mt-strandArea2">—</td>
@@ -679,7 +538,7 @@
             </tr>
             <tr>
               <td>铜包铜线</td>
-              <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" onchange="calc()"></td>
+              <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" onchange="calcPlug()"></td>
               <td>8.6</td>
               <td id="mt-ccaPrice">76</td>
               <td id="mt-strandArea3">—</td>
@@ -693,17 +552,18 @@
               <td colspan="3"></td>
               <td id="mt-totalArea" style="font-weight:700">—</td>
               <td id="mt-totalWeight" style="font-weight:700">—</td>
-              <td id="mt-totalCost" style="font-weight:700;color:#1a6fc4">—</td>
+              <td id="mt-totalCost" style="font-weight:700;color:var(--primary-dark)">—</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px">✅ 支数分配正确</div>
+      <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px;">✅ 支数分配正确</div>
     </div>
 
-    <!-- 五、配件费用 -->
+    <!-- ⑤ 配件费用 -->
     <div class="card">
       <div class="card-title">⑤ 配件费用</div>
+      <div class="table-wrap">
       <table class="acc-table">
         <thead>
           <tr><th>配件</th><th>单价（元/个）</th><th>数量</th><th>小计（元）</th></tr>
@@ -711,34 +571,35 @@
         <tbody>
           <tr>
             <td>插头</td>
-            <td><input type="number" id="plugPrice" value="1.2" min="0" step="0.1" onchange="calc()"></td>
-            <td><input type="number" id="plugQty" value="1" min="0" onchange="calc()"></td>
+            <td><input type="number" id="plugPrice" value="1.2" min="0" step="0.1" onchange="calcPlug()"></td>
+            <td><input type="number" id="plugQty" value="1" min="0" onchange="calcPlug()"></td>
             <td class="cost-cell" id="plugCost">1.20</td>
           </tr>
           <tr>
             <td>开关</td>
-            <td><input type="number" id="switchPrice" value="1" min="0" step="0.1" onchange="calc()"></td>
-            <td><input type="number" id="switchQty" value="0" min="0" onchange="calc()"></td>
+            <td><input type="number" id="switchPrice" value="1" min="0" step="0.1" onchange="calcPlug()"></td>
+            <td><input type="number" id="switchQty" value="0" min="0" onchange="calcPlug()"></td>
             <td class="cost-cell" id="switchCost">0.00</td>
           </tr>
           <tr>
             <td>端子</td>
-            <td><input type="number" id="terminalPrice" value="0.05" min="0" step="0.01" onchange="calc()"></td>
-            <td><input type="number" id="terminalQty" value="0" min="0" onchange="calc()"></td>
+            <td><input type="number" id="terminalPrice" value="0.05" min="0" step="0.01" onchange="calcPlug()"></td>
+            <td><input type="number" id="terminalQty" value="0" min="0" onchange="calcPlug()"></td>
             <td class="cost-cell" id="terminalCost">0.00</td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
-    <!-- 六、加工费 -->
+    <!-- ⑥ 加工费 -->
     <div class="card">
       <div class="card-title">⑥ 加工费用</div>
-      <div class="form-grid form-grid-4">
+      <div class="form-grid form-grid-3">
         <div class="field">
           <label>辐照费</label>
           <div class="input-wrap">
-            <input type="number" id="radFee" value="0" min="0" step="0.01" onchange="calc()">
+            <input type="number" id="radFee" value="0" min="0" step="0.01" onchange="calcPlug()">
             <span class="unit">元/米</span>
           </div>
           <span class="hint">× 线长自动计算</span>
@@ -746,35 +607,35 @@
         <div class="field">
           <label>尾部加工费</label>
           <div class="input-wrap">
-            <input type="number" id="tailFee" value="0.3" min="0" step="0.05" onchange="calc()">
+            <input type="number" id="tailFee" value="0.3" min="0" step="0.05" onchange="calcPlug()">
             <span class="unit">元/条</span>
           </div>
         </div>
         <div class="field">
           <label>运费</label>
           <div class="input-wrap">
-            <input type="number" id="shipFee" value="0.05" min="0" step="0.05" onchange="calc()">
+            <input type="number" id="shipFee" value="0.05" min="0" step="0.05" onchange="calcPlug()">
             <span class="unit">元/条</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 七、利润与税率 -->
+    <!-- ⑦ 利润与税率 -->
     <div class="card">
       <div class="card-title">⑦ 利润与税率</div>
       <div class="form-grid form-grid-2">
         <div class="field">
           <label>利润率</label>
           <div class="input-wrap">
-            <input type="number" id="profitRate" value="15" min="0" max="100" step="1" onchange="calc()">
+            <input type="number" id="profitRate" value="15" min="0" max="100" step="1" onchange="calcPlug()">
             <span class="unit">%</span>
           </div>
         </div>
         <div class="field">
           <label>税率</label>
           <div class="input-wrap">
-            <input type="number" id="taxRate" value="10" min="0" max="30" step="1" onchange="calc()">
+            <input type="number" id="taxRate" value="10" min="0" max="30" step="1" onchange="calcPlug()">
             <span class="unit">%</span>
           </div>
         </div>
@@ -815,20 +676,14 @@
     <div class="card">
       <div class="card-title">📊 成本分解明细</div>
       <div class="tab-btns">
-        <button class="tab-btn active" onclick="switchTab('detail')">逐项明细</button>
-        <button class="tab-btn" onclick="switchTab('chart')">饼图分析</button>
+        <button class="tab-btn-sm active" onclick="switchPlugTab('detail')">逐项明细</button>
+        <button class="tab-btn-sm" onclick="switchPlugTab('chart')">饼图分析</button>
       </div>
-
-      <!-- Detail tab -->
-      <div class="tab-pane active" id="tab-detail">
+      <div class="tab-pane active" id="plug-tab-detail">
         <div class="items-list" id="itemsList"></div>
       </div>
-
-      <!-- Chart tab -->
-      <div class="tab-pane" id="tab-chart">
-        <div class="chart-wrap">
-          <canvas id="costChart"></canvas>
-        </div>
+      <div class="tab-pane" id="plug-tab-chart">
+        <div class="chart-wrap"><canvas id="costChart"></canvas></div>
         <div id="chartLegend" style="margin-top:10px; font-size:12px; display:flex; flex-wrap:wrap; gap:6px;"></div>
       </div>
     </div>
@@ -836,7 +691,7 @@
     <!-- 公式说明 -->
     <div class="card">
       <div class="card-title">📝 计价公式说明</div>
-      <div style="font-size:12px; line-height:1.9; color:var(--gray-600)">
+      <div class="formula-box">
         <div>① 单支截面积 = π × (单支直径/2)²</div>
         <div>② 导体截面积 = 单支截面积 × 总支数</div>
         <div>③ 导体重量(g/m) = 截面积 × 加捻损耗 × 密度</div>
@@ -851,70 +706,40 @@
   </div><!-- /right-col -->
 </div><!-- /layout -->
 
+<!-- Footer -->
+<div class="site-footer">插头线成本计价工具 · 实时计算含税成本</div>
+
 <script>
 // ============================================================
-//  Data Tables
+// PLUG-WIRE LOGIC
 // ============================================================
-// 线径与支数对应表（严格按实际规格表）
-// 纯铜: 0.824mm² -> 0.16mm/41支, 0.5mm² -> 0.2mm/16支
-// 纯铝: 0.824mm² -> 0.2mm/26支,  0.5mm² -> 0.2mm/16支
-// 注：混合材质(纯铝+铜包铜 / 纯铜+纯铝)的单支直径和支数以主材质为准，支数由用户在材质分配表中手动调整
-const WIRE_SPECS = {
-  '0.5': {
-    '纯铜':      { dia: 0.2,  strands: 16 },
-    '纯铝':      { dia: 0.2,  strands: 16 },
-    '纯铝+铜包铜':{ dia: 0.2,  strands: 16 },
-    '纯铜+纯铝': { dia: 0.2,  strands: 16 },
-  },
-  '0.824': {
-    '纯铜':      { dia: 0.16, strands: 41 },
-    '纯铝':      { dia: 0.2,  strands: 26 },
-    '纯铝+铜包铜':{ dia: 0.2,  strands: 26 },
-    '纯铜+纯铝': { dia: 0.16, strands: 41 },
-  },
-  '0.3':  { '纯铜':{ dia:0.2, strands:11 }, '纯铝':{ dia:0.2, strands:11 }, '纯铝+铜包铜':{ dia:0.2, strands:11 }, '纯铜+纯铝':{ dia:0.2, strands:11 } },
-  '0.75': { '纯铜':{ dia:0.2, strands:24 }, '纯铝':{ dia:0.2, strands:24 }, '纯铝+铜包铜':{ dia:0.2, strands:24 }, '纯铜+纯铝':{ dia:0.2, strands:24 } },
-  '1':    { '纯铜':{ dia:0.2, strands:32 }, '纯铝':{ dia:0.2, strands:32 }, '纯铝+铜包铜':{ dia:0.2, strands:32 }, '纯铜+纯铝':{ dia:0.2, strands:32 } },
-  '1.5':  { '纯铜':{ dia:0.2, strands:48 }, '纯铝':{ dia:0.2, strands:48 }, '纯铝+铜包铜':{ dia:0.2, strands:48 }, '纯铜+纯铝':{ dia:0.2, strands:48 } },
-  '2':    { '纯铜':{ dia:0.21, strands:56 }, '纯铝':{ dia:0.21, strands:56 }, '纯铝+铜包铜':{ dia:0.21, strands:56 }, '纯铜+纯铝':{ dia:0.21, strands:56 } },
-  '2.5':  { '纯铜':{ dia:0.2, strands:77 }, '纯铝':{ dia:0.2, strands:77 }, '纯铝+铜包铜':{ dia:0.2, strands:77 }, '纯铜+纯铝':{ dia:0.2, strands:77 } },
+var WIRE_SPECS = {
+  '0.5':   { '纯铜':{dia:0.2,strands:16},'纯铝':{dia:0.2,strands:16},'纯铝+铜包铜':{dia:0.2,strands:16},'纯铜+纯铝':{dia:0.2,strands:16} },
+  '0.824': { '纯铜':{dia:0.16,strands:41},'纯铝':{dia:0.2,strands:26},'纯铝+铜包铜':{dia:0.2,strands:26},'纯铜+纯铝':{dia:0.16,strands:41} },
+  '0.3':   { '纯铜':{dia:0.2,strands:11},'纯铝':{dia:0.2,strands:11},'纯铝+铜包铜':{dia:0.2,strands:11},'纯铜+纯铝':{dia:0.2,strands:11} },
+  '0.75':  { '纯铜':{dia:0.2,strands:24},'纯铝':{dia:0.2,strands:24},'纯铝+铜包铜':{dia:0.2,strands:24},'纯铜+纯铝':{dia:0.2,strands:24} },
+  '1':     { '纯铜':{dia:0.2,strands:32},'纯铝':{dia:0.2,strands:32},'纯铝+铜包铜':{dia:0.2,strands:32},'纯铜+纯铝':{dia:0.2,strands:32} },
+  '1.5':   { '纯铜':{dia:0.2,strands:48},'纯铝':{dia:0.2,strands:48},'纯铝+铜包铜':{dia:0.2,strands:48},'纯铜+纯铝':{dia:0.2,strands:48} },
+  '2':     { '纯铜':{dia:0.21,strands:56},'纯铝':{dia:0.21,strands:56},'纯铝+铜包铜':{dia:0.21,strands:56},'纯铜+纯铝':{dia:0.21,strands:56} },
+  '2.5':   { '纯铜':{dia:0.2,strands:77},'纯铝':{dia:0.2,strands:77},'纯铝+铜包铜':{dia:0.2,strands:77},'纯铜+纯铝':{dia:0.2,strands:77} },
 };
+var INSULATION_DENSITY = {'PVC':1.35,'橡胶':1.5,'硅胶':1.15,'PE':0.93,'XLPE':0.92};
+var MATERIAL_DENSITY = {copper:8.9, aluminum:3.0, cca:8.6};
 
-const INSULATION_DENSITY = { 'PVC': 1.35, '橡胶': 1.5, '硅胶': 1.15, 'PE': 0.93, 'XLPE': 0.92 };
-const MATERIAL_DENSITY   = { copper: 8.9, aluminum: 3.0, cca: 8.6 };
-
-// ============================================================
-//  Presets
-//  美规 × 两芯/三芯 × 0.5/0.824mm² × 1.6m/6.1m = 8种组合
-// ============================================================
-const BASE = { conductorType:'纯铜', insulationType:'PVC',
-               plugPrice:1.2, plugQty:1, switchPrice:1.0, switchQty:0,
-               terminalPrice:0.05, terminalQty:0, shipFee:0.05,
-               radFee:0, copperPrice:105, aluminumPrice:39, ccaPrice:76,
-               insulPrice:8, profitRate:15, taxRate:10 };
-
-const PRESETS = {
-  // 两芯 0.5mm² 1.6m
-  '2c-05-16': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:1.6, outerDia:7.0, tailFee:0.2 },
-  // 两芯 0.5mm² 6.1m
-  '2c-05-61': { ...BASE, coreCount:2, wireSpec:'0.5',   wireLength:6.1, outerDia:7.0, tailFee:0.3 },
-  // 两芯 0.824mm² 1.6m
-  '2c-82-16': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:1.6, outerDia:7.8, tailFee:0.2 },
-  // 两芯 0.824mm² 6.1m
-  '2c-82-61': { ...BASE, coreCount:2, wireSpec:'0.824', wireLength:6.1, outerDia:7.8, tailFee:0.3 },
-  // 三芯 0.5mm² 1.6m
-  '3c-05-16': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:1.6, outerDia:7.8, tailFee:0.3 },
-  // 三芯 0.5mm² 6.1m
-  '3c-05-61': { ...BASE, coreCount:3, wireSpec:'0.5',   wireLength:6.1, outerDia:7.8, tailFee:0.4 },
-  // 三芯 0.824mm² 1.6m
-  '3c-82-16': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:1.6, outerDia:8.5, tailFee:0.3 },
-  // 三芯 0.824mm² 6.1m
-  '3c-82-61': { ...BASE, coreCount:3, wireSpec:'0.824', wireLength:6.1, outerDia:8.5, tailFee:0.4 },
+var BASE = {conductorType:'纯铜',insulationType:'PVC',plugPrice:1.2,plugQty:1,switchPrice:1.0,switchQty:0,terminalPrice:0.05,terminalQty:0,shipFee:0.05,radFee:0,tailFee:0.3,copperPrice:105,aluminumPrice:39,ccaPrice:76,insulPrice:8,profitRate:15,taxRate:10};
+var PRESETS = {
+  '2c-05-16': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:1.6,outerDia:7.0,tailFee:0.2}),
+  '2c-05-61': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:6.1,outerDia:7.0,tailFee:0.3}),
+  '2c-82-16': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.824',wireLength:1.6,outerDia:7.8,tailFee:0.2}),
+  '2c-82-61': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.824',wireLength:6.1,outerDia:7.8,tailFee:0.3}),
+  '3c-05-16': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.5',wireLength:1.6,outerDia:7.8,tailFee:0.3}),
+  '3c-05-61': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.5',wireLength:6.1,outerDia:7.8,tailFee:0.4}),
+  '3c-82-16': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.824',wireLength:1.6,outerDia:8.5,tailFee:0.3}),
+  '3c-82-61': Object.assign({}, BASE, {coreCount:3,wireSpec:'0.824',wireLength:6.1,outerDia:8.5,tailFee:0.4}),
 };
 
 function applyPreset(key) {
-  const p = PRESETS[key];
-  if (!p) return;
+  var p = PRESETS[key]; if (!p) return;
   setVal('conductorType', p.conductorType);
   setVal('coreCount', p.coreCount);
   setVal('wireLength', p.wireLength);
@@ -936,268 +761,217 @@ function applyPreset(key) {
   setVal('insulPrice', p.insulPrice);
   setVal('profitRate', p.profitRate);
   setVal('taxRate', p.taxRate);
-  onInsulationChange();
-  onWireSpecChange();
+  onInsulationChange(); onWireSpecChange();
 }
-
+function setVal(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.value = val;
+}
 function clearAll() {
-  const numFields = ['coreCount','wireLength','wireSpec','strandDia','totalStrands','twistFactor',
+  var fields = ['coreCount','wireLength','wireSpec','strandDia','totalStrands','twistFactor',
     'outerDia','copperStrands','aluminumStrands','ccaStrands',
     'plugPrice','plugQty','switchPrice','switchQty','terminalPrice','terminalQty',
-    'tailFee','processFee','radFee','shipFee',
+    'tailFee','radFee','shipFee',
     'copperPrice','aluminumPrice','ccaPrice','insulPrice','profitRate','taxRate'];
-  numFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-  document.getElementById('conductorType').value = '纯铜';
-  document.getElementById('insulationType').value = 'PVC';
-  onInsulationChange();
-  calc();
+  for (var i = 0; i < fields.length; i++) {
+    var el = document.getElementById(fields[i]); if (el) el.value = '';
+  }
+  setVal('conductorType', '纯铜');
+  setVal('insulationType', 'PVC');
+  onInsulationChange(); calcPlug();
 }
 
-function setVal(id, val) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.value = val;
-}
-
-// ============================================================
-//  Auto-fill logic
-// ============================================================
-function onConductorChange() {
-  onWireSpecChange();
-}
-
+function onConductorChange() { onWireSpecChange(); }
 function onWireSpecChange() {
-  const spec     = document.getElementById('wireSpec').value;
-  const condType = document.getElementById('conductorType').value;
-  const specMap  = WIRE_SPECS[spec];
+  var spec = document.getElementById('wireSpec').value;
+  var condType = document.getElementById('conductorType').value;
+  var specMap = WIRE_SPECS[spec];
   if (!specMap) return;
-
-  const info = specMap[condType] || specMap['纯铜'];
-  const dia          = info.dia;
-  const totalStrands = info.strands;
-
-  document.getElementById('strandDia').value    = dia;
-  document.getElementById('totalStrands').value = totalStrands;
-
-  const coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
-  document.getElementById('twistFactor').value = (1 + 0.01 * coreCount).toFixed(2);
-
-  // Auto-distribute strands based on material type
-  let copper = 0, aluminum = 0, cca = 0;
+  var info = specMap[condType] || specMap['纯铜'];
+  var dia = info.dia;
+  var totalStrands = info.strands;
+  setVal('strandDia', dia);
+  setVal('totalStrands', totalStrands);
+  var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
+  setVal('twistFactor', (1 + 0.01 * coreCount).toFixed(2));
+  var copper = 0, aluminum = 0, cca = 0;
   if (condType === '纯铜') { copper = totalStrands; }
   else if (condType === '纯铝') { aluminum = totalStrands; }
   else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
   else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
-
-  document.getElementById('copperStrands').value   = copper;
-  document.getElementById('aluminumStrands').value = aluminum;
-  document.getElementById('ccaStrands').value      = cca;
-
-  calc();
+  setVal('copperStrands', copper);
+  setVal('aluminumStrands', aluminum);
+  setVal('ccaStrands', cca);
+  calcPlug();
 }
-
 function onInsulationChange() {
-  const type    = document.getElementById('insulationType').value;
-  const density = INSULATION_DENSITY[type] || 1.35;
-  const el = document.getElementById('insulDensityDisplay');
+  var type = document.getElementById('insulationType').value;
+  var density = INSULATION_DENSITY[type] || 1.35;
+  var el = document.getElementById('insulDensityDisplay');
   if (el) el.textContent = density + ' g/cm³';
-  calc();
+  calcPlug();
 }
 
-// ============================================================
-//  Core Calculation
-// ============================================================
-let chartInstance = null;
+var chartInstance = null;
+function calcPlug() {
+  var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
+  var wireLength = parseFloat(document.getElementById('wireLength').value) || 1.6;
+  var strandDia = parseFloat(document.getElementById('strandDia').value) || 0.2;
+  var outerDia = parseFloat(document.getElementById('outerDia').value) || 7.8;
+  var twistFactor = 1 + 0.01 * coreCount;
+  setVal('twistFactor', twistFactor.toFixed(2));
+  var copperStrands = parseInt(document.getElementById('copperStrands').value) || 0;
+  var aluminumStrands = parseInt(document.getElementById('aluminumStrands').value) || 0;
+  var ccaStrands = parseInt(document.getElementById('ccaStrands').value) || 0;
+  var totalStrands = copperStrands + aluminumStrands + ccaStrands;
+  var copperPrice = parseFloat(document.getElementById('copperPrice').value) || 0;
+  var aluminumPrice = parseFloat(document.getElementById('aluminumPrice').value) || 0;
+  var ccaPrice = parseFloat(document.getElementById('ccaPrice').value) || 0;
+  var insulPrice = parseFloat(document.getElementById('insulPrice').value) || 0;
+  var insulType = document.getElementById('insulationType').value;
+  var insulDensity = INSULATION_DENSITY[insulType] || 1.35;
+  var plugPrice = parseFloat(document.getElementById('plugPrice').value) || 0;
+  var plugQty = parseInt(document.getElementById('plugQty').value) || 0;
+  var switchPrice = parseFloat(document.getElementById('switchPrice').value) || 0;
+  var switchQty = parseInt(document.getElementById('switchQty').value) || 0;
+  var terminalPrice = parseFloat(document.getElementById('terminalPrice').value) || 0;
+  var terminalQty = parseInt(document.getElementById('terminalQty').value) || 0;
+  var radFee = parseFloat(document.getElementById('radFee').value) || 0;
+  var tailFee = parseFloat(document.getElementById('tailFee').value) || 0;
+  var shipFee = parseFloat(document.getElementById('shipFee').value) || 0;
+  var profitRate = (parseFloat(document.getElementById('profitRate').value) || 0) / 100;
+  var taxRate = (parseFloat(document.getElementById('taxRate').value) || 0) / 100;
 
-function calc() {
-  // Inputs
-  const coreCount   = parseFloat(document.getElementById('coreCount').value)    || 3;
-  const wireLength  = parseFloat(document.getElementById('wireLength').value)   || 1.6;
-  const strandDia   = parseFloat(document.getElementById('strandDia').value)    || 0.2;
-  const outerDia    = parseFloat(document.getElementById('outerDia').value)     || 7.8;
-  const twistFactor = 1 + 0.01 * coreCount;
+  var strandArea = Math.PI * Math.pow(strandDia / 2, 2);
+  function calcMat(strands, density, price) {
+    var area = strands * strandArea;
+    var weight = area * twistFactor * density;
+    var cost = weight * price / 1000;
+    return { strands: strands, area: area, weight: weight, cost: cost };
+  }
+  var matCopper = calcMat(copperStrands, MATERIAL_DENSITY.copper, copperPrice);
+  var matAlum = calcMat(aluminumStrands, MATERIAL_DENSITY.aluminum, aluminumPrice);
+  var matCCA = calcMat(ccaStrands, MATERIAL_DENSITY.cca, ccaPrice);
+  var totalArea = matCopper.area + matAlum.area + matCCA.area;
+  var totalWeight = matCopper.weight + matAlum.weight + matCCA.weight;
+  var totalMatCost = matCopper.cost + matAlum.cost + matCCA.cost;
+  var conductorCostPerM = totalMatCost * coreCount;
+  var insulArea = 0.7854 * outerDia * outerDia - totalArea * coreCount;
+  var insulCostPerM = Math.max(0, insulArea * insulDensity * insulPrice / 1000);
+  var wireCostPerM = conductorCostPerM + insulCostPerM;
+  var plugCost = plugPrice * plugQty;
+  var switchCost = switchPrice * switchQty;
+  var terminalCost = terminalPrice * terminalQty;
+  var radCostTotal = radFee * wireLength;
+  var subtotal = wireCostPerM * wireLength + radCostTotal + plugCost + switchCost + tailFee + terminalCost + shipFee;
+  var profit = subtotal * profitRate;
+  var taxBase = subtotal + profit;
+  var taxAmt = taxBase * taxRate;
+  var total = subtotal + profit + taxAmt;
 
-  document.getElementById('twistFactor').value = twistFactor.toFixed(2);
-
-  const copperStrands   = parseInt(document.getElementById('copperStrands').value)   || 0;
-  const aluminumStrands = parseInt(document.getElementById('aluminumStrands').value) || 0;
-  const ccaStrands      = parseInt(document.getElementById('ccaStrands').value)      || 0;
-  const totalStrands    = copperStrands + aluminumStrands + ccaStrands;
-
-  const copperPrice  = parseFloat(document.getElementById('copperPrice').value)   || 0;
-  const aluminumPrice= parseFloat(document.getElementById('aluminumPrice').value) || 0;
-  const ccaPrice     = parseFloat(document.getElementById('ccaPrice').value)      || 0;
-  const insulPrice   = parseFloat(document.getElementById('insulPrice').value)    || 0;
-
-  const insulType    = document.getElementById('insulationType').value;
-  const insulDensity = INSULATION_DENSITY[insulType] || 1.35;
-
-  // Accessories
-  const plugPrice    = parseFloat(document.getElementById('plugPrice').value)    || 0;
-  const plugQty      = parseInt(document.getElementById('plugQty').value)        || 0;
-  const switchPrice  = parseFloat(document.getElementById('switchPrice').value)  || 0;
-  const switchQty    = parseInt(document.getElementById('switchQty').value)      || 0;
-  const terminalPrice= parseFloat(document.getElementById('terminalPrice').value)|| 0;
-  const terminalQty  = parseInt(document.getElementById('terminalQty').value)    || 0;
-
-  const radFee  = parseFloat(document.getElementById('radFee').value)  || 0;
-  const tailFee = parseFloat(document.getElementById('tailFee').value) || 0;
-  const shipFee = parseFloat(document.getElementById('shipFee').value) || 0;
-
-  const profitRate = parseFloat(document.getElementById('profitRate').value) / 100 || 0.15;
-  const taxRate    = parseFloat(document.getElementById('taxRate').value) / 100    || 0.10;
-
-  // ---- Strand area ----
-  const strandArea = Math.PI * Math.pow(strandDia / 2, 2);
-
-  // ---- Per material calculations ----
-  const calcMat = (strands, density, price) => {
-    const area   = strands * strandArea;
-    const weight = area * twistFactor * density; // g/m
-    const cost   = weight * price / 1000;         // 元/m
-    return { strands, area, weight, cost };
-  };
-
-  const matCopper  = calcMat(copperStrands,   MATERIAL_DENSITY.copper,   copperPrice);
-  const matAlum    = calcMat(aluminumStrands,  MATERIAL_DENSITY.aluminum, aluminumPrice);
-  const matCCA     = calcMat(ccaStrands,       MATERIAL_DENSITY.cca,      ccaPrice);
-
-  const totalArea   = matCopper.area + matAlum.area + matCCA.area;
-  const totalWeight = matCopper.weight + matAlum.weight + matCCA.weight;
-  const totalMatCost= matCopper.cost  + matAlum.cost  + matCCA.cost;
-
-  // ---- Conductor cost per meter (×芯线数) ----
-  const conductorCostPerM = totalMatCost * coreCount;
-
-  // ---- Insulation cost ----
-  const insulArea = 0.7854 * outerDia * outerDia - totalArea * coreCount;
-  const insulCostPerM = Math.max(0, insulArea * insulDensity * insulPrice / 1000);
-
-  // ---- Total wire cost per meter ----
-  const wireCostPerM = conductorCostPerM + insulCostPerM;
-
-  // ---- Accessories ----
-  const plugCost     = plugPrice * plugQty;
-  const switchCost   = switchPrice * switchQty;
-  const terminalCost = terminalPrice * terminalQty;
-  const radCostTotal = radFee * wireLength;
-
-  // ---- Sub total ----
-  const subtotal = wireCostPerM * wireLength + radCostTotal + plugCost + switchCost + tailFee + terminalCost + shipFee;
-
-  // ---- Profit + Tax ----
-  const profit   = subtotal * profitRate;
-  const taxBase  = subtotal + profit;
-  const taxAmt   = taxBase  * taxRate;
-  const total    = subtotal + profit + taxAmt;
-
-  // ---- Update strand check badge ----
-  const specStrands = parseInt(document.getElementById('totalStrands').value) || totalStrands;
-  const diff = totalStrands - specStrands;
-  document.getElementById('strandBadge').textContent = `总支数：${specStrands}`;
+  // strand check
+  var specStrands = parseInt(document.getElementById('totalStrands').value) || totalStrands;
+  var diff = totalStrands - specStrands;
+  document.getElementById('strandBadge').textContent = '总支数：' + specStrands;
   document.getElementById('mt-totalStrands').textContent = totalStrands;
-  const checkMsg = document.getElementById('strandCheckMsg');
+  var checkMsg = document.getElementById('strandCheckMsg');
   if (diff === 0) {
     checkMsg.className = 'msg msg-ok';
-    checkMsg.textContent = `✅ 支数分配正确（共 ${totalStrands} 支）`;
+    checkMsg.textContent = '✅ 支数分配正确（共 ' + totalStrands + ' 支）';
   } else {
     checkMsg.className = 'msg msg-warn';
-    checkMsg.textContent = `⚠️ 支数差异：已分配 ${totalStrands} 支，规格要求 ${specStrands} 支，差 ${diff > 0 ? '+' : ''}${diff}`;
+    checkMsg.textContent = '⚠️ 支数差异：已分配 ' + totalStrands + ' 支，规格要求 ' + specStrands + ' 支，差 ' + (diff > 0 ? '+' : '') + diff;
   }
 
-  // ---- Update material table ----
-  const fmt = (n, d=4) => isNaN(n) ? '—' : n.toFixed(d);
-  document.getElementById('mt-strandArea').textContent  = fmt(strandArea);
+  function fmt(n, d) {
+    d = d || 4;
+    if (isNaN(n)) return '—';
+    return n.toFixed(d);
+  }
+  document.getElementById('mt-strandArea').textContent = fmt(strandArea);
   document.getElementById('mt-strandArea2').textContent = fmt(strandArea);
   document.getElementById('mt-strandArea3').textContent = fmt(strandArea);
-  document.getElementById('mt-copperPrice').textContent  = copperPrice;
-  document.getElementById('mt-aluminumPrice').textContent= aluminumPrice;
-  document.getElementById('mt-ccaPrice').textContent     = ccaPrice;
-  document.getElementById('mt-copperArea').textContent   = fmt(matCopper.area);
-  document.getElementById('mt-copperWeight').textContent = fmt(matCopper.weight, 4);
-  document.getElementById('mt-copperCost').textContent   = fmt(matCopper.cost, 4);
-  document.getElementById('mt-aluminumArea').textContent  = fmt(matAlum.area);
-  document.getElementById('mt-aluminumWeight').textContent= fmt(matAlum.weight, 4);
-  document.getElementById('mt-aluminumCost').textContent  = fmt(matAlum.cost, 4);
-  document.getElementById('mt-ccaArea').textContent    = fmt(matCCA.area);
-  document.getElementById('mt-ccaWeight').textContent  = fmt(matCCA.weight, 4);
-  document.getElementById('mt-ccaCost').textContent    = fmt(matCCA.cost, 4);
-  document.getElementById('mt-totalArea').textContent   = fmt(totalArea);
-  document.getElementById('mt-totalWeight').textContent = fmt(totalWeight, 4);
-  document.getElementById('mt-totalCost').textContent   = fmt(totalMatCost, 4);
+  document.getElementById('mt-copperPrice').textContent = copperPrice;
+  document.getElementById('mt-aluminumPrice').textContent = aluminumPrice;
+  document.getElementById('mt-ccaPrice').textContent = ccaPrice;
+  setText('mt-copperArea', fmt(matCopper.area));
+  setText('mt-copperWeight', fmt(matCopper.weight, 4));
+  setText('mt-copperCost', fmt(matCopper.cost, 4));
+  setText('mt-aluminumArea', fmt(matAlum.area));
+  setText('mt-aluminumWeight', fmt(matAlum.weight, 4));
+  setText('mt-aluminumCost', fmt(matAlum.cost, 4));
+  setText('mt-ccaArea', fmt(matCCA.area));
+  setText('mt-ccaWeight', fmt(matCCA.weight, 4));
+  setText('mt-ccaCost', fmt(matCCA.cost, 4));
+  setText('mt-totalArea', fmt(totalArea));
+  setText('mt-totalWeight', fmt(totalWeight, 4));
+  setText('mt-totalCost', fmt(totalMatCost, 4));
 
-  // ---- Update accessories ----
-  document.getElementById('plugCost').textContent     = plugCost.toFixed(2);
-  document.getElementById('switchCost').textContent   = switchCost.toFixed(2);
+  document.getElementById('plugCost').textContent = plugCost.toFixed(2);
+  document.getElementById('switchCost').textContent = switchCost.toFixed(2);
   document.getElementById('terminalCost').textContent = terminalCost.toFixed(2);
 
-  // ---- Update result card ----
-  document.getElementById('totalCost').textContent    = total.toFixed(4);
-  document.getElementById('subTotal').textContent     = subtotal.toFixed(4);
+  document.getElementById('totalCost').textContent = total.toFixed(4);
+  document.getElementById('subTotal').textContent = subtotal.toFixed(4);
   document.getElementById('profitAmount').textContent = profit.toFixed(4);
-  document.getElementById('taxAmount').textContent    = taxAmt.toFixed(4);
+  document.getElementById('taxAmount').textContent = taxAmt.toFixed(4);
   document.getElementById('perMeterCost').textContent = wireCostPerM.toFixed(4);
 
-  // ---- Update detail list ----
-  const items = [
-    { name: '导体材料成本', formula: `Σ材质每米成本 × ${coreCount}芯`, val: conductorCostPerM, unit: '元/米' },
-    { name: '搅合截面积（导体）', formula: `单支截面积 × 总支数`, val: totalArea, unit: 'mm²' },
-    { name: '胶皮/护套成本', formula: `胶皮截面积 × 密度 × 胶料价 / 1000`, val: insulCostPerM, unit: '元/米' },
-    { name: '每米线材成本', formula: `导体成本 + 胶皮成本`, val: wireCostPerM, unit: '元/米', highlight: true },
-    { name: '辐照费', formula: `${radFee} × ${wireLength}m`, val: radCostTotal, unit: '元' },
-    { name: '插头成本', formula: `${plugPrice} × ${plugQty}个`, val: plugCost, unit: '元' },
-    { name: '开关成本', formula: `${switchPrice} × ${switchQty}个`, val: switchCost, unit: '元' },
+  // detail list
+  var items = [
+    { name: '导体材料成本', formula: 'Σ材质每米成本 × ' + coreCount + '芯', val: conductorCostPerM, unit: '元/米' },
+    { name: '搅合截面积（导体）', formula: '单支截面积 × 总支数', val: totalArea, unit: 'mm²' },
+    { name: '胶皮/护套成本', formula: '胶皮截面积 × 密度 × 胶料价 / 1000', val: insulCostPerM, unit: '元/米' },
+    { name: '每米线材成本', formula: '导体成本 + 胶皮成本', val: wireCostPerM, unit: '元/米', highlight: true },
+    { name: '辐照费', formula: radFee + ' × ' + wireLength + 'm', val: radCostTotal, unit: '元' },
+    { name: '插头成本', formula: plugPrice + ' × ' + plugQty + '个', val: plugCost, unit: '元' },
+    { name: '开关成本', formula: switchPrice + ' × ' + switchQty + '个', val: switchCost, unit: '元' },
     { name: '尾部加工费', formula: '按1条计', val: tailFee, unit: '元' },
-    { name: '端子费', formula: `${terminalPrice} × ${terminalQty}个`, val: terminalCost, unit: '元' },
+    { name: '端子费', formula: terminalPrice + ' × ' + terminalQty + '个', val: terminalCost, unit: '元' },
     { name: '运费', formula: '按1条计', val: shipFee, unit: '元' },
-    { name: '小计（不含利润税）', formula: `每米成本×${wireLength} + 加工费 + 配件`, val: subtotal, unit: '元', total: true },
-    { name: `利润（${(profitRate*100).toFixed(0)}%）`, formula: `小计 × ${(profitRate*100).toFixed(0)}%`, val: profit, unit: '元' },
-    { name: `税额（${(taxRate*100).toFixed(0)}%）`, formula: `(小计+利润) × ${(taxRate*100).toFixed(0)}%`, val: taxAmt, unit: '元' },
+    { name: '小计（不含利润税）', formula: '每米成本×' + wireLength + ' + 加工费 + 配件', val: subtotal, unit: '元', total: true },
+    { name: '利润（' + (profitRate*100).toFixed(0) + '%）', formula: '小计 × ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '元', total: true },
+    { name: '税额（' + (taxRate*100).toFixed(0) + '%）', formula: '(小计+利润) × ' + (taxRate*100).toFixed(0) + '%', val: taxAmt, unit: '元', total: true },
     { name: '★ 整条含税总成本 ★', formula: '小计 + 利润 + 税额', val: total, unit: '元', total: true },
   ];
+  var html = '';
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var cls = '';
+    if (it.total) cls = 'total-row';
+    else if (it.highlight) cls = 'highlight-row';
+    html += '<div class="items-row ' + cls + '">';
+    html += '<div><div class="ir-name">' + (i+1) + '. ' + it.name + '</div><div class="ir-formula">' + it.formula + '</div></div>';
+    html += '<div class="ir-val">' + it.val.toFixed(4) + ' <span style="font-size:11px;font-weight:400;color:var(--slate-500)">' + it.unit + '</span></div>';
+    html += '</div>';
+  }
+  document.getElementById('itemsList').innerHTML = html;
 
-  const list = document.getElementById('itemsList');
-  list.innerHTML = items.map((it, i) => `
-    <div class="items-row ${it.total ? 'total-row' : it.highlight ? 'highlight-row' : ''}">
-      <div>
-        <div class="ir-name">${i+1}. ${it.name}</div>
-        <div class="ir-formula">${it.formula}</div>
-      </div>
-      <div class="ir-val">${it.val.toFixed(4)} <span style="font-size:11px;font-weight:400;color:var(--gray-500)">${it.unit}</span></div>
-    </div>
-  `).join('');
-
-  // ---- Update chart ----
-  const chartData = [
+  // chart
+  var chartData = [
     { label: '导体材料', value: conductorCostPerM * wireLength, color: '#3b82f6' },
-    { label: '胶皮成本', value: insulCostPerM * wireLength,     color: '#8b5cf6' },
-    { label: '辐照费',   value: radCostTotal,                   color: '#06b6d4' },
-    { label: '插头',     value: plugCost,                       color: '#f59e0b' },
-    { label: '开关',     value: switchCost,                     color: '#ef4444' },
-    { label: '尾部加工', value: tailFee,                        color: '#10b981' },
-    { label: '端子',     value: terminalCost,                   color: '#64748b' },
-    { label: '运费',     value: shipFee,                        color: '#94a3b8' },
-    { label: '利润',     value: profit,                         color: '#f97316' },
-    { label: '税额',     value: taxAmt,                         color: '#e11d48' },
-  ].filter(d => d.value > 0);
-
+    { label: '胶皮成本', value: insulCostPerM * wireLength, color: '#8b5cf6' },
+    { label: '辐照费', value: radCostTotal, color: '#06b6d4' },
+    { label: '插头', value: plugCost, color: '#f59e0b' },
+    { label: '开关', value: switchCost, color: '#ef4444' },
+    { label: '尾部加工', value: tailFee, color: '#10b981' },
+    { label: '端子', value: terminalCost, color: '#64748b' },
+    { label: '运费', value: shipFee, color: '#94a3b8' },
+    { label: '利润', value: profit, color: '#f97316' },
+    { label: '税额', value: taxAmt, color: '#e11d48' },
+  ].filter(function(d){ return d.value > 0; });
+  var ctx2 = document.getElementById('costChart');
   if (chartInstance) {
-    chartInstance.data.labels = chartData.map(d => d.label);
-    chartInstance.data.datasets[0].data   = chartData.map(d => d.value);
-    chartInstance.data.datasets[0].backgroundColor = chartData.map(d => d.color);
+    chartInstance.data.labels = chartData.map(function(d){ return d.label; });
+    chartInstance.data.datasets[0].data = chartData.map(function(d){ return d.value; });
+    chartInstance.data.datasets[0].backgroundColor = chartData.map(function(d){ return d.color; });
     chartInstance.update();
-  } else {
-    const ctx = document.getElementById('costChart').getContext('2d');
-    chartInstance = new Chart(ctx, {
+  } else if (ctx2) {
+    chartInstance = new Chart(ctx2.getContext('2d'), {
       type: 'doughnut',
       data: {
-        labels: chartData.map(d => d.label),
-        datasets: [{
-          data: chartData.map(d => d.value),
-          backgroundColor: chartData.map(d => d.color),
-          borderWidth: 2,
-          borderColor: '#fff',
-        }]
+        labels: chartData.map(function(d){ return d.label; }),
+        datasets: [{ data: chartData.map(function(d){ return d.value; }), backgroundColor: chartData.map(function(d){ return d.color; }), borderWidth: 2, borderColor: '#fff' }]
       },
       options: {
         responsive: true,
@@ -1206,39 +980,38 @@ function calc() {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: ctx => ` ${ctx.label}: ¥${ctx.parsed.toFixed(4)} (${((ctx.parsed/total)*100).toFixed(1)}%)`
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+              }
             }
           }
         }
       }
     });
   }
-
-  // Update legend
-  const legend = document.getElementById('chartLegend');
-  legend.innerHTML = chartData.map(d => `
-    <div style="display:flex;align-items:center;gap:4px;">
-      <span style="width:10px;height:10px;border-radius:50%;background:${d.color};display:inline-block;flex-shrink:0"></span>
-      <span>${d.label}: ¥${d.value.toFixed(3)}</span>
-    </div>
-  `).join('');
+  var legendEl = document.getElementById('chartLegend');
+  legendEl.innerHTML = chartData.map(function(d){
+    return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': ¥' + d.value.toFixed(3) + '</span></div>';
+  }).join('');
+}
+function setText(id, text) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+function switchPlugTab(name) {
+  var btns = document.querySelectorAll('.tab-btn-sm');
+  btns[0].classList.toggle('active', name === 'detail');
+  btns[1].classList.toggle('active', name === 'chart');
+  document.getElementById('plug-tab-detail').classList.toggle('active', name === 'detail');
+  document.getElementById('plug-tab-chart').classList.toggle('active', name === 'chart');
 }
 
-// ============================================================
-//  Tab switching
-// ============================================================
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', ['detail','chart'][i] === name);
-  });
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-}
-
-// ============================================================
-//  Init
-// ============================================================
-window.addEventListener('DOMContentLoaded', () => {
+// ############################################################
+// INIT
+// ############################################################
+window.addEventListener('DOMContentLoaded', function() {
   onInsulationChange();
   onWireSpecChange();
 });
