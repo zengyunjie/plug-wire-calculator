@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0F172A" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<title>成本测算工具</title>
+<title>鎴愭湰娴嬬畻宸ュ叿</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -474,12 +474,12 @@
     .mobile-result-bar { display: block; }
   }
   @media (max-width: 640px) {
-    /* Tables → Card layout */
+    /* Tables 鈫?Card layout */
     .acc-table { display: none; }
     .acc-cards { display: flex; }
     .mat-table { display: none; }
     .mat-cards { display: flex; }
-    /* Quick Presets → compact */
+    /* Quick Presets 鈫?compact */
     .desktop-presets { display: none; }
     .preset-grid-mobile { display: grid; }
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
@@ -508,107 +508,107 @@
 <div class="top-nav">
   <div class="logo">
     <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-    成本测算工具
+    鎴愭湰娴嬬畻宸ュ叿
   </div>
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
-    <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
-    <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
+    <button class="tab-btn active" onclick="switchPage('plug')">馃攲 鎻掑ご绾?/button>
+    <button class="tab-btn" onclick="switchPage('pkg')">馃摝 鍖呮潗</button>
+    <button class="tab-btn" onclick="switchPage('alu')">馃敥 閾濆瀷鏉?/button>
   </div>
 </div>
 
 <!-- ############################################################ -->
-<!-- PAGE 1: 插头线                                                  -->
+<!-- PAGE 1: 鎻掑ご绾?                                                 -->
 <!-- ############################################################ -->
 <div id="page-plug" class="page-panel active">
 
 <!-- Mobile Result Bar -->
 <div class="mobile-result-bar" id="mobileBar-plug">
   <div class="mrb-top">
-    <div class="mrb-label">含税总成本</div>
-    <div class="mrb-total">¥<span id="mobileTotalCost">—</span></div>
+    <div class="mrb-label">鍚◣鎬绘垚鏈?/div>
+    <div class="mrb-total">楼<span id="mobileTotalCost">鈥?/span></div>
   </div>
   <div class="mrb-meta">
-    <span>每米成本 <strong>¥<span id="mobilePerMeter">—</span></strong></span>
-    <span>不含税 <strong>¥<span id="mobileSubTotal">—</span></strong></span>
-    <span>利润 <strong>¥<span id="mobileProfit">—</span></strong></span>
+    <span>姣忕背鎴愭湰 <strong>楼<span id="mobilePerMeter">鈥?/span></strong></span>
+    <span>涓嶅惈绋?<strong>楼<span id="mobileSubTotal">鈥?/span></strong></span>
+    <span>鍒╂鼎 <strong>楼<span id="mobileProfit">鈥?/span></strong></span>
   </div>
 </div>
 
 <div class="layout">
   <div class="left-col">
 
-    <!-- 快速预设 -->
+    <!-- 蹇€熼璁?-->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ⚡ 快速预设 <span class="badge">美规 · 纯铜</span>
-        <span class="collapse-arrow">▼</span>
+        鈿?蹇€熼璁?<span class="badge">缇庤 路 绾摐</span>
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
         <div class="desktop-presets">
-          <div style="font-size:12px;color:var(--slate-500);margin-bottom:8px;">芯数 × 线径 × 线长 三维组合</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-bottom:8px;">鑺暟 脳 绾垮緞 脳 绾块暱 涓夌淮缁勫悎</div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;text-align:center;font-size:11px;font-weight:700;color:var(--slate-400);padding-bottom:6px;border-bottom:1px solid var(--slate-100);margin-bottom:8px;">
-            <div></div><div>0.5mm²</div><div>0.824mm²</div><div></div>
+            <div></div><div>0.5mm虏</div><div>0.824mm虏</div><div></div>
           </div>
           <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;">
-            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">两芯</div>
-            <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
-            <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">涓よ姱</div>
+            <button class="preset-btn" onclick="applyPreset('2c-05-16')" style="width:100%;text-align:center;">0.5 路 1.6m</button>
+            <button class="preset-btn" onclick="applyPreset('2c-82-16')" style="width:100%;text-align:center;">0.824 路 1.6m</button>
             <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
-            <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
-            <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
-            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">三芯</div>
-            <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 · 1.6m</button>
-            <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 · 1.6m</button>
+            <button class="preset-btn" onclick="applyPreset('2c-05-61')" style="width:100%;text-align:center;">0.5 路 6.1m</button>
+            <button class="preset-btn" onclick="applyPreset('2c-82-61')" style="width:100%;text-align:center;">0.824 路 6.1m</button>
+            <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;">涓夎姱</div>
+            <button class="preset-btn" onclick="applyPreset('3c-05-16')" style="width:100%;text-align:center;">0.5 路 1.6m</button>
+            <button class="preset-btn" onclick="applyPreset('3c-82-16')" style="width:100%;text-align:center;">0.824 路 1.6m</button>
             <div style="font-size:12px;font-weight:700;color:var(--slate-500);text-align:right;padding-right:8px;"></div>
-            <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 · 6.1m</button>
-            <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 · 6.1m</button>
+            <button class="preset-btn" onclick="applyPreset('3c-05-61')" style="width:100%;text-align:center;">0.5 路 6.1m</button>
+            <button class="preset-btn" onclick="applyPreset('3c-82-61')" style="width:100%;text-align:center;">0.824 路 6.1m</button>
           </div>
         </div>
         <div class="preset-grid-mobile">
-          <button class="preset-btn" onclick="applyPreset('2c-05-16')">两芯 0.5mm² 1.6m</button>
-          <button class="preset-btn" onclick="applyPreset('2c-82-16')">两芯 0.824mm² 1.6m</button>
-          <button class="preset-btn" onclick="applyPreset('2c-05-61')">两芯 0.5mm² 6.1m</button>
-          <button class="preset-btn" onclick="applyPreset('2c-82-61')">两芯 0.824mm² 6.1m</button>
-          <button class="preset-btn" onclick="applyPreset('3c-05-16')">三芯 0.5mm² 1.6m</button>
-          <button class="preset-btn" onclick="applyPreset('3c-82-16')">三芯 0.824mm² 1.6m</button>
-          <button class="preset-btn" onclick="applyPreset('3c-05-61')">三芯 0.5mm² 6.1m</button>
-          <button class="preset-btn" onclick="applyPreset('3c-82-61')">三芯 0.824mm² 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-05-16')">涓よ姱 0.5mm虏 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-82-16')">涓よ姱 0.824mm虏 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-05-61')">涓よ姱 0.5mm虏 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('2c-82-61')">涓よ姱 0.824mm虏 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-05-16')">涓夎姱 0.5mm虏 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-82-16')">涓夎姱 0.824mm虏 1.6m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-05-61')">涓夎姱 0.5mm虏 6.1m</button>
+          <button class="preset-btn" onclick="applyPreset('3c-82-61')">涓夎姱 0.824mm虏 6.1m</button>
         </div>
         <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--slate-100);">
-          <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+          <button class="preset-btn" onclick="clearAll()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">馃棏 娓呯┖閲嶅～</button>
         </div>
       </div>
     </div>
 
-    <!-- ① 产品基本信息 -->
+    <!-- 鈶?浜у搧鍩烘湰淇℃伅 -->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ① 产品基本信息
-        <span class="collapse-arrow">▼</span>
+        鈶?浜у搧鍩烘湰淇℃伅
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
-          <label>导体材质</label>
+          <label>瀵间綋鏉愯川</label>
           <div class="input-wrap">
             <select id="conductorType" onchange="onConductorChange()">
-              <option value="纯铜">纯铜</option>
-              <option value="纯铝">纯铝</option>
-              <option value="纯铝+铜包铜">纯铝+铜包铜</option>
-              <option value="纯铜+纯铝">纯铜+纯铝</option>
+              <option value="绾摐">绾摐</option>
+              <option value="绾摑">绾摑</option>
+              <option value="绾摑+閾滃寘閾?>绾摑+閾滃寘閾?/option>
+              <option value="绾摐+绾摑">绾摐+绾摑</option>
             </select>
           </div>
         </div>
         <div class="field">
-          <label>芯线数</label>
+          <label>鑺嚎鏁?/label>
           <div class="input-wrap">
             <input type="number" id="coreCount" value="3" min="1" max="12" onchange="calcPlug()">
-            <span class="unit">芯</span>
+            <span class="unit">鑺?/span>
           </div>
         </div>
         <div class="field">
-          <label>线长</label>
+          <label>绾块暱</label>
           <div class="input-wrap">
             <input type="number" id="wireLength" value="1.6" min="0.1" step="0.1" onchange="calcPlug()">
             <span class="unit">M</span>
@@ -618,180 +618,180 @@
       </div>
     </div>
 
-    <!-- ② 线材规格参数 -->
+    <!-- 鈶?绾挎潗瑙勬牸鍙傛暟 -->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ② 线材规格参数
-        <span class="collapse-arrow">▼</span>
+        鈶?绾挎潗瑙勬牸鍙傛暟
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
-          <label>线径 (mm²)</label>
+          <label>绾垮緞 (mm虏)</label>
           <div class="input-wrap">
             <select id="wireSpec" onchange="onWireSpecChange()">
-              <option value="0.5">0.5 mm²</option>
-              <option value="0.824">0.824 mm²</option>
-              <option value="0.3">0.3 mm²</option>
-              <option value="0.75">0.75 mm²</option>
-              <option value="1">1 mm²</option>
-              <option value="1.5">1.5 mm²</option>
-              <option value="2">2 mm²</option>
-              <option value="2.5">2.5 mm²</option>
+              <option value="0.5">0.5 mm虏</option>
+              <option value="0.824">0.824 mm虏</option>
+              <option value="0.3">0.3 mm虏</option>
+              <option value="0.75">0.75 mm虏</option>
+              <option value="1">1 mm虏</option>
+              <option value="1.5">1.5 mm虏</option>
+              <option value="2">2 mm虏</option>
+              <option value="2.5">2.5 mm虏</option>
             </select>
           </div>
         </div>
         <div class="field">
-          <label>单支直径 (mm) <span style="color:#94A3B8">自动</span></label>
+          <label>鍗曟敮鐩村緞 (mm) <span style="color:#94A3B8">鑷姩</span></label>
           <div class="input-wrap">
             <input type="number" id="strandDia" class="auto-fill" readonly>
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
-          <label>总支数 <span style="color:#94A3B8">自动</span></label>
+          <label>鎬绘敮鏁?<span style="color:#94A3B8">鑷姩</span></label>
           <div class="input-wrap">
             <input type="number" id="totalStrands" class="auto-fill" readonly>
-            <span class="unit">支</span>
+            <span class="unit">鏀?/span>
           </div>
         </div>
         <div class="field">
-          <label>加捻损耗 <span style="color:#94A3B8">自动</span></label>
+          <label>鍔犳嵒鎹熻€?<span style="color:#94A3B8">鑷姩</span></label>
           <div class="input-wrap">
             <input type="number" id="twistFactor" class="auto-fill" readonly step="0.01">
           </div>
         </div>
         <div class="field">
-          <label>成品外径 (mm)</label>
+          <label>鎴愬搧澶栧緞 (mm)</label>
           <div class="input-wrap">
             <input type="number" id="outerDia" value="7.8" min="1" step="0.1" onchange="calcPlug()">
             <span class="unit">mm</span>
           </div>
         </div>
         <div class="field">
-          <label>胶皮材质</label>
+          <label>鑳剁毊鏉愯川</label>
           <div class="input-wrap">
             <select id="insulationType" onchange="onInsulationChange()">
               <option value="PVC">PVC</option>
-              <option value="橡胶">橡胶</option>
-              <option value="硅胶">硅胶</option>
+              <option value="姗¤兌">姗¤兌</option>
+              <option value="纭呰兌">纭呰兌</option>
               <option value="PE">PE</option>
               <option value="XLPE">XLPE</option>
             </select>
           </div>
           <div style="display:flex;align-items:center;gap:4px;margin-top:3px;">
-            <span style="font-size:10px;color:var(--slate-400);">密度：</span>
-            <span id="insulDensityDisplay" style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:4px;">1.35 g/cm³</span>
+            <span style="font-size:10px;color:var(--slate-400);">瀵嗗害锛?/span>
+            <span id="insulDensityDisplay" style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:1px 6px;border-radius:4px;">1.35 g/cm鲁</span>
           </div>
         </div>
       </div>
       </div>
     </div>
 
-    <!-- ③ 原材料单价 -->
+    <!-- 鈶?鍘熸潗鏂欏崟浠?-->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ③ 原材料单价
-        <span class="collapse-arrow">▼</span>
+        鈶?鍘熸潗鏂欏崟浠?
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-4">
         <div class="field">
-          <label>铜原料单价</label>
+          <label>閾滃師鏂欏崟浠?/label>
           <div class="input-wrap">
             <input type="number" id="copperPrice" value="105" min="0" step="1" onchange="calcPlug()">
-            <span class="unit">元/kg</span>
+            <span class="unit">鍏?kg</span>
           </div>
         </div>
         <div class="field">
-          <label>铝原料单价</label>
+          <label>閾濆師鏂欏崟浠?/label>
           <div class="input-wrap">
             <input type="number" id="aluminumPrice" value="39" min="0" step="1" onchange="calcPlug()">
-            <span class="unit">元/kg</span>
+            <span class="unit">鍏?kg</span>
           </div>
         </div>
         <div class="field">
-          <label>铜包铜单价</label>
+          <label>閾滃寘閾滃崟浠?/label>
           <div class="input-wrap">
             <input type="number" id="ccaPrice" value="76" min="0" step="1" onchange="calcPlug()">
-            <span class="unit">元/kg</span>
+            <span class="unit">鍏?kg</span>
           </div>
         </div>
         <div class="field">
-          <label>胶料价格</label>
+          <label>鑳舵枡浠锋牸</label>
           <div class="input-wrap">
             <input type="number" id="insulPrice" value="8" min="0" step="0.5" onchange="calcPlug()">
-            <span class="unit">元/kg</span>
+            <span class="unit">鍏?kg</span>
           </div>
         </div>
       </div>
       </div>
     </div>
 
-    <!-- ④ 材质支数分配 -->
+    <!-- 鈶?鏉愯川鏀暟鍒嗛厤 -->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ④ 材质支数分配 <span class="badge" id="strandBadge">总支数：16</span>
-        <span class="collapse-arrow">▼</span>
+        鈶?鏉愯川鏀暟鍒嗛厤 <span class="badge" id="strandBadge">鎬绘敮鏁帮細16</span>
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-        <span style="font-size:13px;color:#666;">支数可自由修改，切换材质/线径不会覆盖已编辑的值</span>
-        <button onclick="resetStrandsToDefault()" style="padding:4px 14px;border-radius:6px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;">↺ 恢复默认支数</button>
+        <span style="font-size:13px;color:#666;">鏀暟鍙嚜鐢变慨鏀癸紝鍒囨崲鏉愯川/绾垮緞涓嶄細瑕嗙洊宸茬紪杈戠殑鍊?/span>
+        <button onclick="resetStrandsToDefault()" style="padding:4px 14px;border-radius:6px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;">鈫?鎭㈠榛樿鏀暟</button>
       </div>
       <!-- Desktop table -->
       <div class="material-ratio-wrap">
         <table class="mat-table">
           <thead>
             <tr>
-              <th>材质</th>
-              <th>支数</th>
-              <th>密度 g/cm³</th>
-              <th>单价 元/kg</th>
-              <th>截面积 mm²</th>
-              <th>总截面积 mm²</th>
-              <th>每米重量 g</th>
-              <th>每米成本 元</th>
+              <th>鏉愯川</th>
+              <th>鏀暟</th>
+              <th>瀵嗗害 g/cm鲁</th>
+              <th>鍗曚环 鍏?kg</th>
+              <th>鎴潰绉?mm虏</th>
+              <th>鎬绘埅闈㈢Н mm虏</th>
+              <th>姣忕背閲嶉噺 g</th>
+              <th>姣忕背鎴愭湰 鍏?/th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>铜线</td>
+              <td>閾滅嚎</td>
               <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" oninput="_userEditedStrands=true" onchange="setVal('copperStrands_m',this.value);calcPlug()"></td>
               <td>8.9</td>
               <td id="mt-copperPrice">105</td>
-              <td id="mt-strandArea">—</td>
-              <td id="mt-copperArea">—</td>
-              <td id="mt-copperWeight">—</td>
-              <td id="mt-copperCost">—</td>
+              <td id="mt-strandArea">鈥?/td>
+              <td id="mt-copperArea">鈥?/td>
+              <td id="mt-copperWeight">鈥?/td>
+              <td id="mt-copperCost">鈥?/td>
             </tr>
             <tr>
-              <td>铝线</td>
+              <td>閾濈嚎</td>
               <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" oninput="_userEditedStrands=true" onchange="setVal('aluminumStrands_m',this.value);calcPlug()"></td>
               <td>3.0</td>
               <td id="mt-aluminumPrice">39</td>
-              <td id="mt-strandArea2">—</td>
-              <td id="mt-aluminumArea">—</td>
-              <td id="mt-aluminumWeight">—</td>
-              <td id="mt-aluminumCost">—</td>
+              <td id="mt-strandArea2">鈥?/td>
+              <td id="mt-aluminumArea">鈥?/td>
+              <td id="mt-aluminumWeight">鈥?/td>
+              <td id="mt-aluminumCost">鈥?/td>
             </tr>
             <tr>
-              <td>铜包铜线</td>
+              <td>閾滃寘閾滅嚎</td>
               <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" oninput="_userEditedStrands=true" onchange="setVal('ccaStrands_m',this.value);calcPlug()"></td>
               <td>8.6</td>
               <td id="mt-ccaPrice">76</td>
-              <td id="mt-strandArea3">—</td>
-              <td id="mt-ccaArea">—</td>
-              <td id="mt-ccaWeight">—</td>
-              <td id="mt-ccaCost">—</td>
+              <td id="mt-strandArea3">鈥?/td>
+              <td id="mt-ccaArea">鈥?/td>
+              <td id="mt-ccaWeight">鈥?/td>
+              <td id="mt-ccaCost">鈥?/td>
             </tr>
             <tr>
-              <td>合计</td>
+              <td>鍚堣</td>
               <td id="mt-totalStrands" style="font-weight:700">16</td>
               <td colspan="3"></td>
-              <td id="mt-totalArea" style="font-weight:700">—</td>
-              <td id="mt-totalWeight" style="font-weight:700">—</td>
-              <td id="mt-totalCost" style="font-weight:700;color:var(--primary-dark)">—</td>
+              <td id="mt-totalArea" style="font-weight:700">鈥?/td>
+              <td id="mt-totalWeight" style="font-weight:700">鈥?/td>
+              <td id="mt-totalCost" style="font-weight:700;color:var(--primary-dark)">鈥?/td>
             </tr>
           </tbody>
         </table>
@@ -799,89 +799,89 @@
       <!-- Mobile material cards -->
       <div class="mat-cards" id="matCards">
         <div class="mat-card-item">
-          <div class="mci-header"><span class="mci-name">🔶 铜线</span></div>
+          <div class="mci-header"><span class="mci-name">馃敹 閾滅嚎</span></div>
           <div class="mci-row">
-            <div><div class="mci-label">密度</div><div class="mci-val">8.9 g/cm³</div></div>
-            <div><div class="mci-label">单价</div><div class="mci-val" id="mcm-copperPrice">105</div></div>
-            <div><div class="mci-label">截面积</div><div class="mci-val" id="mcm-copperArea">—</div></div>
+            <div><div class="mci-label">瀵嗗害</div><div class="mci-val">8.9 g/cm鲁</div></div>
+            <div><div class="mci-label">鍗曚环</div><div class="mci-val" id="mcm-copperPrice">105</div></div>
+            <div><div class="mci-label">鎴潰绉?/div><div class="mci-val" id="mcm-copperArea">鈥?/div></div>
           </div>
           <div class="mci-row">
-            <div><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-copperWeight">—</div></div>
-            <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-copperCost" style="color:var(--primary-dark)">—</div></div>
+            <div><div class="mci-label">姣忕背閲嶉噺</div><div class="mci-val" id="mcm-copperWeight">鈥?/div></div>
+            <div><div class="mci-label">姣忕背鎴愭湰</div><div class="mci-val" id="mcm-copperCost" style="color:var(--primary-dark)">鈥?/div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="copperStrands_m" value="16" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>鏀暟</label><input type="number" id="copperStrands_m" value="16" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-item">
-          <div class="mci-header"><span class="mci-name">⬜ 铝线</span></div>
+          <div class="mci-header"><span class="mci-name">猬?閾濈嚎</span></div>
           <div class="mci-row">
-            <div><div class="mci-label">密度</div><div class="mci-val">3.0 g/cm³</div></div>
-            <div><div class="mci-label">单价</div><div class="mci-val" id="mcm-aluminumPrice">39</div></div>
-            <div><div class="mci-label">截面积</div><div class="mci-val" id="mcm-aluminumArea">—</div></div>
+            <div><div class="mci-label">瀵嗗害</div><div class="mci-val">3.0 g/cm鲁</div></div>
+            <div><div class="mci-label">鍗曚环</div><div class="mci-val" id="mcm-aluminumPrice">39</div></div>
+            <div><div class="mci-label">鎴潰绉?/div><div class="mci-val" id="mcm-aluminumArea">鈥?/div></div>
           </div>
           <div class="mci-row">
-            <div><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-aluminumWeight">—</div></div>
-            <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-aluminumCost" style="color:var(--primary-dark)">—</div></div>
+            <div><div class="mci-label">姣忕背閲嶉噺</div><div class="mci-val" id="mcm-aluminumWeight">鈥?/div></div>
+            <div><div class="mci-label">姣忕背鎴愭湰</div><div class="mci-val" id="mcm-aluminumCost" style="color:var(--primary-dark)">鈥?/div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="aluminumStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>鏀暟</label><input type="number" id="aluminumStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-item">
-          <div class="mci-header"><span class="mci-name">🟤 铜包铜线</span></div>
+          <div class="mci-header"><span class="mci-name">馃煠 閾滃寘閾滅嚎</span></div>
           <div class="mci-row">
-            <div><div class="mci-label">密度</div><div class="mci-val">8.6 g/cm³</div></div>
-            <div><div class="mci-label">单价</div><div class="mci-val" id="mcm-ccaPrice">76</div></div>
-            <div><div class="mci-label">截面积</div><div class="mci-val" id="mcm-ccaArea">—</div></div>
+            <div><div class="mci-label">瀵嗗害</div><div class="mci-val">8.6 g/cm鲁</div></div>
+            <div><div class="mci-label">鍗曚环</div><div class="mci-val" id="mcm-ccaPrice">76</div></div>
+            <div><div class="mci-label">鎴潰绉?/div><div class="mci-val" id="mcm-ccaArea">鈥?/div></div>
           </div>
           <div class="mci-row">
-            <div><div class="mci-label">每米重量</div><div class="mci-val" id="mcm-ccaWeight">—</div></div>
-            <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-ccaCost" style="color:var(--primary-dark)">—</div></div>
+            <div><div class="mci-label">姣忕背閲嶉噺</div><div class="mci-val" id="mcm-ccaWeight">鈥?/div></div>
+            <div><div class="mci-label">姣忕背鎴愭湰</div><div class="mci-val" id="mcm-ccaCost" style="color:var(--primary-dark)">鈥?/div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="ccaStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>鏀暟</label><input type="number" id="ccaStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-total">
           <div class="mci-row">
-            <div><div class="mci-label">合计支数</div><div class="mci-val" id="mcm-totalStrands">16</div></div>
-            <div><div class="mci-label">总截面积</div><div class="mci-val" id="mcm-totalArea">—</div></div>
-            <div><div class="mci-label">总每米成本</div><div class="mci-val" id="mcm-totalCost" style="color:var(--primary-dark)">—</div></div>
+            <div><div class="mci-label">鍚堣鏀暟</div><div class="mci-val" id="mcm-totalStrands">16</div></div>
+            <div><div class="mci-label">鎬绘埅闈㈢Н</div><div class="mci-val" id="mcm-totalArea">鈥?/div></div>
+            <div><div class="mci-label">鎬绘瘡绫虫垚鏈?/div><div class="mci-val" id="mcm-totalCost" style="color:var(--primary-dark)">鈥?/div></div>
           </div>
         </div>
       </div>
-      <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px;">✅ 支数分配正确</div>
+      <div id="strandCheckMsg" class="msg msg-ok" style="margin-top:8px;">鉁?鏀暟鍒嗛厤姝ｇ‘</div>
       </div>
     </div>
 
-    <!-- ⑤ 配件费用 -->
+    <!-- 鈶?閰嶄欢璐圭敤 -->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ⑤ 配件费用
-        <span class="collapse-arrow">▼</span>
+        鈶?閰嶄欢璐圭敤
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <!-- Desktop table -->
       <div class="table-wrap">
       <table class="acc-table">
         <thead>
-          <tr><th>配件</th><th>单价（元/个）</th><th>数量</th><th>小计（元）</th></tr>
+          <tr><th>閰嶄欢</th><th>鍗曚环锛堝厓/涓級</th><th>鏁伴噺</th><th>灏忚锛堝厓锛?/th></tr>
         </thead>
         <tbody>
           <tr>
-            <td>插头</td>
-            <td><input type="number" id="plugPrice" value="1.2" min="0" step="0.1" onchange="calcPlug();syncAccField('plugPrice')"></td>
-            <td><input type="number" id="plugQty" value="1" min="0" onchange="calcPlug();syncAccField('plugQty')"></td>
+            <td>鎻掑ご</td>
+            <td><input type="number" id="plugPrice" value="1.2" min="0" step="0.1" onchange="calcPlug();syncAccToMobile('plugPrice')"></td>
+            <td><input type="number" id="plugQty" value="1" min="0" onchange="calcPlug();syncAccToMobile('plugQty')"></td>
             <td class="cost-cell" id="plugCost">1.20</td>
           </tr>
           <tr>
-            <td>开关</td>
-            <td><input type="number" id="switchPrice" value="1" min="0" step="0.1" onchange="calcPlug();syncAccField('switchPrice')"></td>
-            <td><input type="number" id="switchQty" value="0" min="0" onchange="calcPlug();syncAccField('switchQty')"></td>
+            <td>寮€鍏?/td>
+            <td><input type="number" id="switchPrice" value="1" min="0" step="0.1" onchange="calcPlug();syncAccToMobile('switchPrice')"></td>
+            <td><input type="number" id="switchQty" value="0" min="0" onchange="calcPlug();syncAccToMobile('switchQty')"></td>
             <td class="cost-cell" id="switchCost">0.00</td>
           </tr>
           <tr>
-            <td>端子</td>
-            <td><input type="number" id="terminalPrice" value="0.05" min="0" step="0.01" onchange="calcPlug();syncAccField('terminalPrice')"></td>
-            <td><input type="number" id="terminalQty" value="0" min="0" onchange="calcPlug();syncAccField('terminalQty')"></td>
+            <td>绔瓙</td>
+            <td><input type="number" id="terminalPrice" value="0.05" min="0" step="0.01" onchange="calcPlug();syncAccToMobile('terminalPrice')"></td>
+            <td><input type="number" id="terminalQty" value="0" min="0" onchange="calcPlug();syncAccToMobile('terminalQty')"></td>
             <td class="cost-cell" id="terminalCost">0.00</td>
           </tr>
         </tbody>
@@ -890,78 +890,78 @@
       <!-- Mobile accessory cards -->
       <div class="acc-cards">
         <div class="acc-card-item">
-          <span class="aci-name">🔌 插头</span>
-          <div class="aci-field"><label>单价 (元)</label><input type="number" id="plugPrice_m" value="1.2" min="0" step="0.1" onchange="syncAccField('plugPrice')"></div>
-          <div class="aci-field"><label>数量</label><input type="number" id="plugQty_m" value="1" min="0" onchange="syncAccField('plugQty')"></div>
-          <div class="aci-cost">小计 <strong id="plugCost_m">¥1.20</strong></div>
+          <span class="aci-name">馃攲 鎻掑ご</span>
+          <div class="aci-field"><label>鍗曚环 (鍏?</label><input type="number" id="plugPrice_m" value="1.2" min="0" step="0.1" onchange="syncAccField('plugPrice')"></div>
+          <div class="aci-field"><label>鏁伴噺</label><input type="number" id="plugQty_m" value="1" min="0" onchange="syncAccField('plugQty')"></div>
+          <div class="aci-cost">灏忚 <strong id="plugCost_m">楼1.20</strong></div>
         </div>
         <div class="acc-card-item">
-          <span class="aci-name">🔘 开关</span>
-          <div class="aci-field"><label>单价 (元)</label><input type="number" id="switchPrice_m" value="1" min="0" step="0.1" onchange="syncAccField('switchPrice')"></div>
-          <div class="aci-field"><label>数量</label><input type="number" id="switchQty_m" value="0" min="0" onchange="syncAccField('switchQty')"></div>
-          <div class="aci-cost">小计 <strong id="switchCost_m">¥0.00</strong></div>
+          <span class="aci-name">馃敇 寮€鍏?/span>
+          <div class="aci-field"><label>鍗曚环 (鍏?</label><input type="number" id="switchPrice_m" value="1" min="0" step="0.1" onchange="syncAccField('switchPrice')"></div>
+          <div class="aci-field"><label>鏁伴噺</label><input type="number" id="switchQty_m" value="0" min="0" onchange="syncAccField('switchQty')"></div>
+          <div class="aci-cost">灏忚 <strong id="switchCost_m">楼0.00</strong></div>
         </div>
         <div class="acc-card-item">
-          <span class="aci-name">🔧 端子</span>
-          <div class="aci-field"><label>单价 (元)</label><input type="number" id="terminalPrice_m" value="0.05" min="0" step="0.01" onchange="syncAccField('terminalPrice')"></div>
-          <div class="aci-field"><label>数量</label><input type="number" id="terminalQty_m" value="0" min="0" onchange="syncAccField('terminalQty')"></div>
-          <div class="aci-cost">小计 <strong id="terminalCost_m">¥0.00</strong></div>
+          <span class="aci-name">馃敡 绔瓙</span>
+          <div class="aci-field"><label>鍗曚环 (鍏?</label><input type="number" id="terminalPrice_m" value="0.05" min="0" step="0.01" onchange="syncAccField('terminalPrice')"></div>
+          <div class="aci-field"><label>鏁伴噺</label><input type="number" id="terminalQty_m" value="0" min="0" onchange="syncAccField('terminalQty')"></div>
+          <div class="aci-cost">灏忚 <strong id="terminalCost_m">楼0.00</strong></div>
         </div>
       </div>
       </div>
     </div>
 
-    <!-- ⑥ 加工费 -->
+    <!-- 鈶?鍔犲伐璐?-->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ⑥ 加工费用
-        <span class="collapse-arrow">▼</span>
+        鈶?鍔犲伐璐圭敤
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
-          <label>辐照费</label>
+          <label>杈愮収璐?/label>
           <div class="input-wrap">
             <input type="number" id="radFee" value="0" min="0" step="0.01" onchange="calcPlug()">
-            <span class="unit">元/米</span>
+            <span class="unit">鍏?绫?/span>
           </div>
-          <span class="hint">× 线长自动计算</span>
+          <span class="hint">脳 绾块暱鑷姩璁＄畻</span>
         </div>
         <div class="field">
-          <label>尾部加工费</label>
+          <label>灏鹃儴鍔犲伐璐?/label>
           <div class="input-wrap">
             <input type="number" id="tailFee" value="0.3" min="0" step="0.05" onchange="calcPlug()">
-            <span class="unit">元/条</span>
+            <span class="unit">鍏?鏉?/span>
           </div>
         </div>
         <div class="field">
-          <label>运费</label>
+          <label>杩愯垂</label>
           <div class="input-wrap">
             <input type="number" id="shipFee" value="0.05" min="0" step="0.05" onchange="calcPlug()">
-            <span class="unit">元/条</span>
+            <span class="unit">鍏?鏉?/span>
           </div>
         </div>
       </div>
       </div>
     </div>
 
-    <!-- ⑦ 利润与税率 -->
+    <!-- 鈶?鍒╂鼎涓庣◣鐜?-->
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ⑦ 利润与税率
-        <span class="collapse-arrow">▼</span>
+        鈶?鍒╂鼎涓庣◣鐜?
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-2">
         <div class="field">
-          <label>利润率</label>
+          <label>鍒╂鼎鐜?/label>
           <div class="input-wrap">
             <input type="number" id="profitRate" value="15" min="0" max="100" step="1" onchange="calcPlug()">
             <span class="unit">%</span>
           </div>
         </div>
         <div class="field">
-          <label>税率</label>
+          <label>绋庣巼</label>
           <div class="input-wrap">
             <input type="number" id="taxRate" value="10" min="0" max="30" step="1" onchange="calcPlug()">
             <span class="unit">%</span>
@@ -973,38 +973,38 @@
 
   </div><!-- /left-col -->
 
-  <!-- ========== 右侧结果区 (desktop) ========== -->
+  <!-- ========== 鍙充晶缁撴灉鍖?(desktop) ========== -->
   <div class="right-col">
 
     <div class="result-card">
-      <div class="label">整条线含税总成本</div>
-      <div class="total-price"><span class="currency">¥</span><span id="totalCost">—</span></div>
-      <div class="per-unit">元/条（含利润 + 税）</div>
+      <div class="label">鏁存潯绾垮惈绋庢€绘垚鏈?/div>
+      <div class="total-price"><span class="currency">楼</span><span id="totalCost">鈥?/span></div>
+      <div class="per-unit">鍏?鏉★紙鍚埄娑?+ 绋庯級</div>
       <div class="cost-breakdown">
         <div class="cost-item">
-          <div class="ci-label">不含税小计</div>
-          <div class="ci-val">¥<span id="subTotal">—</span></div>
+          <div class="ci-label">涓嶅惈绋庡皬璁?/div>
+          <div class="ci-val">楼<span id="subTotal">鈥?/span></div>
         </div>
         <div class="cost-item">
-          <div class="ci-label">利润</div>
-          <div class="ci-val">¥<span id="profitAmount">—</span></div>
+          <div class="ci-label">鍒╂鼎</div>
+          <div class="ci-val">楼<span id="profitAmount">鈥?/span></div>
         </div>
         <div class="cost-item">
-          <div class="ci-label">税额</div>
-          <div class="ci-val">¥<span id="taxAmount">—</span></div>
+          <div class="ci-label">绋庨</div>
+          <div class="ci-val">楼<span id="taxAmount">鈥?/span></div>
         </div>
         <div class="cost-item">
-          <div class="ci-label">每米线材成本</div>
-          <div class="ci-val">¥<span id="perMeterCost">—</span></div>
+          <div class="ci-label">姣忕背绾挎潗鎴愭湰</div>
+          <div class="ci-val">楼<span id="perMeterCost">鈥?/span></div>
         </div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">📊 成本分解明细</div>
+      <div class="card-title">馃搳 鎴愭湰鍒嗚В鏄庣粏</div>
       <div class="tab-btns">
-        <button class="tab-btn-sm active" onclick="switchPlugTab('detail')">逐项明细</button>
-        <button class="tab-btn-sm" onclick="switchPlugTab('chart')">饼图分析</button>
+        <button class="tab-btn-sm active" onclick="switchPlugTab('detail')">閫愰」鏄庣粏</button>
+        <button class="tab-btn-sm" onclick="switchPlugTab('chart')">楗煎浘鍒嗘瀽</button>
       </div>
       <div class="tab-pane active" id="plug-tab-detail">
         <div class="items-list" id="itemsList"></div>
@@ -1016,16 +1016,16 @@
     </div>
 
     <div class="card">
-      <div class="card-title">📝 计价公式说明</div>
+      <div class="card-title">馃摑 璁′环鍏紡璇存槑</div>
       <div class="formula-box">
-        <div>① 单支截面积 = π × (单支直径/2)²</div>
-        <div>② 导体截面积 = 单支截面积 × 总支数</div>
-        <div>③ 导体重量(g/m) = 截面积 × 加捻损耗 × 密度</div>
-        <div>④ 导体成本(元/m) = 重量 × 单价 / 1000</div>
-        <div>⑤ 胶皮截面积 = 0.7854×外径² − 导体截面积×芯数</div>
-        <div>⑥ 胶皮成本(元/m) = 胶皮截面积 × 密度 × 胶料价 / 1000</div>
-        <div>⑦ 小计 = 每米线材成本×线长 + 加工费 + 配件费</div>
-        <div>⑧ 含税成本 = 小计 × (1+利润率%) × (1+税率%)</div>
+        <div>鈶?鍗曟敮鎴潰绉?= 蟺 脳 (鍗曟敮鐩村緞/2)虏</div>
+        <div>鈶?瀵间綋鎴潰绉?= 鍗曟敮鎴潰绉?脳 鎬绘敮鏁?/div>
+        <div>鈶?瀵间綋閲嶉噺(g/m) = 鎴潰绉?脳 鍔犳嵒鎹熻€?脳 瀵嗗害</div>
+        <div>鈶?瀵间綋鎴愭湰(鍏?m) = 閲嶉噺 脳 鍗曚环 / 1000</div>
+        <div>鈶?鑳剁毊鎴潰绉?= 0.7854脳澶栧緞虏 鈭?瀵间綋鎴潰绉楄姱鏁?/div>
+        <div>鈶?鑳剁毊鎴愭湰(鍏?m) = 鑳剁毊鎴潰绉?脳 瀵嗗害 脳 鑳舵枡浠?/ 1000</div>
+        <div>鈶?灏忚 = 姣忕背绾挎潗鎴愭湰脳绾块暱 + 鍔犲伐璐?+ 閰嶄欢璐?/div>
+        <div>鈶?鍚◣鎴愭湰 = 灏忚 脳 (1+鍒╂鼎鐜?) 脳 (1+绋庣巼%)</div>
       </div>
     </div>
 
@@ -1035,90 +1035,90 @@
 
 
 <!-- ############################################################ -->
-<!-- PAGE 2: 包材                                                    -->
+<!-- PAGE 2: 鍖呮潗                                                    -->
 <!-- ############################################################ -->
 <div id="page-pkg" class="page-panel">
 
 <!-- Mobile Result Bar -->
 <div class="mobile-result-bar" id="mobileBar-pkg">
   <div class="mrb-top">
-    <div class="mrb-label" id="mobPkgLabel">包材含税总成本</div>
-    <div class="mrb-total">¥<span id="mobPkgTotal">—</span></div>
+    <div class="mrb-label" id="mobPkgLabel">鍖呮潗鍚◣鎬绘垚鏈?/div>
+    <div class="mrb-total">楼<span id="mobPkgTotal">鈥?/span></div>
   </div>
 </div>
 
 <div class="pkg-layout">
 
   <div class="pkg-type-col">
-    <div style="font-size:12px;font-weight:700;color:var(--slate-500);margin-bottom:4px;text-align:center;">包装类型</div>
-    <button class="pkg-type-btn active" data-type="牛皮盒" onclick="selectPkgType('牛皮盒',this)">牛皮盒</button>
-    <button class="pkg-type-btn" data-type="外箱" onclick="selectPkgType('外箱',this)">外箱</button>
-    <button class="pkg-type-btn" data-type="纸卡" onclick="selectPkgType('纸卡',this)">纸卡</button>
-    <button class="pkg-type-btn" data-type="珍珠棉-粘底" onclick="selectPkgType('珍珠棉-粘底',this)">珍珠棉<br>(粘底)</button>
-    <button class="pkg-type-btn" data-type="珍珠棉-不粘底" onclick="selectPkgType('珍珠棉-不粘底',this)">珍珠棉<br>(不粘底)</button>
-    <button class="pkg-type-btn" data-type="珍珠棉片" onclick="selectPkgType('珍珠棉片',this)">珍珠棉片</button>
+    <div style="font-size:12px;font-weight:700;color:var(--slate-500);margin-bottom:4px;text-align:center;">鍖呰绫诲瀷</div>
+    <button class="pkg-type-btn active" data-type="鐗涚毊鐩? onclick="selectPkgType('鐗涚毊鐩?,this)">鐗涚毊鐩?/button>
+    <button class="pkg-type-btn" data-type="澶栫" onclick="selectPkgType('澶栫',this)">澶栫</button>
+    <button class="pkg-type-btn" data-type="绾稿崱" onclick="selectPkgType('绾稿崱',this)">绾稿崱</button>
+    <button class="pkg-type-btn" data-type="鐝嶇彔妫?绮樺簳" onclick="selectPkgType('鐝嶇彔妫?绮樺簳',this)">鐝嶇彔妫?br>(绮樺簳)</button>
+    <button class="pkg-type-btn" data-type="鐝嶇彔妫?涓嶇矘搴? onclick="selectPkgType('鐝嶇彔妫?涓嶇矘搴?,this)">鐝嶇彔妫?br>(涓嶇矘搴?</button>
+    <button class="pkg-type-btn" data-type="鐝嶇彔妫夌墖" onclick="selectPkgType('鐝嶇彔妫夌墖',this)">鐝嶇彔妫夌墖</button>
   </div>
 
   <div class="pkg-mid-col">
     <div class="card">
-      <div class="card-title" onclick="toggleSection(this)" id="pkgFormTitle">牛皮盒 参数录入 <span class="collapse-arrow">▼</span></div>
+      <div class="card-title" onclick="toggleSection(this)" id="pkgFormTitle">鐗涚毊鐩?鍙傛暟褰曞叆 <span class="collapse-arrow">鈻?/span></div>
       <div class="card-body">
       <div class="form-grid form-grid-3" id="pkgFormGrid">
         <div class="field" id="pkgFieldL">
-          <label>长 <span class="unit-label">(mm)</span></label>
+          <label>闀?<span class="unit-label">(mm)</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgL" value="280" min="0" step="1" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldW">
-          <label>宽 <span class="unit-label">(mm)</span></label>
+          <label>瀹?<span class="unit-label">(mm)</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgW" value="72" min="0" step="1" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldH">
-          <label>高 <span class="unit-label">(mm)</span></label>
+          <label>楂?<span class="unit-label">(mm)</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgH" value="150" min="0" step="1" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldPrice">
-          <label id="pkgPriceLabel">单价 <span class="unit-label">(元/张)</span></label>
+          <label id="pkgPriceLabel">鍗曚环 <span class="unit-label">(鍏?寮?</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgPrice" value="1.61" min="0" step="0.01" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldMaterial">
-          <label>材质规格</label>
+          <label>鏉愯川瑙勬牸</label>
           <div class="input-wrap">
             <select id="pkgMaterial" onchange="calcPkg()">
-              <option value="3层加强芯瓦楞纸">3层加强芯瓦楞纸</option>
-              <option value="5层加强芯瓦楞纸">5层加强芯瓦楞纸 (外箱)</option>
-              <option value="16Kg/立方">珍珠棉 16Kg/立方</option>
+              <option value="3灞傚姞寮鸿姱鐡︽绾?>3灞傚姞寮鸿姱鐡︽绾?/option>
+              <option value="5灞傚姞寮鸿姱鐡︽绾?>5灞傚姞寮鸿姱鐡︽绾?(澶栫)</option>
+              <option value="16Kg/绔嬫柟">鐝嶇彔妫?16Kg/绔嬫柟</option>
             </select>
           </div>
         </div>
         <div class="field" id="pkgFieldMarkup">
-          <label>系数 <span class="unit-label">(小数，如0.65)</span></label>
+          <label>绯绘暟 <span class="unit-label">(灏忔暟锛屽0.65)</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgMarkup" value="0.65" min="0" step="0.01" oninput="calcPkg()">
           </div>
         </div>
         <div class="field" id="pkgFieldProcess">
-          <label>加工费 <span class="unit-label">(元)</span></label>
+          <label>鍔犲伐璐?<span class="unit-label">(鍏?</span></label>
           <div class="input-wrap">
             <input type="number" id="pkgProcess" value="0" min="0" step="0.01" oninput="calcPkg()">
           </div>
         </div>
       </div>
       <div style="margin-top:12px;text-align:right;">
-        <button class="preset-btn" onclick="clearPkg()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+        <button class="preset-btn" onclick="clearPkg()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">馃棏 娓呯┖閲嶅～</button>
       </div>
       <div id="pkgFormulaHint" style="margin-top:12px;padding:10px;background:var(--slate-50);border-radius:8px;font-size:12px;color:var(--slate-500);line-height:1.8;font-family:'Courier New',monospace;">
-        <strong>牛皮盒公式：</strong>面积 = ((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
-        <strong>材料成本</strong> = 面积 × 单价<br>
-        <strong>含税成本</strong> = 材料成本 × (1 + 系数)<br>
-        <strong>总成本</strong> = 含税成本 + 加工费
+        <strong>鐗涚毊鐩掑叕寮忥細</strong>闈㈢Н = ((闀?瀹?+15)/500 脳 (瀹?楂?瀹?2+55)/1000<br>
+        <strong>鏉愭枡鎴愭湰</strong> = 闈㈢Н 脳 鍗曚环<br>
+        <strong>鍚◣鎴愭湰</strong> = 鏉愭枡鎴愭湰 脳 (1 + 绯绘暟)<br>
+        <strong>鎬绘垚鏈?/strong> = 鍚◣鎴愭湰 + 鍔犲伐璐?
       </div>
       </div>
     </div>
@@ -1126,27 +1126,27 @@
 
   <div class="pkg-right-col">
     <div class="result-card" id="pkgResultCard">
-      <div class="label" id="pkgResultLabel">牛皮盒 含税总成本</div>
-      <div class="total-price"><span class="currency">¥ </span><span id="pkgResultTotal">0.0000</span></div>
+      <div class="label" id="pkgResultLabel">鐗涚毊鐩?鍚◣鎬绘垚鏈?/div>
+      <div class="total-price"><span class="currency">楼 </span><span id="pkgResultTotal">0.0000</span></div>
     </div>
     <div class="card" style="margin-top:12px;">
-      <div class="card-title">计算明细</div>
+      <div class="card-title">璁＄畻鏄庣粏</div>
       <div id="pkgDetailContent" style="font-size:13px;line-height:2;">
-        <div style="color:var(--slate-500);text-align:center;padding:16px 0;">请输入尺寸后自动计算</div>
+        <div style="color:var(--slate-500);text-align:center;padding:16px 0;">璇疯緭鍏ュ昂瀵稿悗鑷姩璁＄畻</div>
       </div>
     </div>
     <div class="card" style="margin-top:12px;">
-      <div class="card-title">计价公式说明</div>
+      <div class="card-title">璁′环鍏紡璇存槑</div>
       <div class="formula-box" id="pkgFormulaBox">
-        <strong>牛皮盒：</strong>面积=((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br>
-        <strong>外箱：</strong>面积=((长+宽)×2+30)/1000 × (宽+高)/1000<br>
-        <strong>纸卡：</strong>面积=(长/1000) × (宽/1000)<br>
-        <strong>珍珠棉(粘底)：</strong>体积=(长×宽×(高+3))/10⁹<br>
-        <strong>珍珠棉(不粘底/片)：</strong>体积=(长×宽×高)/10⁹<br>
-        ─────────────────<br>
-        材料成本 = 面积/体积 × 单价<br>
-        含税成本 = 材料成本 × (1 + 系数)<br>
-        总成本 = 含税成本 + 加工费
+        <strong>鐗涚毊鐩掞細</strong>闈㈢Н=((闀?瀹?+15)/500 脳 (瀹?楂?瀹?2+55)/1000<br>
+        <strong>澶栫锛?/strong>闈㈢Н=((闀?瀹?脳2+30)/1000 脳 (瀹?楂?/1000<br>
+        <strong>绾稿崱锛?/strong>闈㈢Н=(闀?1000) 脳 (瀹?1000)<br>
+        <strong>鐝嶇彔妫?绮樺簳)锛?/strong>浣撶Н=(闀棵楀脳(楂?3))/10鈦?br>
+        <strong>鐝嶇彔妫?涓嶇矘搴?鐗?锛?/strong>浣撶Н=(闀棵楀脳楂?/10鈦?br>
+        鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€<br>
+        鏉愭枡鎴愭湰 = 闈㈢Н/浣撶Н 脳 鍗曚环<br>
+        鍚◣鎴愭湰 = 鏉愭枡鎴愭湰 脳 (1 + 绯绘暟)<br>
+        鎬绘垚鏈?= 鍚◣鎴愭湰 + 鍔犲伐璐?
       </div>
     </div>
   </div>
@@ -1156,18 +1156,18 @@
 
 
 <!-- ############################################################ -->
-<!-- PAGE 3: 铝型材                                                  -->
+<!-- PAGE 3: 閾濆瀷鏉?                                                 -->
 <!-- ############################################################ -->
 <div id="page-alu" class="page-panel">
 
 <!-- Mobile Result Bar -->
 <div class="mobile-result-bar" id="mobileBar-alu">
   <div class="mrb-top">
-    <div class="mrb-label">铝材含税总成本</div>
-    <div class="mrb-total">¥<span id="mobAluTotal">—</span></div>
+    <div class="mrb-label">閾濇潗鍚◣鎬绘垚鏈?/div>
+    <div class="mrb-total">楼<span id="mobAluTotal">鈥?/span></div>
   </div>
   <div class="mrb-meta">
-    <span>每米重量 <strong id="mobAluWeightPM">—</strong> g</span>
+    <span>姣忕背閲嶉噺 <strong id="mobAluWeightPM">鈥?/strong> g</span>
   </div>
 </div>
 
@@ -1176,71 +1176,71 @@
 
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ① 型材基础参数
-        <span class="collapse-arrow">▼</span>
+        鈶?鍨嬫潗鍩虹鍙傛暟
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-2">
         <div class="field">
-          <label>型材长度 <span class="unit-label">(mm)</span></label>
+          <label>鍨嬫潗闀垮害 <span class="unit-label">(mm)</span></label>
           <div class="input-wrap">
             <input type="number" id="aluLength" value="1695" min="0" step="1" oninput="calcAlu()">
           </div>
         </div>
         <div class="field">
-          <label>型材整条重量 <span class="unit-label">(克)</span></label>
+          <label>鍨嬫潗鏁存潯閲嶉噺 <span class="unit-label">(鍏?</span></label>
           <div class="input-wrap">
             <input type="number" id="aluWeight" value="389" min="0" step="1" oninput="calcAlu()">
           </div>
         </div>
       </div>
       <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:8px;font-size:13px;">
-        <span style="color:var(--slate-500);">每米重量（自动计算）：</span>
-        <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 克</strong>
+        <span style="color:var(--slate-500);">姣忕背閲嶉噺锛堣嚜鍔ㄨ绠楋級锛?/span>
+        <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;">229.50 鍏?/strong>
       </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title" onclick="toggleSection(this)">
-        ② 费用明细
-        <span class="collapse-arrow">▼</span>
+        鈶?璐圭敤鏄庣粏
+        <span class="collapse-arrow">鈻?/span>
       </div>
       <div class="card-body">
       <div class="form-grid form-grid-3">
         <div class="field">
-          <label>原材料单价 <span class="unit-label">(元/吨)</span></label>
+          <label>鍘熸潗鏂欏崟浠?<span class="unit-label">(鍏?鍚?</span></label>
           <div class="input-wrap">
             <input type="number" id="aluRawPrice" value="24200" min="0" step="100" oninput="calcAlu()">
           </div>
         </div>
         <div class="field">
-          <label>加工费单价 <span class="unit-label">(元/吨)</span></label>
+          <label>鍔犲伐璐瑰崟浠?<span class="unit-label">(鍏?鍚?</span></label>
           <div class="input-wrap">
             <input type="number" id="aluProcPrice" value="2200" min="0" step="100" oninput="calcAlu()">
           </div>
         </div>
         <div class="field">
-          <label>表面处理单价 <span class="unit-label">(元/吨)</span></label>
+          <label>琛ㄩ潰澶勭悊鍗曚环 <span class="unit-label">(鍏?鍚?</span></label>
           <div class="input-wrap">
             <input type="number" id="aluSurfPrice" value="800" min="0" step="100" oninput="calcAlu()">
           </div>
         </div>
         <div class="field">
-          <label>包装费 <span class="unit-label">(元/条)</span></label>
+          <label>鍖呰璐?<span class="unit-label">(鍏?鏉?</span></label>
           <div class="input-wrap">
             <input type="number" id="aluPackFee" value="0" min="0" step="0.01" oninput="calcAlu()">
           </div>
         </div>
         <div class="field">
-          <label>税率 <span class="unit-label">(%)</span></label>
+          <label>绋庣巼 <span class="unit-label">(%)</span></label>
           <div class="input-wrap">
             <input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()">
           </div>
         </div>
       </div>
       <div style="margin-top:12px;text-align:right;">
-        <button class="preset-btn" onclick="clearAlu()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+        <button class="preset-btn" onclick="clearAlu()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">馃棏 娓呯┖閲嶅～</button>
       </div>
       </div>
     </div>
@@ -1249,15 +1249,15 @@
 
   <div class="right-col">
     <div class="result-card">
-      <div class="label">铝材含税总成本（整条）</div>
-      <div class="total-price"><span class="currency">¥ </span><span id="aluResultTotal">11.5331</span></div>
+      <div class="label">閾濇潗鍚◣鎬绘垚鏈紙鏁存潯锛?/div>
+      <div class="total-price"><span class="currency">楼 </span><span id="aluResultTotal">11.5331</span></div>
     </div>
     <div class="card" style="margin-top:12px;">
-      <div class="card-title">成本分解明细</div>
+      <div class="card-title">鎴愭湰鍒嗚В鏄庣粏</div>
       <div id="aluDetailList"></div>
     </div>
     <div class="card" style="margin-top:12px;">
-      <div class="card-title">成本占比</div>
+      <div class="card-title">鎴愭湰鍗犳瘮</div>
       <div class="chart-wrap"><canvas id="aluChart"></canvas></div>
     </div>
   </div>
@@ -1265,7 +1265,7 @@
 </div><!-- /page-alu -->
 
 <!-- Footer -->
-<div class="site-footer">成本测算工具 · 实时计算含税成本</div>
+<div class="site-footer">鎴愭湰娴嬬畻宸ュ叿 路 瀹炴椂璁＄畻鍚◣鎴愭湰</div>
 
 <script>
 // ############################################################
@@ -1300,19 +1300,19 @@ function toggleSection(titleEl) {
 // PLUG-WIRE LOGIC
 // ############################################################
 var WIRE_SPECS = {
-  '0.5':   { '纯铜':{dia:0.2,strands:16},'纯铝':{dia:0.2,strands:16},'纯铝+铜包铜':{dia:0.2,strands:16},'纯铜+纯铝':{dia:0.2,strands:16} },
-  '0.824': { '纯铜':{dia:0.16,strands:41},'纯铝':{dia:0.2,strands:26},'纯铝+铜包铜':{dia:0.2,strands:26},'纯铜+纯铝':{dia:0.16,strands:41} },
-  '0.3':   { '纯铜':{dia:0.2,strands:11},'纯铝':{dia:0.2,strands:11},'纯铝+铜包铜':{dia:0.2,strands:11},'纯铜+纯铝':{dia:0.2,strands:11} },
-  '0.75':  { '纯铜':{dia:0.2,strands:24},'纯铝':{dia:0.2,strands:24},'纯铝+铜包铜':{dia:0.2,strands:24},'纯铜+纯铝':{dia:0.2,strands:24} },
-  '1':     { '纯铜':{dia:0.2,strands:32},'纯铝':{dia:0.2,strands:32},'纯铝+铜包铜':{dia:0.2,strands:32},'纯铜+纯铝':{dia:0.2,strands:32} },
-  '1.5':   { '纯铜':{dia:0.2,strands:48},'纯铝':{dia:0.2,strands:48},'纯铝+铜包铜':{dia:0.2,strands:48},'纯铜+纯铝':{dia:0.2,strands:48} },
-  '2':     { '纯铜':{dia:0.21,strands:56},'纯铝':{dia:0.21,strands:56},'纯铝+铜包铜':{dia:0.21,strands:56},'纯铜+纯铝':{dia:0.21,strands:56} },
-  '2.5':   { '纯铜':{dia:0.2,strands:77},'纯铝':{dia:0.2,strands:77},'纯铝+铜包铜':{dia:0.2,strands:77},'纯铜+纯铝':{dia:0.2,strands:77} },
+  '0.5':   { '绾摐':{dia:0.2,strands:16},'绾摑':{dia:0.2,strands:16},'绾摑+閾滃寘閾?:{dia:0.2,strands:16},'绾摐+绾摑':{dia:0.2,strands:16} },
+  '0.824': { '绾摐':{dia:0.16,strands:41},'绾摑':{dia:0.2,strands:26},'绾摑+閾滃寘閾?:{dia:0.2,strands:26},'绾摐+绾摑':{dia:0.16,strands:41} },
+  '0.3':   { '绾摐':{dia:0.2,strands:11},'绾摑':{dia:0.2,strands:11},'绾摑+閾滃寘閾?:{dia:0.2,strands:11},'绾摐+绾摑':{dia:0.2,strands:11} },
+  '0.75':  { '绾摐':{dia:0.2,strands:24},'绾摑':{dia:0.2,strands:24},'绾摑+閾滃寘閾?:{dia:0.2,strands:24},'绾摐+绾摑':{dia:0.2,strands:24} },
+  '1':     { '绾摐':{dia:0.2,strands:32},'绾摑':{dia:0.2,strands:32},'绾摑+閾滃寘閾?:{dia:0.2,strands:32},'绾摐+绾摑':{dia:0.2,strands:32} },
+  '1.5':   { '绾摐':{dia:0.2,strands:48},'绾摑':{dia:0.2,strands:48},'绾摑+閾滃寘閾?:{dia:0.2,strands:48},'绾摐+绾摑':{dia:0.2,strands:48} },
+  '2':     { '绾摐':{dia:0.21,strands:56},'绾摑':{dia:0.21,strands:56},'绾摑+閾滃寘閾?:{dia:0.21,strands:56},'绾摐+绾摑':{dia:0.21,strands:56} },
+  '2.5':   { '绾摐':{dia:0.2,strands:77},'绾摑':{dia:0.2,strands:77},'绾摑+閾滃寘閾?:{dia:0.2,strands:77},'绾摐+绾摑':{dia:0.2,strands:77} },
 };
-var INSULATION_DENSITY = {'PVC':1.35,'橡胶':1.5,'硅胶':1.15,'PE':0.93,'XLPE':0.92};
+var INSULATION_DENSITY = {'PVC':1.35,'姗¤兌':1.5,'纭呰兌':1.15,'PE':0.93,'XLPE':0.92};
 var MATERIAL_DENSITY = {copper:8.9, aluminum:3.0, cca:8.6};
 
-var BASE = {conductorType:'纯铜',insulationType:'PVC',plugPrice:1.2,plugQty:1,switchPrice:1.0,switchQty:0,terminalPrice:0.05,terminalQty:0,shipFee:0.05,radFee:0,tailFee:0.3,copperPrice:105,aluminumPrice:39,ccaPrice:76,insulPrice:8,profitRate:15,taxRate:10};
+var BASE = {conductorType:'绾摐',insulationType:'PVC',plugPrice:1.2,plugQty:1,switchPrice:1.0,switchQty:0,terminalPrice:0.05,terminalQty:0,shipFee:0.05,radFee:0,tailFee:0.3,copperPrice:105,aluminumPrice:39,ccaPrice:76,insulPrice:8,profitRate:15,taxRate:10};
 var PRESETS = {
   '2c-05-16': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:1.6,outerDia:7.0,tailFee:0.2}),
   '2c-05-61': Object.assign({}, BASE, {coreCount:2,wireSpec:'0.5',wireLength:6.1,outerDia:7.0,tailFee:0.3}),
@@ -1364,27 +1364,27 @@ function clearAll() {
   for (var i = 0; i < fields.length; i++) {
     var el = document.getElementById(fields[i]); if (el) el.value = '';
   }
-  setVal('conductorType', '纯铜');
+  setVal('conductorType', '绾摐');
   setVal('insulationType', 'PVC');
   _userEditedStrands = false;
   onInsulationChange(); calcPlug();
 }
 
 function onConductorChange() { onWireSpecChange(); }
-// 标志：用户是否手动修改过支数
+// 鏍囧織锛氱敤鎴锋槸鍚︽墜鍔ㄤ慨鏀硅繃鏀暟
 var _userEditedStrands = false;
 
-// 根据材质和线径计算默认支数分配
+// 鏍规嵁鏉愯川鍜岀嚎寰勮绠楅粯璁ゆ敮鏁板垎閰?
 function _calcDefaultStrands(condType, totalStrands) {
   var copper = 0, aluminum = 0, cca = 0;
-  if (condType === '纯铜') { copper = totalStrands; }
-  else if (condType === '纯铝') { aluminum = totalStrands; }
-  else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
-  else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
+  if (condType === '绾摐') { copper = totalStrands; }
+  else if (condType === '绾摑') { aluminum = totalStrands; }
+  else if (condType === '绾摑+閾滃寘閾?) { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
+  else if (condType === '绾摐+绾摑') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
   return { copper: copper, aluminum: aluminum, cca: cca };
 }
 
-// 强制恢复默认支数（按钮触发）
+// 寮哄埗鎭㈠榛樿鏀暟锛堟寜閽Е鍙戯級
 function resetStrandsToDefault() {
   _userEditedStrands = false;
   onWireSpecChange();
@@ -1395,7 +1395,7 @@ function onWireSpecChange() {
   var condType = document.getElementById('conductorType').value;
   var specMap = WIRE_SPECS[spec];
   if (!specMap) return;
-  var info = specMap[condType] || specMap['纯铜'];
+  var info = specMap[condType] || specMap['绾摐'];
   var dia = info.dia;
   var totalStrands = info.strands;
   setVal('strandDia', dia);
@@ -1403,7 +1403,7 @@ function onWireSpecChange() {
   var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
   setVal('twistFactor', (1 + 0.01 * coreCount).toFixed(2));
 
-  // 只在用户未手动修改过支数时才自动填入默认值
+  // 鍙湪鐢ㄦ埛鏈墜鍔ㄤ慨鏀硅繃鏀暟鏃舵墠鑷姩濉叆榛樿鍊?
   if (!_userEditedStrands) {
     var def = _calcDefaultStrands(condType, totalStrands);
     setVal('copperStrands', def.copper); setVal('copperStrands_m', def.copper);
@@ -1416,7 +1416,7 @@ function onInsulationChange() {
   var type = document.getElementById('insulationType').value;
   var density = INSULATION_DENSITY[type] || 1.35;
   var el = document.getElementById('insulDensityDisplay');
-  if (el) el.textContent = density + ' g/cm³';
+  if (el) el.textContent = density + ' g/cm鲁';
   calcPlug();
 }
 
@@ -1428,9 +1428,15 @@ function syncMobileStrands() {
   calcPlug();
 }
 function syncAccField(name) {
+  // mobile 鈫?desktop (used by mobile onchange)
   var mv = document.getElementById(name + '_m').value;
   setVal(name, mv);
   calcPlug();
+}
+function syncAccToMobile(name) {
+  // desktop 鈫?mobile (used by desktop onchange)
+  var mel = document.getElementById(name + '_m');
+  if (mel) mel.value = document.getElementById(name).value;
 }
 
 var chartInstance = null;
@@ -1492,23 +1498,23 @@ function calcPlug() {
 
   function fmt(n, d) {
     d = d || 4;
-    if (isNaN(n)) return '—';
+    if (isNaN(n)) return '鈥?;
     return n.toFixed(d);
   }
 
   // strand check
   var specStrands = parseInt(document.getElementById('totalStrands').value) || totalStrands;
   var diff = totalStrands - specStrands;
-  document.getElementById('strandBadge').textContent = '总支数：' + specStrands;
+  document.getElementById('strandBadge').textContent = '鎬绘敮鏁帮細' + specStrands;
   document.getElementById('mt-totalStrands').textContent = totalStrands;
   setText('mcm-totalStrands', totalStrands);
   var checkMsg = document.getElementById('strandCheckMsg');
   if (diff === 0) {
     checkMsg.className = 'msg msg-ok';
-    checkMsg.textContent = '✅ 支数分配正确（共 ' + totalStrands + ' 支）';
+    checkMsg.textContent = '鉁?鏀暟鍒嗛厤姝ｇ‘锛堝叡 ' + totalStrands + ' 鏀級';
   } else {
     checkMsg.className = 'msg msg-warn';
-    checkMsg.textContent = '⚠️ 支数差异：已分配 ' + totalStrands + ' 支，规格要求 ' + specStrands + ' 支，差 ' + (diff > 0 ? '+' : '') + diff;
+    checkMsg.textContent = '鈿狅笍 鏀暟宸紓锛氬凡鍒嗛厤 ' + totalStrands + ' 鏀紝瑙勬牸瑕佹眰 ' + specStrands + ' 鏀紝宸?' + (diff > 0 ? '+' : '') + diff;
   }
 
   // Desktop mat table
@@ -1551,9 +1557,9 @@ function calcPlug() {
   document.getElementById('plugCost').textContent = plugCost.toFixed(2);
   document.getElementById('switchCost').textContent = switchCost.toFixed(2);
   document.getElementById('terminalCost').textContent = terminalCost.toFixed(2);
-  setText('plugCost_m', '¥' + plugCost.toFixed(2));
-  setText('switchCost_m', '¥' + switchCost.toFixed(2));
-  setText('terminalCost_m', '¥' + terminalCost.toFixed(2));
+  setText('plugCost_m', '楼' + plugCost.toFixed(2));
+  setText('switchCost_m', '楼' + switchCost.toFixed(2));
+  setText('terminalCost_m', '楼' + terminalCost.toFixed(2));
 
   // Desktop result
   document.getElementById('totalCost').textContent = total.toFixed(4);
@@ -1570,20 +1576,20 @@ function calcPlug() {
 
   // detail list
   var items = [
-    { name: '导体材料成本', formula: 'Σ材质每米成本 × ' + coreCount + '芯', val: conductorCostPerM, unit: '元/米' },
-    { name: '搅合截面积（导体）', formula: '单支截面积 × 总支数', val: totalArea, unit: 'mm²' },
-    { name: '胶皮/护套成本', formula: '胶皮截面积 × 密度 × 胶料价 / 1000', val: insulCostPerM, unit: '元/米' },
-    { name: '每米线材成本', formula: '导体成本 + 胶皮成本', val: wireCostPerM, unit: '元/米', highlight: true },
-    { name: '辐照费', formula: radFee + ' × ' + wireLength + 'm', val: radCostTotal, unit: '元' },
-    { name: '插头成本', formula: plugPrice + ' × ' + plugQty + '个', val: plugCost, unit: '元' },
-    { name: '开关成本', formula: switchPrice + ' × ' + switchQty + '个', val: switchCost, unit: '元' },
-    { name: '尾部加工费', formula: '按1条计', val: tailFee, unit: '元' },
-    { name: '端子费', formula: terminalPrice + ' × ' + terminalQty + '个', val: terminalCost, unit: '元' },
-    { name: '运费', formula: '按1条计', val: shipFee, unit: '元' },
-    { name: '小计（不含利润税）', formula: '每米成本×' + wireLength + ' + 加工费 + 配件', val: subtotal, unit: '元', total: true },
-    { name: '利润（' + (profitRate*100).toFixed(0) + '%）', formula: '小计 × ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '元', total: true },
-    { name: '税额（' + (taxRate*100).toFixed(0) + '%）', formula: '(小计+利润) × ' + (taxRate*100).toFixed(0) + '%', val: taxAmt, unit: '元', total: true },
-    { name: '★ 整条含税总成本 ★', formula: '小计 + 利润 + 税额', val: total, unit: '元', total: true },
+    { name: '瀵间綋鏉愭枡鎴愭湰', formula: '危鏉愯川姣忕背鎴愭湰 脳 ' + coreCount + '鑺?, val: conductorCostPerM, unit: '鍏?绫? },
+    { name: '鎼呭悎鎴潰绉紙瀵间綋锛?, formula: '鍗曟敮鎴潰绉?脳 鎬绘敮鏁?, val: totalArea, unit: 'mm虏' },
+    { name: '鑳剁毊/鎶ゅ鎴愭湰', formula: '鑳剁毊鎴潰绉?脳 瀵嗗害 脳 鑳舵枡浠?/ 1000', val: insulCostPerM, unit: '鍏?绫? },
+    { name: '姣忕背绾挎潗鎴愭湰', formula: '瀵间綋鎴愭湰 + 鑳剁毊鎴愭湰', val: wireCostPerM, unit: '鍏?绫?, highlight: true },
+    { name: '杈愮収璐?, formula: radFee + ' 脳 ' + wireLength + 'm', val: radCostTotal, unit: '鍏? },
+    { name: '鎻掑ご鎴愭湰', formula: plugPrice + ' 脳 ' + plugQty + '涓?, val: plugCost, unit: '鍏? },
+    { name: '寮€鍏虫垚鏈?, formula: switchPrice + ' 脳 ' + switchQty + '涓?, val: switchCost, unit: '鍏? },
+    { name: '灏鹃儴鍔犲伐璐?, formula: '鎸?鏉¤', val: tailFee, unit: '鍏? },
+    { name: '绔瓙璐?, formula: terminalPrice + ' 脳 ' + terminalQty + '涓?, val: terminalCost, unit: '鍏? },
+    { name: '杩愯垂', formula: '鎸?鏉¤', val: shipFee, unit: '鍏? },
+    { name: '灏忚锛堜笉鍚埄娑︾◣锛?, formula: '姣忕背鎴愭湰脳' + wireLength + ' + 鍔犲伐璐?+ 閰嶄欢', val: subtotal, unit: '鍏?, total: true },
+    { name: '鍒╂鼎锛? + (profitRate*100).toFixed(0) + '%锛?, formula: '灏忚 脳 ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '鍏?, total: true },
+    { name: '绋庨锛? + (taxRate*100).toFixed(0) + '%锛?, formula: '(灏忚+鍒╂鼎) 脳 ' + (taxRate*100).toFixed(0) + '%', val: taxAmt, unit: '鍏?, total: true },
+    { name: '鈽?鏁存潯鍚◣鎬绘垚鏈?鈽?, formula: '灏忚 + 鍒╂鼎 + 绋庨', val: total, unit: '鍏?, total: true },
   ];
   var html = '';
   for (var i = 0; i < items.length; i++) {
@@ -1600,16 +1606,16 @@ function calcPlug() {
 
   // chart
   var chartData = [
-    { label: '导体材料', value: conductorCostPerM * wireLength, color: '#3b82f6' },
-    { label: '胶皮成本', value: insulCostPerM * wireLength, color: '#8b5cf6' },
-    { label: '辐照费', value: radCostTotal, color: '#06b6d4' },
-    { label: '插头', value: plugCost, color: '#f59e0b' },
-    { label: '开关', value: switchCost, color: '#ef4444' },
-    { label: '尾部加工', value: tailFee, color: '#10b981' },
-    { label: '端子', value: terminalCost, color: '#64748b' },
-    { label: '运费', value: shipFee, color: '#94a3b8' },
-    { label: '利润', value: profit, color: '#f97316' },
-    { label: '税额', value: taxAmt, color: '#e11d48' },
+    { label: '瀵间綋鏉愭枡', value: conductorCostPerM * wireLength, color: '#3b82f6' },
+    { label: '鑳剁毊鎴愭湰', value: insulCostPerM * wireLength, color: '#8b5cf6' },
+    { label: '杈愮収璐?, value: radCostTotal, color: '#06b6d4' },
+    { label: '鎻掑ご', value: plugCost, color: '#f59e0b' },
+    { label: '寮€鍏?, value: switchCost, color: '#ef4444' },
+    { label: '灏鹃儴鍔犲伐', value: tailFee, color: '#10b981' },
+    { label: '绔瓙', value: terminalCost, color: '#64748b' },
+    { label: '杩愯垂', value: shipFee, color: '#94a3b8' },
+    { label: '鍒╂鼎', value: profit, color: '#f97316' },
+    { label: '绋庨', value: taxAmt, color: '#e11d48' },
   ].filter(function(d){ return d.value > 0; });
   var ctx2 = document.getElementById('costChart');
   try {
@@ -1635,7 +1641,7 @@ function calcPlug() {
                 label: function(ctx) {
                   var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
                   var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                  return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+                  return ctx.label + ': 楼' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
                 }
               }
             }
@@ -1650,7 +1656,7 @@ function calcPlug() {
   var legendEl = document.getElementById('chartLegend');
   if (legendEl) {
     legendEl.innerHTML = chartData.map(function(d){
-      return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': ¥' + d.value.toFixed(3) + '</span></div>';
+      return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': 楼' + d.value.toFixed(3) + '</span></div>';
     }).join('');
   }
 }
@@ -1669,15 +1675,15 @@ function switchPlugTab(name) {
 // ############################################################
 // PACKAGING LOGIC
 // ############################################################
-var currentPkgType = '牛皮盒';
+var currentPkgType = '鐗涚毊鐩?;
 
 var PKG_PRESETS = {
-  '牛皮盒':      { l:280, w:72,  h:150, price:1.61,  markup:0.65,  process:0 },
-  '外箱':            { l:597, w:335, h:516, price:2.88,  markup:0.205, process:0 },
-  '纸卡':            { l:768, w:123, h:0,   price:1.61,  markup:0.6,   process:0 },
-  '珍珠棉-粘底':   { l:220, w:200, h:21,  price:350,   markup:0,     process:0 },
-  '珍珠棉-不粘底': { l:227, w:150, h:6,   price:320,   markup:0,     process:0 },
-  '珍珠棉片':     { l:120, w:110, h:5,   price:320,   markup:0,     process:0 },
+  '鐗涚毊鐩?:      { l:280, w:72,  h:150, price:1.61,  markup:0.65,  process:0 },
+  '澶栫':            { l:597, w:335, h:516, price:2.88,  markup:0.205, process:0 },
+  '绾稿崱':            { l:768, w:123, h:0,   price:1.61,  markup:0.6,   process:0 },
+  '鐝嶇彔妫?绮樺簳':   { l:220, w:200, h:21,  price:350,   markup:0,     process:0 },
+  '鐝嶇彔妫?涓嶇矘搴?: { l:227, w:150, h:6,   price:320,   markup:0,     process:0 },
+  '鐝嶇彔妫夌墖':     { l:120, w:110, h:5,   price:320,   markup:0,     process:0 },
 };
 
 function selectPkgType(type, btn) {
@@ -1686,23 +1692,23 @@ function selectPkgType(type, btn) {
   for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('active'); }
   if (btn) btn.classList.add('active');
   var title = document.getElementById('pkgFormTitle');
-  title.childNodes[0].textContent = type + ' 参数录入 ';
-  document.getElementById('pkgResultLabel').textContent = type + ' 含税总成本';
+  title.childNodes[0].textContent = type + ' 鍙傛暟褰曞叆 ';
+  document.getElementById('pkgResultLabel').textContent = type + ' 鍚◣鎬绘垚鏈?;
   var mobLabel = document.getElementById('mobPkgLabel');
-  if (mobLabel) mobLabel.textContent = type + ' 含税总成本';
-  document.getElementById('pkgFieldH').style.display = (type === '纸卡') ? 'none' : '';
-  var isPearl = type.indexOf('珍珠棉') !== -1;
+  if (mobLabel) mobLabel.textContent = type + ' 鍚◣鎬绘垚鏈?;
+  document.getElementById('pkgFieldH').style.display = (type === '绾稿崱') ? 'none' : '';
+  var isPearl = type.indexOf('鐝嶇彔妫?) !== -1;
   document.getElementById('pkgFieldMarkup').style.display = isPearl ? 'none' : '';
   var priceLabel = document.getElementById('pkgPriceLabel');
   if (isPearl) {
-    priceLabel.innerHTML = '单价 <span class="unit-label">(元/Kg)</span>';
+    priceLabel.innerHTML = '鍗曚环 <span class="unit-label">(鍏?Kg)</span>';
   } else {
-    priceLabel.innerHTML = '单价 <span class="unit-label">(元/张)</span>';
+    priceLabel.innerHTML = '鍗曚环 <span class="unit-label">(鍏?寮?</span>';
   }
   var matSel = document.getElementById('pkgMaterial');
-  if (type === '外箱') matSel.value = '5层加强芯瓦楞纸';
-  else if (isPearl) matSel.value = '16Kg/立方';
-  else matSel.value = '3层加强芯瓦楞纸';
+  if (type === '澶栫') matSel.value = '5灞傚姞寮鸿姱鐡︽绾?;
+  else if (isPearl) matSel.value = '16Kg/绔嬫柟';
+  else matSel.value = '3灞傚姞寮鸿姱鐡︽绾?;
   document.getElementById('pkgFieldMaterial').style.display = isPearl ? 'none' : '';
   var p = PKG_PRESETS[type];
   if (p) {
@@ -1719,11 +1725,11 @@ function selectPkgType(type, btn) {
 
 function updatePkgFormulaHint(type) {
   var box = document.getElementById('pkgFormulaHint');
-  if (type === '牛皮盒') box.innerHTML = '<strong>牛皮盒公式：</strong>面积 = ((长+宽)+15)/500 × (宽+高+宽/2+55)/1000<br><strong>材料成本</strong> = 面积 × 单价<br><strong>含税成本</strong> = 材料成本 × (1 + 系数)<br><strong>总成本</strong> = 含税成本 + 加工费';
-  else if (type === '外箱') box.innerHTML = '<strong>外箱公式：</strong>面积 = ((长+宽)×2+30)/1000 × (宽+高)/1000<br><strong>材料成本</strong> = 面积 × 单价<br><strong>含税成本</strong> = 材料成本 × (1 + 系数)<br><strong>总成本</strong> = 含税成本 + 加工费';
-  else if (type === '纸卡') box.innerHTML = '<strong>纸卡公式：</strong>面积 = (长/1000) × (宽/1000)<br><strong>材料成本</strong> = 面积 × 单价<br><strong>含税成本</strong> = 材料成本 × (1 + 系数)<br><strong>总成本</strong> = 含税成本 + 加工费';
-  else if (type === '珍珠棉-粘底') box.innerHTML = '<strong>珍珠棉(粘底)公式：</strong>体积 = (长×宽×(高+3))/10⁹<br><strong>材料成本</strong> = 体积 × 单价(元/Kg)<br><strong>总成本</strong> = 材料成本 + 加工费';
-  else box.innerHTML = '<strong>' + type + '公式：</strong>体积 = (长×宽×高)/10⁹<br><strong>材料成本</strong> = 体积 × 单价(元/Kg)<br><strong>总成本</strong> = 材料成本 + 加工费';
+  if (type === '鐗涚毊鐩?) box.innerHTML = '<strong>鐗涚毊鐩掑叕寮忥細</strong>闈㈢Н = ((闀?瀹?+15)/500 脳 (瀹?楂?瀹?2+55)/1000<br><strong>鏉愭枡鎴愭湰</strong> = 闈㈢Н 脳 鍗曚环<br><strong>鍚◣鎴愭湰</strong> = 鏉愭枡鎴愭湰 脳 (1 + 绯绘暟)<br><strong>鎬绘垚鏈?/strong> = 鍚◣鎴愭湰 + 鍔犲伐璐?;
+  else if (type === '澶栫') box.innerHTML = '<strong>澶栫鍏紡锛?/strong>闈㈢Н = ((闀?瀹?脳2+30)/1000 脳 (瀹?楂?/1000<br><strong>鏉愭枡鎴愭湰</strong> = 闈㈢Н 脳 鍗曚环<br><strong>鍚◣鎴愭湰</strong> = 鏉愭枡鎴愭湰 脳 (1 + 绯绘暟)<br><strong>鎬绘垚鏈?/strong> = 鍚◣鎴愭湰 + 鍔犲伐璐?;
+  else if (type === '绾稿崱') box.innerHTML = '<strong>绾稿崱鍏紡锛?/strong>闈㈢Н = (闀?1000) 脳 (瀹?1000)<br><strong>鏉愭枡鎴愭湰</strong> = 闈㈢Н 脳 鍗曚环<br><strong>鍚◣鎴愭湰</strong> = 鏉愭枡鎴愭湰 脳 (1 + 绯绘暟)<br><strong>鎬绘垚鏈?/strong> = 鍚◣鎴愭湰 + 鍔犲伐璐?;
+  else if (type === '鐝嶇彔妫?绮樺簳') box.innerHTML = '<strong>鐝嶇彔妫?绮樺簳)鍏紡锛?/strong>浣撶Н = (闀棵楀脳(楂?3))/10鈦?br><strong>鏉愭枡鎴愭湰</strong> = 浣撶Н 脳 鍗曚环(鍏?Kg)<br><strong>鎬绘垚鏈?/strong> = 鏉愭枡鎴愭湰 + 鍔犲伐璐?;
+  else box.innerHTML = '<strong>' + type + '鍏紡锛?/strong>浣撶Н = (闀棵楀脳楂?/10鈦?br><strong>鏉愭枡鎴愭湰</strong> = 浣撶Н 脳 鍗曚环(鍏?Kg)<br><strong>鎬绘垚鏈?/strong> = 鏉愭枡鎴愭湰 + 鍔犲伐璐?;
 }
 
 function calcPkg() {
@@ -1735,21 +1741,21 @@ function calcPkg() {
   var markup = parseFloat(document.getElementById('pkgMarkup').value) || 0;
   var processFee = parseFloat(document.getElementById('pkgProcess').value) || 0;
   var area = 0, volume = 0, sizeLabel = '';
-  if (type === '牛皮盒') {
+  if (type === '鐗涚毊鐩?) {
     area = ((l + w) + 15) / 500 * (w + h + w/2 + 55) / 1000;
-    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
-  } else if (type === '外箱') {
+    sizeLabel = '闈㈢Н ' + area.toFixed(6) + ' 銕?;
+  } else if (type === '澶栫') {
     area = ((l + w) * 2 + 30) / 1000 * (w + h) / 1000;
-    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
-  } else if (type === '纸卡') {
+    sizeLabel = '闈㈢Н ' + area.toFixed(6) + ' 銕?;
+  } else if (type === '绾稿崱') {
     area = (l / 1000) * (w / 1000);
-    sizeLabel = '面积 ' + area.toFixed(6) + ' ㎡';
-  } else if (type === '珍珠棉-粘底') {
+    sizeLabel = '闈㈢Н ' + area.toFixed(6) + ' 銕?;
+  } else if (type === '鐝嶇彔妫?绮樺簳') {
     volume = (l * w * (h + 3)) / Math.pow(1000, 3);
-    sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
+    sizeLabel = '浣撶Н ' + volume.toFixed(9) + ' m鲁';
   } else {
     volume = (l * w * h) / Math.pow(1000, 3);
-    sizeLabel = '体积 ' + volume.toFixed(9) + ' m³';
+    sizeLabel = '浣撶Н ' + volume.toFixed(9) + ' m鲁';
   }
   var matCost = (area > 0 ? area : volume) * price;
   var taxCost = matCost * (1 + markup);
@@ -1759,13 +1765,13 @@ function calcPkg() {
   setText('mobPkgTotal', total.toFixed(4));
   // Detail
   var dh = '';
-  dh += '<div style="padding:8px 0;color:var(--slate-600);"><strong>尺寸：</strong> ' + l + ' × ' + w + (h > 0 ? ' × ' + h : '') + ' mm &nbsp;→&nbsp; ' + sizeLabel + '</div>';
+  dh += '<div style="padding:8px 0;color:var(--slate-600);"><strong>灏哄锛?/strong> ' + l + ' 脳 ' + w + (h > 0 ? ' 脳 ' + h : '') + ' mm &nbsp;鈫?nbsp; ' + sizeLabel + '</div>';
   dh += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">';
-  dh += '<div style="background:var(--slate-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--slate-500);">材料成本</div><div style="font-size:18px;font-weight:700;color:var(--primary-dark);">¥ ' + matCost.toFixed(4) + '</div></div>';
-  dh += '<div style="background:var(--slate-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--slate-500);">含税成本 (×' + (1+markup).toFixed(2) + ')</div><div style="font-size:18px;font-weight:700;color:var(--orange);">¥ ' + taxCost.toFixed(4) + '</div></div>';
+  dh += '<div style="background:var(--slate-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--slate-500);">鏉愭枡鎴愭湰</div><div style="font-size:18px;font-weight:700;color:var(--primary-dark);">楼 ' + matCost.toFixed(4) + '</div></div>';
+  dh += '<div style="background:var(--slate-50);border-radius:8px;padding:10px 12px;"><div style="font-size:11px;color:var(--slate-500);">鍚◣鎴愭湰 (脳' + (1+markup).toFixed(2) + ')</div><div style="font-size:18px;font-weight:700;color:var(--orange);">楼 ' + taxCost.toFixed(4) + '</div></div>';
   dh += '</div>';
-  if (processFee > 0) dh += '<div style="margin-top:8px;padding:8px 12px;background:var(--slate-50);border-radius:8px;"><span style="font-size:12px;color:var(--slate-500);">加工费：</span><strong style="color:var(--slate-900);">¥ ' + processFee.toFixed(2) + '</strong></div>';
-  dh += '<div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,#1a6fc4,#0ea5e9);border-radius:8px;color:#fff;text-align:center;"><div style="font-size:12px;opacity:0.8;">总成本（含税）</div><div style="font-size:24px;font-weight:800;">¥ ' + total.toFixed(4) + '</div></div>';
+  if (processFee > 0) dh += '<div style="margin-top:8px;padding:8px 12px;background:var(--slate-50);border-radius:8px;"><span style="font-size:12px;color:var(--slate-500);">鍔犲伐璐癸細</span><strong style="color:var(--slate-900);">楼 ' + processFee.toFixed(2) + '</strong></div>';
+  dh += '<div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,#1a6fc4,#0ea5e9);border-radius:8px;color:#fff;text-align:center;"><div style="font-size:12px;opacity:0.8;">鎬绘垚鏈紙鍚◣锛?/div><div style="font-size:24px;font-weight:800;">楼 ' + total.toFixed(4) + '</div></div>';
   document.getElementById('pkgDetailContent').innerHTML = dh;
 }
 
@@ -1787,23 +1793,23 @@ function calcAlu() {
   var surfCostPiece = surfPrice * weight / 1000000;
   var taxPiece = (rawCostPiece + procCostPiece + surfCostPiece) * (taxRate / 100);
   var totalPiece = rawCostPiece + procCostPiece + surfCostPiece + packFee + taxPiece;
-  document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 克';
+  document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 鍏?;
   document.getElementById('aluResultTotal').textContent = totalPiece.toFixed(4);
   // Mobile result
   setText('mobAluTotal', totalPiece.toFixed(4));
   setText('mobAluWeightPM', weightPerM.toFixed(2));
   var rows = [
-    { label: '原材料', val: rawCostPiece },
-    { label: '加工费', val: procCostPiece },
-    { label: '表面处理', val: surfCostPiece },
-    { label: '包装', val: packFee },
-    { label: '税负 (' + taxRate + '%)', val: taxPiece },
+    { label: '鍘熸潗鏂?, val: rawCostPiece },
+    { label: '鍔犲伐璐?, val: procCostPiece },
+    { label: '琛ㄩ潰澶勭悊', val: surfCostPiece },
+    { label: '鍖呰', val: packFee },
+    { label: '绋庤礋 (' + taxRate + '%)', val: taxPiece },
   ];
   var dh = '';
   for (var i = 0; i < rows.length; i++) {
-    dh += '<div class="items-row"><span class="ir-label">' + rows[i].label + '</span><span class="ir-val">¥ ' + rows[i].val.toFixed(4) + '</span></div>';
+    dh += '<div class="items-row"><span class="ir-label">' + rows[i].label + '</span><span class="ir-val">楼 ' + rows[i].val.toFixed(4) + '</span></div>';
   }
-  dh += '<div class="items-row total-row"><span class="ir-label">总成本（整条·含税）</span><span class="ir-val">¥ ' + totalPiece.toFixed(4) + '</span></div>';
+  dh += '<div class="items-row total-row"><span class="ir-label">鎬绘垚鏈紙鏁存潯路鍚◣锛?/span><span class="ir-val">楼 ' + totalPiece.toFixed(4) + '</span></div>';
   document.getElementById('aluDetailList').innerHTML = dh;
   var ctx3 = document.getElementById('aluChart');
   if (!ctx3) return;
@@ -1829,7 +1835,7 @@ function calcAlu() {
                 label: function(ctx) {
                   var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
                   var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
-                  return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+                  return ctx.label + ': 楼' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
                 }
               }
             }
@@ -1867,7 +1873,7 @@ function clearAlu() {
 window.addEventListener('DOMContentLoaded', function() {
   onInsulationChange();
   onWireSpecChange();
-  selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
+  selectPkgType('鐗涚毊鐩?, document.querySelector('.pkg-type-btn.active'));
   calcAlu();
   // Hide mobile bars on desktop initially
   if (window.innerWidth > 768) {
