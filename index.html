@@ -735,6 +735,10 @@
         <span class="collapse-arrow">▼</span>
       </div>
       <div class="card-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <span style="font-size:13px;color:#666;">支数可自由修改，切换材质/线径不会覆盖已编辑的值</span>
+        <button onclick="resetStrandsToDefault()" style="padding:4px 14px;border-radius:6px;border:1.5px solid var(--primary);background:#fff;color:var(--primary);font-size:13px;font-weight:600;cursor:pointer;">↺ 恢复默认支数</button>
+      </div>
       <!-- Desktop table -->
       <div class="material-ratio-wrap">
         <table class="mat-table">
@@ -753,7 +757,7 @@
           <tbody>
             <tr>
               <td>铜线</td>
-              <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" onchange="calcPlug();syncMobileStrands()"></td>
+              <td class="editable-cell"><input type="number" id="copperStrands" value="16" min="0" oninput="_userEditedStrands=true" onchange="calcPlug();syncMobileStrands()"></td>
               <td>8.9</td>
               <td id="mt-copperPrice">105</td>
               <td id="mt-strandArea">—</td>
@@ -763,7 +767,7 @@
             </tr>
             <tr>
               <td>铝线</td>
-              <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" onchange="calcPlug();syncMobileStrands()"></td>
+              <td class="editable-cell"><input type="number" id="aluminumStrands" value="0" min="0" oninput="_userEditedStrands=true" onchange="calcPlug();syncMobileStrands()"></td>
               <td>3.0</td>
               <td id="mt-aluminumPrice">39</td>
               <td id="mt-strandArea2">—</td>
@@ -773,7 +777,7 @@
             </tr>
             <tr>
               <td>铜包铜线</td>
-              <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" onchange="calcPlug();syncMobileStrands()"></td>
+              <td class="editable-cell"><input type="number" id="ccaStrands" value="0" min="0" oninput="_userEditedStrands=true" onchange="calcPlug();syncMobileStrands()"></td>
               <td>8.6</td>
               <td id="mt-ccaPrice">76</td>
               <td id="mt-strandArea3">—</td>
@@ -806,7 +810,7 @@
             <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-copperCost" style="color:var(--primary-dark)">—</div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="copperStrands_m" value="16" min="0" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="copperStrands_m" value="16" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-item">
           <div class="mci-header"><span class="mci-name">⬜ 铝线</span></div>
@@ -820,7 +824,7 @@
             <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-aluminumCost" style="color:var(--primary-dark)">—</div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="aluminumStrands_m" value="0" min="0" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="aluminumStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-item">
           <div class="mci-header"><span class="mci-name">🟤 铜包铜线</span></div>
@@ -834,7 +838,7 @@
             <div><div class="mci-label">每米成本</div><div class="mci-val" id="mcm-ccaCost" style="color:var(--primary-dark)">—</div></div>
             <div></div>
           </div>
-          <div class="mci-input-row"><label>支数</label><input type="number" id="ccaStrands_m" value="0" min="0" onchange="syncMobileStrands()"></div>
+          <div class="mci-input-row"><label>支数</label><input type="number" id="ccaStrands_m" value="0" min="0" oninput="_userEditedStrands=true" onchange="syncMobileStrands()"></div>
         </div>
         <div class="mat-card-total">
           <div class="mci-row">
@@ -1343,7 +1347,7 @@ function applyPreset(key) {
   setVal('insulPrice', p.insulPrice);
   setVal('profitRate', p.profitRate);
   setVal('taxRate', p.taxRate);
-  onInsulationChange(); onWireSpecChange();
+  onInsulationChange(); _userEditedStrands = false; onWireSpecChange();
 }
 function setVal(id, val) {
   var el = document.getElementById(id);
@@ -1362,10 +1366,30 @@ function clearAll() {
   }
   setVal('conductorType', '纯铜');
   setVal('insulationType', 'PVC');
+  _userEditedStrands = false;
   onInsulationChange(); calcPlug();
 }
 
 function onConductorChange() { onWireSpecChange(); }
+// 标志：用户是否手动修改过支数
+var _userEditedStrands = false;
+
+// 根据材质和线径计算默认支数分配
+function _calcDefaultStrands(condType, totalStrands) {
+  var copper = 0, aluminum = 0, cca = 0;
+  if (condType === '纯铜') { copper = totalStrands; }
+  else if (condType === '纯铝') { aluminum = totalStrands; }
+  else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
+  else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
+  return { copper: copper, aluminum: aluminum, cca: cca };
+}
+
+// 强制恢复默认支数（按钮触发）
+function resetStrandsToDefault() {
+  _userEditedStrands = false;
+  onWireSpecChange();
+}
+
 function onWireSpecChange() {
   var spec = document.getElementById('wireSpec').value;
   var condType = document.getElementById('conductorType').value;
@@ -1378,14 +1402,14 @@ function onWireSpecChange() {
   setVal('totalStrands', totalStrands);
   var coreCount = parseFloat(document.getElementById('coreCount').value) || 3;
   setVal('twistFactor', (1 + 0.01 * coreCount).toFixed(2));
-  var copper = 0, aluminum = 0, cca = 0;
-  if (condType === '纯铜') { copper = totalStrands; }
-  else if (condType === '纯铝') { aluminum = totalStrands; }
-  else if (condType === '纯铝+铜包铜') { cca = Math.floor(totalStrands * 0.5); aluminum = totalStrands - cca; }
-  else if (condType === '纯铜+纯铝') { copper = Math.floor(totalStrands * 0.7); aluminum = totalStrands - copper; }
-  setVal('copperStrands', copper); setVal('copperStrands_m', copper);
-  setVal('aluminumStrands', aluminum); setVal('aluminumStrands_m', aluminum);
-  setVal('ccaStrands', cca); setVal('ccaStrands_m', cca);
+
+  // 只在用户未手动修改过支数时才自动填入默认值
+  if (!_userEditedStrands) {
+    var def = _calcDefaultStrands(condType, totalStrands);
+    setVal('copperStrands', def.copper); setVal('copperStrands_m', def.copper);
+    setVal('aluminumStrands', def.aluminum); setVal('aluminumStrands_m', def.aluminum);
+    setVal('ccaStrands', def.cca); setVal('ccaStrands_m', def.cca);
+  }
   calcPlug();
 }
 function onInsulationChange() {
