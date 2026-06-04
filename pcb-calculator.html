@@ -2,1380 +2,850 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
-<meta name="theme-color" content="#0F172A" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<title>PCB板成本测算工具</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCB板成本核算计算器 v4</title>
 <style>
   :root {
-    --primary: #3B82F6;
-    --primary-light: #EFF6FF;
-    --primary-dark: #2563EB;
-    --accent: #60A5FA;
-    --green: #10B981;
-    --green-light: #ECFDF5;
-    --orange: #F59E0B;
-    --orange-light: #FFFBEB;
-    --red: #F43F5E;
-    --red-light: #FFF1F2;
-    --slate-50: #F8FAFC;
-    --slate-100: #F1F5F9;
-    --slate-200: #E2E8F0;
-    --slate-300: #CBD5E1;
-    --slate-400: #94A3B8;
-    --slate-500: #64748B;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1E293B;
-    --slate-900: #0F172A;
+    --bg: #f5f7fa;
+    --card: #fff;
+    --blue: #3b82f6;
+    --blue-light: #eff6ff;
+    --blue-dark: #1e40af;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --text-secondary: #6b7280;
+    --green: #10b981;
+    --green-bg: #ecfdf5;
+    --red: #ef4444;
+    --red-bg: #fef2f2;
+    --orange: #f59e0b;
+    --orange-bg: #fffbeb;
+    --purple: #8b5cf6;
+    --purple-bg: #f5f3ff;
     --radius: 12px;
-    --radius-sm: 8px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
-    --shadow: 0 2px 12px rgba(0,0,0,0.06);
-    --shadow-lg: 0 8px 30px rgba(0,0,0,0.10);
-    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    background: var(--slate-50);
-    color: var(--slate-700);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+  }
+  .app-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: #fff; padding: 20px 16px; margin-bottom: 20px;
+  }
+  .app-header h1 { font-size: 20px; font-weight: 700; }
+  .app-header p { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+  .main-grid {
+    max-width: 1300px; margin: 0 auto; padding: 0 16px 40px;
+    display: grid; grid-template-columns: 1fr 420px; gap: 20px; align-items: start;
   }
 
-  /* ========== TOP NAV ========== */
-  .top-nav {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(255,255,255,0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--slate-200);
-    padding: 10px 16px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .top-nav .logo {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 17px; font-weight: 800; color: var(--slate-900);
-    white-space: nowrap; text-decoration: none;
-  }
-  .top-nav .logo .dot {
-    width: 26px; height: 26px; border-radius: 7px;
-    background: var(--primary);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-  .top-nav .logo .dot svg { width: 15px; height: 15px; color: #fff; }
-  .top-nav .nav-back {
-    font-size: 13px; font-weight: 600; color: var(--slate-500);
-    text-decoration: none; transition: color 0.2s;
-    white-space: nowrap; margin-left: auto;
-  }
-  .top-nav .nav-back:hover { color: var(--primary); }
-
-  /* ========== MOBILE RESULT BAR ========== */
-  .mobile-result-bar {
-    display: none;
-    background: linear-gradient(135deg, var(--slate-900), #1E3A5F);
-    color: #fff; padding: 14px 16px;
-    position: sticky; top: 52px; z-index: 99;
-    box-shadow: var(--shadow-lg);
-  }
-  .mobile-result-bar .mrb-top {
-    display: flex; justify-content: space-between; align-items: baseline;
-  }
-  .mobile-result-bar .mrb-label { font-size: 11px; opacity: 0.7; font-weight: 500; }
-  .mobile-result-bar .mrb-total { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; font-family: var(--font-mono); }
-  .mobile-result-bar .mrb-meta {
-    display: flex; gap: 16px; margin-top: 6px; font-size: 12px;
-  }
-  .mobile-result-bar .mrb-meta span { opacity: 0.7; }
-  .mobile-result-bar .mrb-meta strong { font-family: var(--font-mono); }
-
-  /* ========== LAYOUT ========== */
-  .layout {
-    max-width: 1340px; margin: 0 auto; padding: 20px;
-    display: grid; grid-template-columns: 1fr 400px;
-    gap: 20px; align-items: start;
-  }
-  .left-col { display: flex; flex-direction: column; gap: 12px; }
-  .right-col { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 76px; }
-
-  /* ========== CARD ========== */
   .card {
-    background: #fff; border-radius: var(--radius);
-    box-shadow: var(--shadow-sm); padding: 16px 18px;
-    border: 1px solid var(--slate-200);
-    transition: box-shadow 0.2s;
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px;
   }
-  .card:hover { box-shadow: var(--shadow); }
   .card-title {
-    font-size: 14px; font-weight: 700; color: var(--slate-800);
-    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    padding-bottom: 10px; border-bottom: 1px solid var(--slate-100);
-    cursor: pointer; user-select: none;
-    -webkit-user-select: none;
+    font-size: 14px; font-weight: 600; margin-bottom: 14px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
   }
-  .card-title .badge {
-    background: var(--primary-light); color: var(--primary);
-    font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 600;
-  }
-  .card-title .collapse-arrow {
-    margin-left: auto; width: 22px; height: 22px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; background: var(--slate-100);
-    transition: transform 0.25s; font-size: 12px; color: var(--slate-500);
-    flex-shrink: 0;
-  }
-  .card.collapsed .collapse-arrow { transform: rotate(-90deg); }
-  .card.collapsed .card-body { display: none; }
-  .card.collapsed .card-title { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .card-title .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .card-title .dot.blue { background: var(--blue); }
+  .card-title .dot.green { background: var(--green); }
+  .card-title .dot.orange { background: var(--orange); }
+  .card-title .dot.purple { background: var(--purple); }
 
-  /* ========== BOARD TYPE SELECTOR ========== */
-  .board-type-selector {
-    display: flex; gap: 8px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
+  .form-row { display: grid; gap: 10px; margin-bottom: 8px; }
+  .form-row.cols2 { grid-template-columns: 1fr 1fr; }
+  .form-row.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.cols4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .form-row.cols13 { grid-template-columns: 1fr 3fr; }
+  .form-row.cols23 { grid-template-columns: 2fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label {
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    display: flex; align-items: center; gap: 4px;
   }
-  .board-type-card {
-    flex: 1; min-width: 120px; max-width: 160px;
-    border: 2px solid var(--slate-200); border-radius: var(--radius-sm);
-    padding: 12px 10px; cursor: pointer; transition: all 0.2s;
-    background: #fff; text-align: center; position: relative;
-    font-family: inherit;
+  .form-group label .unit { font-weight: 400; color: #9ca3af; font-size: 11px; }
+  .form-group select, .form-group input {
+    padding: 9px 10px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 13px; font-family: inherit; background: #fafbfc; width: 100%;
+    transition: border-color 0.15s;
   }
-  .board-type-card:hover { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow); }
-  .board-type-card.active {
-    border-color: var(--primary); background: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-  }
-  .board-type-card .btc-icon {
-    width: 36px; height: 36px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 8px; font-size: 18px;
-  }
-  .board-type-card .btc-name {
-    font-size: 13px; font-weight: 700; color: var(--slate-800);
-    margin-bottom: 4px;
-  }
-  .board-type-card .btc-desc {
-    font-size: 10px; color: var(--slate-500); line-height: 1.3;
-    margin-bottom: 4px;
-  }
-  .board-type-card .btc-formula {
-    font-size: 10px; color: var(--slate-400);
-    background: var(--slate-50); padding: 2px 6px;
-    border-radius: 4px; display: inline-block;
-  }
-  .board-type-card.active .btc-formula { background: rgba(59,130,246,0.1); color: var(--primary); }
-  .board-type-card.active .btc-name { color: var(--primary-dark); }
-
-  /* ========== FORM GRID ========== */
-  .form-grid { display: grid; gap: 10px; }
-  .form-grid-2 { grid-template-columns: repeat(2, 1fr); }
-  .form-grid-3 { grid-template-columns: repeat(3, 1fr); }
-  .form-grid-4 { grid-template-columns: repeat(4, 1fr); }
-
-  .field { display: flex; flex-direction: column; gap: 3px; }
-  .field label { font-size: 12px; color: var(--slate-500); font-weight: 600; }
-  .field .unit-label { font-size: 11px; color: var(--slate-400); font-weight: 400; }
-
-  .input-wrap { position: relative; display: flex; align-items: center; }
-  .input-wrap input,
-  .input-wrap select {
-    width: 100%; height: 38px; padding: 0 10px;
-    border: 1.5px solid var(--slate-200); border-radius: var(--radius-sm);
-    font-size: 13px; color: var(--slate-900); background: #fff;
-    outline: none; -webkit-appearance: none; appearance: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    font-family: inherit;
-  }
-  .input-wrap input:focus,
-  .input-wrap select:focus {
-    border-color: var(--primary);
+  .form-group select:focus, .form-group input:focus {
+    outline: none; border-color: var(--blue); background: #fff;
     box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
   }
-  .input-wrap .unit {
-    position: absolute; right: 10px; font-size: 11px;
-    color: var(--slate-400); pointer-events: none; font-weight: 500;
+  .form-group input.input-price {
+    font-weight: 600; color: #1e40af; font-size: 15px; text-align: center;
+    background: #f8faff;
   }
-  .input-wrap select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 10px center;
-    padding-right: 30px; cursor: pointer;
+  .input-suffix {
+    position: relative;
+  }
+  .input-suffix input { padding-right: 40px; }
+  .input-suffix .suffix {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 12px; color: var(--text-secondary); pointer-events: none;
   }
 
-  /* ========== RESULT CARD ========== */
+  /* Supplier badge */
+  .supplier-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .supplier-badge.active {
+    background: var(--green-bg); color: #065f46; border: 1px solid #a7f3d0;
+  }
+  .supplier-badge.none {
+    background: #f3f4f6; color: #9ca3af; border: 1px solid #e5e7eb;
+  }
+
+  /* Process buttons */
+  .process-select {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .process-btn {
+    flex: 1; min-width: 70px; padding: 8px 6px; border: 1.5px solid var(--border);
+    border-radius: 8px; font-size: 12px; font-family: inherit; cursor: pointer;
+    background: #fafbfc; color: var(--text-secondary); text-align: center;
+    transition: all 0.15s; line-height: 1.3;
+  }
+  .process-btn:hover { border-color: #93c5fd; background: #f0f7ff; }
+  .process-btn.active {
+    background: var(--blue-light); border-color: var(--blue); color: #1e40af; font-weight: 600;
+  }
+  .process-btn .addon { font-size: 11px; opacity: 0.7; }
+
+  /* Result */
   .result-card {
-    background: linear-gradient(135deg, var(--slate-900), #1E3A5F);
-    color: #fff; border-radius: var(--radius); padding: 22px 18px;
-    text-align: center; box-shadow: var(--shadow-lg);
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: #fff; border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
   }
-  .result-card .label { font-size: 13px; opacity: 0.75; margin-bottom: 4px; font-weight: 500; }
-  .result-card .total-price { font-size: 42px; font-weight: 800; letter-spacing: -1px; line-height: 1; }
-  .result-card .currency { font-size: 20px; vertical-align: super; margin-right: 2px; }
-  .result-card .per-unit { font-size: 12px; opacity: 0.65; margin-top: 4px; }
-  .cost-breakdown {
-    margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  }
-  .cost-item {
-    background: rgba(255,255,255,0.12); border-radius: var(--radius-sm);
-    padding: 8px 10px; text-align: left;
-  }
-  .cost-item .ci-label { font-size: 10px; opacity: 0.7; font-weight: 500; }
-  .cost-item .ci-val { font-size: 15px; font-weight: 700; font-family: var(--font-mono); }
+  .result-card .rl { font-size: 13px; opacity: 0.85; }
+  .result-card .rb { font-size: 36px; font-weight: 800; margin: 4px 0; }
+  .result-card .rd { font-size: 12px; opacity: 0.7; line-height: 1.5; }
+  .result-card .rp { margin-top: 8px; font-size: 13px; opacity: 0.9; }
 
-  /* ========== ITEMS LIST ========== */
-  .items-list { display: flex; flex-direction: column; gap: 1px; }
-  .items-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 7px 10px; border-radius: var(--radius-sm); font-size: 12px;
+  .final-unit-price {
+    background: var(--green-bg); border: 1px solid #a7f3d0; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; color: #065f46;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
   }
-  .items-row:nth-child(odd) { background: var(--slate-50); }
-  .items-row .ir-name { color: var(--slate-600); font-weight: 500; }
-  .items-row .ir-val { font-weight: 700; color: var(--slate-900); font-family: var(--font-mono); }
-  .items-row.highlight-row { background: var(--green-light); border: 1px solid #A7F3D0; }
-  .items-row.highlight-row .ir-val { color: #059669; font-size: 14px; }
+  .final-unit-price strong { font-size: 20px; }
 
-  /* ========== FORMULA BOX ========== */
-  .formula-box {
-    background: var(--slate-50); border-radius: var(--radius-sm);
-    padding: 12px 14px; margin-top: 10px; font-size: 11px;
-    color: var(--slate-600); line-height: 1.8;
-    font-family: var(--font-mono); border: 1px solid var(--slate-100);
+  /* Edge indicator */
+  .edge-indicator {
+    background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px; color: #0369a1;
+    display: flex; justify-content: space-between; align-items: center;
   }
+  .edge-indicator .eff-dims { font-weight: 600; font-size: 14px; }
 
-  /* ========== ACTION BUTTONS ========== */
-  .action-btns {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  /* Breakdown */
+  .price-row {
+    display: flex; justify-content: space-between; padding: 6px 0;
+    font-size: 13px; color: var(--text-secondary); border-bottom: 1px dashed var(--border);
   }
-  .action-btn {
-    padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px;
-    font-weight: 600; cursor: pointer; transition: all 0.2s;
-    border: none; font-family: inherit; display: flex;
-    align-items: center; justify-content: center; gap: 6px;
+  .price-row .val { font-weight: 500; color: var(--text); }
+  .price-row.hl { background: #f9fafb; margin: 0 -12px; padding: 6px 12px; }
+  .total-row {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    font-size: 15px; font-weight: 700; color: var(--text);
   }
-  .action-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
-  .action-btn-primary { background: var(--primary); color: #fff; }
-  .action-btn-primary:hover { background: var(--primary-dark); }
-  .action-btn-secondary { background: var(--slate-100); color: var(--slate-700); border: 1.5px solid var(--slate-200); }
-  .action-btn-secondary:hover { background: var(--slate-200); }
-  .action-btn-success { background: var(--green); color: #fff; }
-  .action-btn-success:hover { background: #059669; }
-  .action-btn-warning { background: var(--orange); color: #fff; }
-  .action-btn-warning:hover { background: #D97706; }
+  .total-row .total-val { font-size: 22px; color: var(--red); }
 
-  /* ========== QUICK LINKS ========== */
-  .quick-links { display: flex; flex-direction: column; gap: 6px; }
-  .quick-link {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: var(--radius-sm);
-    background: var(--slate-50); border: 1px solid var(--slate-200);
-    text-decoration: none; color: var(--slate-700); font-size: 13px;
-    font-weight: 600; transition: all 0.2s;
+  /* Right sidebar - supplier ref */
+  .supplier-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+    font-size: 12px; color: var(--text-secondary);
   }
-  .quick-link:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
-  .quick-link .ql-icon { font-size: 16px; }
-  .quick-link .ql-arrow { margin-left: auto; font-size: 14px; color: var(--slate-400); }
+  .supplier-header .filter-hint {
+    padding: 2px 8px; border-radius: 10px; font-size: 11px;
+  }
+  .supplier-header .filter-hint.match { background: var(--green-bg); color: #065f46; }
+  .supplier-header .filter-hint.nomatch { background: var(--red-bg); color: #b91c1c; }
 
-  /* ========== PANEL SIMULATION CANVAS ========== */
-  .panel-sim-wrap {
-    background: var(--slate-50); border-radius: var(--radius-sm);
-    border: 1px solid var(--slate-200); overflow: hidden;
+  .ref-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .ref-table th {
+    text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--border);
+    font-weight: 600; color: var(--text-secondary); font-size: 11px; white-space: nowrap;
   }
-  .panel-sim-canvas {
-    width: 100%; display: block;
+  .ref-table td {
+    padding: 7px 6px; border-bottom: 1px solid var(--border); vertical-align: middle;
   }
-  .panel-sim-controls {
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-    padding: 10px 12px; background: #fff;
-    border-top: 1px solid var(--slate-200);
+  .ref-table tr:hover td { background: #f9fafb; }
+  .ref-table tr.selected td { background: #f0fdf4; }
+  .ref-table .btn-fill {
+    padding: 5px 12px; font-size: 11px; border: 1px solid var(--blue); border-radius: 5px;
+    background: #fff; color: var(--blue); cursor: pointer; font-family: inherit;
+    white-space: nowrap; transition: all 0.15s;
   }
-  .panel-sim-controls label {
-    font-size: 11px; color: var(--slate-500); font-weight: 600;
-    display: flex; align-items: center; gap: 4px; cursor: pointer;
+  .ref-table .btn-fill:hover { background: var(--blue); color: #fff; }
+  .ref-table .btn-fill.filled { background: var(--green); border-color: var(--green); color: #fff; }
+  .ref-table .na { color: #d1d5db; }
+  .ref-table .ink-tag {
+    display: inline-block; padding: 1px 6px; border-radius: 4px;
+    font-size: 10px; font-weight: 500; background: #f3f4f6; color: #6b7280;
   }
-  .panel-sim-controls input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: var(--primary);
-  }
-  .panel-sim-controls input[type="range"] {
-    width: 80px; accent-color: var(--primary);
-  }
-  .panel-sim-legend {
-    display: flex; gap: 12px; font-size: 10px;
-    color: var(--slate-500); margin-left: auto;
-  }
-  .panel-sim-legend span { display: flex; align-items: center; gap: 4px; }
-  .legend-line { width: 16px; height: 0; border-top: 2px dashed; }
+  .ref-table .ink-tag.green { background: #ecfdf5; color: #059669; }
+  .ref-table .ink-tag.white_ink { background: #fefce8; color: #a16207; }
 
-  /* ========== HISTORY SECTION ========== */
-  .history-section {
-    max-width: 1340px; margin: 20px auto; padding: 0 20px;
+  .supplier-notes {
+    margin-top: 16px; font-size: 11px; color: var(--text-secondary);
+    line-height: 1.8; padding: 10px 12px; background: #f9fafb; border-radius: 8px;
   }
-  .history-section .section-title {
-    font-size: 16px; font-weight: 700; color: var(--slate-800);
-    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .history-filter {
-    display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;
-  }
-  .history-filter-btn {
-    padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--slate-200);
-    background: #fff; font-size: 12px; font-weight: 600;
-    color: var(--slate-500); cursor: pointer; transition: all 0.2s;
-    font-family: inherit;
-  }
-  .history-filter-btn:hover { border-color: var(--primary); color: var(--primary); }
-  .history-filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .supplier-notes strong { color: var(--text); }
 
-  .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .history-table th {
-    background: var(--slate-50); padding: 8px 10px; text-align: left;
-    font-weight: 600; font-size: 12px; color: var(--slate-500);
-    border-bottom: 2px solid var(--slate-200);
+  .empty-ref {
+    text-align: center; padding: 24px; color: #d1d5db; font-size: 13px;
   }
-  .history-table td {
-    padding: 8px 10px; border-bottom: 1px solid var(--slate-100);
-    font-size: 12px; vertical-align: middle;
-  }
-  .history-table tr:hover td { background: var(--slate-50); }
-  .history-table .del-btn {
-    background: var(--red-light); color: var(--red); border: 1px solid #FECDD3;
-    padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
-    cursor: pointer; font-family: inherit; transition: all 0.2s;
-  }
-  .history-table .del-btn:hover { background: var(--red); color: #fff; }
-  .history-table .tag {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; font-weight: 600;
-  }
-  .tag-aluminum { background: rgba(123,167,188,0.15); color: #5A8A9E; }
-  .tag-hb { background: rgba(201,169,110,0.15); color: #A88850; }
-  .tag-fr4s { background: rgba(76,175,80,0.15); color: #388E3C; }
-  .tag-fr4d { background: rgba(46,125,50,0.15); color: #1B5E20; }
-  .tag-fr4f { background: rgba(0,105,92,0.15); color: #00695C; }
+  .empty-ref .icon { font-size: 32px; display: block; margin-bottom: 8px; }
 
-  /* ========== HINT / NOTE ========== */
-  .hint { font-size: 10px; color: var(--slate-400); margin-top: 2px; }
-  .note { font-size: 11px; color: var(--slate-500); padding: 8px 10px;
-    background: var(--orange-light); border-radius: var(--radius-sm);
-    border: 1px solid #FDE68A; margin-top: 6px;
+  /* Quick stats bar */
+  .quick-stats {
+    display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
   }
+  .stat-item {
+    flex: 1; min-width: 80px; padding: 10px 12px; border-radius: 8px;
+    background: var(--card); box-shadow: var(--shadow); text-align: center;
+  }
+  .stat-item .val { font-size: 18px; font-weight: 700; }
+  .stat-item .lbl { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
 
-  /* ========== FOOTER ========== */
-  .site-footer {
-    text-align: center; padding: 20px 16px; margin-top: 32px;
-    font-size: 12px; color: var(--slate-400);
-    border-top: 1px solid var(--slate-200);
+  @media (max-width: 1000px) {
+    .main-grid { grid-template-columns: 1fr; max-width: 600px; }
+    .right-col { position: static !important; }
   }
-
-  /* ========== MSG ========== */
-  .msg { font-size: 12px; padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 6px; display: none; }
-  .msg.show { display: block; }
-  .msg-ok { background: var(--green-light); color: #059669; border: 1px solid #A7F3D0; }
-  .msg-warn { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
-  .msg-err { background: var(--red-light); color: var(--red); border: 1px solid #FECDD3; }
-
-  /* ================================================================ */
-  /*  RESPONSIVE                                                       */
-  /* ================================================================ */
-  @media (max-width: 900px) {
-    .layout { grid-template-columns: 1fr; }
-    .right-col { position: static; }
-    .history-section { padding: 0 10px; }
-  }
-  @media (max-width: 768px) {
-    .top-nav { padding: 8px 12px; gap: 8px; }
-    .top-nav .logo { font-size: 15px; }
-    .top-nav .logo .dot { width: 22px; height: 22px; border-radius: 6px; }
-    .top-nav .logo .dot svg { width: 13px; height: 13px; }
-    .top-nav .nav-back { font-size: 11px; }
-    .layout { padding: 10px; gap: 10px; }
-    .card { padding: 12px 14px; border-radius: var(--radius-sm); }
-    .card-title { font-size: 13px; margin-bottom: 8px; padding-bottom: 8px; }
-    .card-title .collapse-arrow { width: 20px; height: 20px; font-size: 10px; }
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .input-wrap input, .input-wrap select { height: 40px; font-size: 16px; }
-    .result-card { padding: 18px 14px; }
-    .result-card .total-price { font-size: 32px; }
-    .cost-breakdown { grid-template-columns: 1fr 1fr; gap: 6px; }
-    .cost-item .ci-val { font-size: 13px; }
-    .site-footer { padding: 14px; margin-top: 20px; font-size: 11px; }
-    input[type="number"], input[type="text"], select, textarea { font-size: 16px !important; }
-    .board-type-card { min-width: 110px; padding: 10px 8px; }
-    .board-type-card .btc-name { font-size: 12px; }
-    /* Desktop right-col hidden on mobile */
-    .right-col { display: none; }
-    /* Mobile result bar visible */
-    .mobile-result-bar { display: block; }
-    .history-table { font-size: 11px; }
-    .history-table th, .history-table td { padding: 6px 8px; }
-  }
-  @media (max-width: 640px) {
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr 1fr; }
-    .mobile-result-bar { top: 46px; }
-    .mobile-result-bar .mrb-total { font-size: 24px; }
-    .mobile-result-bar .mrb-meta { font-size: 11px; gap: 12px; }
-    .panel-sim-controls { gap: 6px; padding: 8px; }
-    .panel-sim-legend { display: none; }
-    .history-filter { gap: 4px; }
-    .history-filter-btn { padding: 4px 10px; font-size: 11px; }
-  }
-  @media (max-width: 380px) {
-    .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
-    .cost-breakdown { grid-template-columns: 1fr; }
-    .mobile-result-bar .mrb-total { font-size: 22px; }
-    .board-type-card { min-width: 100px; }
-    .action-btns { grid-template-columns: 1fr; }
+  @media (max-width: 480px) {
+    .form-row.cols2, .form-row.cols3, .form-row.cols4, .form-row.cols13, .form-row.cols23 { grid-template-columns: 1fr; }
+    .quick-stats { flex-direction: column; }
   }
 </style>
 </head>
 <body>
 
-<!-- ========== TOP NAV ========== -->
-<div class="top-nav">
-  <a class="logo" href="index.html">
-    <div class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-    PCB板成本测算
-  </a>
-  <a class="nav-back" href="index.html">&#8592; 返回首页</a>
+<div class="app-header">
+  <h1>PCB板成本核算计算器 v4</h1>
+  <p>手动输入价格 + 供应商参考 + 板边核算 + 油墨方式</p>
 </div>
 
-<!-- ========== MOBILE RESULT BAR ========== -->
-<div class="mobile-result-bar">
-  <div class="mrb-top">
-    <div class="mrb-label">PCS单价</div>
-    <div class="mrb-total">&yen;<span id="mobilePcsPrice">--</span></div>
-  </div>
-  <div class="mrb-meta">
-    <span>板面积 <strong id="mobileBoardArea">--</strong> &#13217;</span>
-    <span>拼板数 <strong id="mobilePanelCount">--</strong></span>
-  </div>
-</div>
+<div class="main-grid">
 
-<!-- ========== MAIN LAYOUT ========== -->
-<div class="layout">
+  <!-- ========== LEFT: Input Area ========== -->
   <div class="left-col">
 
-    <!-- A. 板类型选择 -->
+    <!-- Category & Parameters -->
+    <div class="card">
+      <div class="card-title"><span class="dot blue"></span> 板材与参数（用于匹配供应商参考价）</div>
+      <div class="form-row cols2">
+        <div class="form-group">
+          <label>板材类别</label>
+          <select id="boardCategory">
+            <optgroup label="单面板">
+              <option value="铝基板">铝基板</option>
+              <option value="CEM-1玻纤板">CEM-1 玻纤板</option>
+              <option value="94HB纸板">94HB 纸板</option>
+              <option value="FR-4玻纤板-单面">FR-4 玻纤板（单面）</option>
+            </optgroup>
+            <optgroup label="多层板">
+              <option value="FR-4玻纤板-双面">FR-4 玻纤板（双面）</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>油墨方式</label>
+          <select id="inkMethod">
+            <option value="">不限</option>
+            <optgroup label="白油">
+              <option value="白油黑字-丝印">白油黑字（丝印）</option>
+              <option value="白油黑字-爆光">白油黑字（爆光）</option>
+            </optgroup>
+            <optgroup label="绿油">
+              <option value="绿油白字-丝印">绿油白字（丝印）</option>
+              <option value="绿油白字-爆光">绿油白字（爆光/曝光）</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="form-row cols3">
+        <div class="form-group">
+          <label>铜厚</label>
+          <select id="copperThickness"></select>
+        </div>
+        <div class="form-group">
+          <label>板厚</label>
+          <select id="boardThickness"></select>
+        </div>
+        <div class="form-group">
+          <label>耐压等级</label>
+          <select id="voltageLevel"></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price Input -->
     <div class="card">
       <div class="card-title">
-        &#128167; 板类型选择
-        <span class="badge" id="boardTypeBadge">FR4双面板</span>
-        <span class="collapse-arrow" onclick="toggleSection(this.parentElement)">&#9660;</span>
+        <span class="dot green"></span> 平方单价设置
+        <span style="flex:1"></span>
+        <span id="supplierStatus" class="supplier-badge none">手动输入</span>
       </div>
-      <div class="card-body">
-        <div class="board-type-selector" id="boardTypeSelector">
-          <div class="board-type-card active" data-type="aluminum" onclick="selectBoardType(this)">
-            <div class="btc-icon" style="background:rgba(123,167,188,0.2);">&#9632;</div>
-            <div class="btc-name">铝基板</div>
-            <div class="btc-desc">铝基散热板</div>
-            <div class="btc-formula">面积 &times; 单价</div>
-          </div>
-          <div class="board-type-card" data-type="hb" onclick="selectBoardType(this)">
-            <div class="btc-icon" style="background:rgba(201,169,110,0.2);">&#9632;</div>
-            <div class="btc-name">HB纸板</div>
-            <div class="btc-desc">纸板材质</div>
-            <div class="btc-formula">面积 &times; 单价</div>
-          </div>
-          <div class="board-type-card" data-type="fr4-single" onclick="selectBoardType(this)">
-            <div class="btc-icon" style="background:rgba(76,175,80,0.2);">&#9632;</div>
-            <div class="btc-name">FR4单面板</div>
-            <div class="btc-desc">单面覆铜</div>
-            <div class="btc-formula">(面积+10) &times; 单价</div>
-          </div>
-          <div class="board-type-card" data-type="fr4-double" onclick="selectBoardType(this)">
-            <div class="btc-icon" style="background:rgba(46,125,50,0.2);">&#9632;</div>
-            <div class="btc-name">FR4双面板</div>
-            <div class="btc-desc">双面覆铜</div>
-            <div class="btc-formula">(面积+10) &times; 单价</div>
-          </div>
-          <div class="board-type-card" data-type="fr4-four" onclick="selectBoardType(this)">
-            <div class="btc-icon" style="background:rgba(0,105,92,0.2);">&#9632;</div>
-            <div class="btc-name">FR4四层板</div>
-            <div class="btc-desc">多层精密板</div>
-            <div class="btc-formula">(面积+10) &times; 单价</div>
-          </div>
+      <div class="form-row cols4">
+        <div class="form-group input-suffix">
+          <label>OSP 基准 <span class="unit">元/㎡</span></label>
+          <input type="number" id="inputBasePrice" class="input-price" value="150" min="0" step="1">
         </div>
+        <div class="form-group input-suffix">
+          <label>爆光线路加价 <span class="unit">元/㎡</span></label>
+          <input type="number" id="inputExposeAddon" class="input-price" value="15" min="0" step="1">
+        </div>
+        <div class="form-group input-suffix">
+          <label>喷锡加价 <span class="unit">元/㎡</span></label>
+          <input type="number" id="inputSprayAddon" class="input-price" value="15" min="0" step="1">
+        </div>
+        <div class="form-group input-suffix">
+          <label>半孔板加价 <span class="unit">元/㎡</span></label>
+          <input type="number" id="inputHalfHoleAddon" class="input-price" value="0" min="0" step="1">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>选择工艺 <span style="font-weight:400;font-size:11px;color:#9ca3af">（点击按钮切换）</span></label>
+        <div class="process-select" id="processSelect"></div>
+      </div>
+      <div class="final-unit-price" id="finalUnitPrice">
+        <span>最终平方单价（基准 + 工艺加成）</span>
+        <strong>—</strong>
       </div>
     </div>
 
-    <!-- B. 参数输入 -->
+    <!-- Dimensions & Board Edge -->
     <div class="card">
-      <div class="card-title">
-        &#128221; 参数输入
-        <span class="collapse-arrow" onclick="toggleSection(this.parentElement)">&#9660;</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid form-grid-2">
-          <div class="field">
-            <label>板长</label>
-            <div class="input-wrap">
-              <input type="number" id="pcbLength" value="100" min="1" step="1" onchange="calculate()" oninput="calculate()">
-              <span class="unit">mm</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>板宽</label>
-            <div class="input-wrap">
-              <input type="number" id="pcbWidth" value="80" min="1" step="1" onchange="calculate()" oninput="calculate()">
-              <span class="unit">mm</span>
-            </div>
-          </div>
-          <div class="field">
-            <label>拼板数</label>
-            <div class="input-wrap">
-              <input type="number" id="panelCount" value="1" min="1" step="1" onchange="calculate()" oninput="calculate()">
-              <span class="unit">PCS</span>
-            </div>
-            <span class="hint" id="panelNote">铝基板/HB板无需拼板</span>
-          </div>
-          <div class="field">
-            <label>平方单价</label>
-            <div class="input-wrap">
-              <input type="number" id="unitPrice" value="100" min="0" step="1" onchange="calculate()" oninput="calculate()">
-              <span class="unit">元/&#13217;</span>
-            </div>
-          </div>
+      <div class="card-title"><span class="dot orange"></span> 尺寸参数与板边</div>
+      <div class="form-row cols3">
+        <div class="form-group input-suffix">
+          <label>长 <span class="unit">mm</span></label>
+          <input type="number" id="length" value="100" step="0.1" min="0">
         </div>
+        <div class="form-group input-suffix">
+          <label>宽 <span class="unit">mm</span></label>
+          <input type="number" id="width" value="50" step="0.1" min="0">
+        </div>
+        <div class="form-group">
+          <label>拼板数</label>
+          <input type="number" id="panelCount" value="1" step="1" min="1">
+        </div>
+      </div>
+      <div class="form-row cols13">
+        <div class="form-group input-suffix">
+          <label>板边 <span class="unit">mm</span></label>
+          <input type="number" id="boardEdge" value="5" step="0.5" min="0">
+        </div>
+        <div class="edge-indicator" id="edgeIndicator">
+          <span>有效尺寸</span>
+          <span class="eff-dims">—</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.6;margin-top:2px">
+        板边 = 每块PCB四周各加的边框宽度（默认5mm），有效尺寸 = (长+板边×2) × (宽+板边×2)
       </div>
     </div>
 
-    <!-- C. 工艺参数 -->
-    <div class="card" id="processCard">
-      <div class="card-title" onclick="toggleSection(this)">
-        &#9881; 工艺参数
-        <span class="badge">记录用</span>
-        <span class="collapse-arrow">&#9660;</span>
-      </div>
-      <div class="card-body">
-        <div class="form-grid form-grid-4">
-          <div class="field">
-            <label>板厚</label>
-            <div class="input-wrap">
-              <select id="boardThickness">
-                <option value="0.8">0.8 mm</option>
-                <option value="1.0" selected>1.0 mm</option>
-                <option value="1.2">1.2 mm</option>
-                <option value="1.6">1.6 mm</option>
-                <option value="2.0">2.0 mm</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>铜厚</label>
-            <div class="input-wrap">
-              <select id="copperThickness">
-                <option value="0.5">0.5 oz</option>
-                <option value="1" selected>1 oz</option>
-                <option value="2">2 oz</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>表面处理</label>
-            <div class="input-wrap">
-              <select id="surfaceTreatment">
-                <option value="OSP" selected>OSP抗氧化</option>
-                <option value="HASL">喷锡</option>
-                <option value="ENIG">沉金</option>
-                <option value="IMMERSION_SILVER">沉银</option>
-              </select>
-            </div>
-          </div>
-          <div class="field">
-            <label>阻焊颜色</label>
-            <div class="input-wrap">
-              <select id="solderMaskColor">
-                <option value="green" selected>绿色</option>
-                <option value="black">黑色</option>
-                <option value="white">白色</option>
-                <option value="red">红色</option>
-                <option value="blue">蓝色</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="note">&#128161; 工艺参数仅用于记录，不影响价格计算。</div>
-      </div>
+    <!-- Quick Stats -->
+    <div class="quick-stats" id="quickStats">
+      <div class="stat-item"><div class="val" style="color:var(--blue)" id="statSuppliers">—</div><div class="lbl">可选供应商</div></div>
+      <div class="stat-item"><div class="val" style="color:var(--green)" id="statBasePrice">¥—</div><div class="lbl">OSP基准单价</div></div>
+      <div class="stat-item"><div class="val" style="color:var(--orange)" id="statUnitPrice">¥—</div><div class="lbl">最终平方单价</div></div>
     </div>
 
-    <!-- D. 拼板模拟 -->
-    <div class="card" id="panelSimCard">
-      <div class="card-title" onclick="toggleSection(this)">
-        &#128207; 拼板模拟
-        <span class="badge" id="panelBadge">1 PCS</span>
-        <span class="collapse-arrow">&#9660;</span>
-      </div>
-      <div class="card-body">
-        <div class="panel-sim-wrap">
-          <canvas id="panelCanvas" class="panel-sim-canvas" width="600" height="300"></canvas>
-          <div class="panel-sim-controls">
-            <label>间距: <span id="spacingVal">2</span>mm
-              <input type="range" id="spacingSlider" value="2" min="0" max="5" step="0.5" oninput="updateSpacingDisplay();drawPanel()">
-            </label>
-            <label><input type="checkbox" id="toggleVCut" checked onchange="drawPanel()"> V-Cut</label>
-            <label><input type="checkbox" id="toggleNumbers" checked onchange="drawPanel()"> 编号</label>
-            <label><input type="checkbox" id="toggleEdge" onchange="drawPanel()"> 工艺边</label>
-            <div class="panel-sim-legend">
-              <span><span class="legend-line" style="border-color:#F85149;"></span> V-Cut线</span>
-              <span><span class="legend-line" style="border-color:#E3B341;"></span> 工艺边</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Result -->
+    <div class="result-card" id="resultCard">
+      <div class="rl">预估单块 PCB 成本</div>
+      <div class="rb" id="resultPrice">¥ —</div>
+      <div class="rd" id="resultDetail"></div>
+      <div class="rp" id="resultFormula"></div>
     </div>
 
-  </div><!-- /left-col -->
-
-  <!-- ========== RIGHT COLUMN (sticky results) ========== -->
-  <div class="right-col">
-
-    <!-- A. 计算结果 -->
-    <div class="result-card">
-      <div class="label">PCS单价</div>
-      <div class="total-price"><span class="currency">&yen;</span><span id="pcsPrice">--</span></div>
-      <div class="per-unit">元/PCS</div>
-      <div class="cost-breakdown">
-        <div class="cost-item">
-          <div class="ci-label">单板面积</div>
-          <div class="ci-val"><span id="singleArea">--</span> &#13217;</div>
-        </div>
-        <div class="cost-item">
-          <div class="ci-label">拼板面积</div>
-          <div class="ci-val"><span id="panelArea">--</span> &#13217;</div>
-        </div>
-        <div class="cost-item">
-          <div class="ci-label">板类型</div>
-          <div class="ci-val" id="resultBoardType">FR4双面板</div>
-        </div>
-        <div class="cost-item">
-          <div class="ci-label">尺寸</div>
-          <div class="ci-val"><span id="resultSize">100&times;80</span> mm</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Formula display -->
+    <!-- Breakdown -->
     <div class="card">
-      <div class="card-title">&#128221; 计算公式</div>
-      <div class="formula-box" id="formulaBox">
-        请选择板类型并输入参数
+      <div class="card-title"><span class="dot purple"></span> 费用明细</div>
+      <div id="breakdownContent">
+        <p style="color:var(--text-secondary);font-size:13px">输入参数后自动计算</p>
       </div>
     </div>
 
-    <!-- B. 操作按钮 -->
-    <div class="action-btns">
-      <button class="action-btn action-btn-primary" onclick="recalculate()">
-        &#128260; 重新计算
-      </button>
-      <button class="action-btn action-btn-secondary" onclick="copyResult()">
-        &#128203; 复制结果
-      </button>
-      <button class="action-btn action-btn-success" onclick="saveRecord()">
-        &#128190; 保存记录
-      </button>
-      <a href="#pcbHistory" class="action-btn action-btn-warning" style="text-decoration:none;">
-        &#128202; 查看历史
-      </a>
-    </div>
-
-    <!-- C. 快捷链接 -->
-    <div class="card">
-      <div class="card-title">&#128279; 快捷链接</div>
-      <div class="quick-links">
-        <a href="plug-wire.html" class="quick-link">
-          <span class="ql-icon">&#128268;</span>
-          <span>插头线计价</span>
-          <span class="ql-arrow">&#8594;</span>
-        </a>
-        <a href="packaging-aluminum.html" class="quick-link">
-          <span class="ql-icon">&#128230;</span>
-          <span>包材&amp;铝材</span>
-          <span class="ql-arrow">&#8594;</span>
-        </a>
-      </div>
-    </div>
-
-  </div><!-- /right-col -->
-</div><!-- /layout -->
-
-<!-- ========== HISTORY SECTION ========== -->
-<div class="history-section" id="pcbHistory">
-  <div class="section-title">&#128202; 计算历史</div>
-  <div class="history-filter" id="historyFilter">
-    <button class="history-filter-btn active" onclick="filterHistory('all')">全部</button>
-    <button class="history-filter-btn" onclick="filterHistory('aluminum')">铝基板</button>
-    <button class="history-filter-btn" onclick="filterHistory('hb')">HB纸板</button>
-    <button class="history-filter-btn" onclick="filterHistory('fr4-single')">FR4单面板</button>
-    <button class="history-filter-btn" onclick="filterHistory('fr4-double')">FR4双面板</button>
-    <button class="history-filter-btn" onclick="filterHistory('fr4-four')">FR4四层板</button>
-    <button class="history-filter-btn" onclick="exportHistory()" style="margin-left:auto;background:var(--primary-light);color:var(--primary-dark);border-color:var(--primary);">&#128229; 导出CSV</button>
   </div>
-  <div class="card" style="padding:0;overflow:hidden;">
-    <div class="table-wrap">
-      <table class="history-table" id="historyTable">
-        <thead>
-          <tr>
-            <th>时间</th>
-            <th>板类型</th>
-            <th>尺寸(长&times;宽)</th>
-            <th>拼板数</th>
-            <th>平方单价</th>
-            <th>PCS单价</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <tr><td colspan="7" style="text-align:center;color:var(--slate-400);padding:20px;">暂无记录</td></tr>
-        </tbody>
-      </table>
+
+  <!-- ========== RIGHT: Supplier Reference ========== -->
+  <div class="right-col" style="position:sticky;top:16px">
+    <div class="card">
+      <div class="card-title"><span class="dot green"></span> 供应商参考价格</div>
+      <div class="supplier-header" id="supplierFilterHint">
+        <span>当前匹配参数：</span>
+        <span class="filter-hint match" id="filterParams"></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="ref-table" id="refTable">
+          <thead>
+            <tr>
+              <th>供应商</th>
+              <th>油墨</th>
+              <th>OSP</th>
+              <th>爆光</th>
+              <th>喷锡</th>
+              <th>半孔</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="refTableBody">
+            <tr><td colspan="7" class="empty-ref"><span class="icon">📋</span>选择板材及参数后显示供应商参考价</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="supplier-notes" id="supplierNotes">
+        <strong>提示：</strong>先选择板材类别和参数，右侧会显示匹配的供应商价格。<br>
+        点击任意供应商行的「填入」按钮即可自动填入左侧价格。<br>
+        填入后可手动修改价格，修改后标记为"手动输入"。
+      </div>
     </div>
   </div>
-  <div class="msg msg-ok" id="saveMsg">&#10004; 保存成功</div>
-  <div class="msg msg-err" id="saveMsgErr">&#10008; 保存失败</div>
-  <div class="msg msg-warn" id="copyMsg">&#10004; 已复制到剪贴板</div>
-</div>
 
-<!-- Footer -->
-<div class="site-footer">
-  PCB板成本测算工具 &middot; 数据仅供参考
 </div>
 
 <script>
-// ============================================================
-// SUPABASE SETUP
-// ============================================================
-const SUPABASE_URL = 'https://vmtmctgcrwzjejqtnngp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg';
-let supabase = null;
-try {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-  console.warn('Supabase init failed:', e);
-}
-
-const LS_KEY = 'pcb_calculation_history';
-
-// ============================================================
-// BOARD TYPE CONFIG
-// ============================================================
-const BOARD_TYPES = {
-  'aluminum':   { name: '铝基板', color: '#7BA7BC', desc: '铝基散热板', formula: '面积型' },
-  'hb':         { name: 'HB纸板', color: '#C9A96E', desc: '纸板材质', formula: '面积型' },
-  'fr4-single': { name: 'FR4单面板', color: '#4CAF50', desc: '单面覆铜', formula: '面积+10型' },
-  'fr4-double': { name: 'FR4双面板', color: '#2E7D32', desc: '双面覆铜', formula: '面积+10型' },
-  'fr4-four':   { name: 'FR4四层板', color: '#00695C', desc: '多层精密板', formula: '面积+10型' }
+// ==================== 价格数据库（扩展版） ====================
+const priceDB = {
+  "铝基板": {
+    "正创": [
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 125, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 150, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 135, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "白油黑字", base: 145, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "36", ink: "白油黑字", base: 168, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "白油黑字", base: 135, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 125, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "0.8", copper: "25", ink: "白油黑字", base: 110, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "≤1000V", thickness: "0.8", copper: "12", ink: "白油黑字", base: 95, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "≤1000V", thickness: "0.6", copper: "12", ink: "白油黑字", base: 75, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.5", copper: "25", ink: "白油黑字", base: 185, addons: { "爆光线路": 15, "喷锡": 15 } },
+      // 绿油版本（+5元）
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "绿油白字", base: 130, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "绿油白字", base: 155, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "绿油白字", base: 140, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "绿油白字", base: 150, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "36", ink: "绿油白字", base: 173, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "绿油白字", base: 140, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "绿油白字", base: 130, addons: { "爆光线路": 15, "喷锡": 15 } },
+    ],
+    "恒丽": [
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 175, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 190, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 130, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "白油黑字", base: 145, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "白油黑字", base: 120, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 110, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "0.8", copper: "25", ink: "白油黑字", base: 100, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "≤1000V", thickness: "0.8", copper: "12", ink: "白油黑字", base: 85, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "≤1000V", thickness: "0.6", copper: "12", ink: "白油黑字", base: 78, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.5", copper: "25", ink: "白油黑字", base: 150, addons: { "爆光线路": 15, "喷锡": 10 } },
+      // 绿油版本
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "绿油白字", base: 178, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "绿油白字", base: 193, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "绿油白字", base: 133, addons: { "爆光线路": 15, "喷锡": 10 } },
+    ],
+    "鑫阳": [
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 228, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 248, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 195, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "白油黑字", base: 205, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "白油黑字", base: 195, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 185, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "0.8", copper: "25", ink: "白油黑字", base: 170, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "≤1000V", thickness: "0.8", copper: "12", ink: "白油黑字", base: 155, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "≤1000V", thickness: "0.6", copper: "12", ink: "白油黑字", base: 140, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "＞1500V", thickness: "1.5", copper: "25", ink: "白油黑字", base: 235, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+    ],
+    "健达": [
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 180, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "白油黑字", base: 190, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "＞1500V", thickness: "1.2", copper: "36", ink: "白油黑字", base: 210, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "白油黑字", base: 180, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 170, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "＞1500V", thickness: "0.8", copper: "25", ink: "白油黑字", base: 155, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "≤1000V", thickness: "0.8", copper: "12", ink: "白油黑字", base: 140, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "≤1000V", thickness: "0.6", copper: "12", ink: "白油黑字", base: 120, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+    ],
+    "豪鹏赢": [
+      { voltage: "＞3750V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 190, addons: {} },
+      { voltage: "＞3750V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 210, addons: {} },
+      { voltage: "＞1500V", thickness: "1.2", copper: "25", ink: "白油黑字", base: 160, addons: {} },
+      { voltage: "＞1500V", thickness: "1.2", copper: "35", ink: "白油黑字", base: 170, addons: {} },
+      { voltage: "＞1500V", thickness: "1.0", copper: "35", ink: "白油黑字", base: 160, addons: {} },
+      { voltage: "＞1500V", thickness: "1.0", copper: "25", ink: "白油黑字", base: 150, addons: {} },
+      { voltage: "＞1500V", thickness: "0.8", copper: "25", ink: "白油黑字", base: 135, addons: {} },
+      { voltage: "≤1000V", thickness: "0.8", copper: "12", ink: "白油黑字", base: 115, addons: {} },
+      { voltage: "≤1000V", thickness: "0.6", copper: "12", ink: "白油黑字", base: 100, addons: {} },
+    ]
+  },
+  "CEM-1玻纤板": {
+    "恒丽": [
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "绿油白字", base: 150, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "绿油白字", base: 155, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "绿油白字", base: 160, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.0", copper: "36", ink: "绿油白字", base: 160, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "36", ink: "绿油白字", base: 165, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "36", ink: "绿油白字", base: 170, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "白油黑字", base: 145, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "白油黑字", base: 150, addons: { "爆光线路": 15, "喷锡": 10 } },
+    ],
+    "正创": [
+      { voltage: "通用", thickness: "1.2", copper: "36", ink: "绿油白字", base: 173, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.2", copper: "36", ink: "白油黑字", base: 168, addons: { "爆光线路": 15, "喷锡": 15 } },
+    ],
+    "鑫阳": [
+      { voltage: "通用", thickness: "1.0", copper: "36", ink: "绿油白字", base: 213, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.2", copper: "36", ink: "绿油白字", base: 219, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.6", copper: "36", ink: "绿油白字", base: 224, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+    ],
+    "豪鹏赢": [
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "白油黑字", base: 155, addons: {} },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "白油黑字", base: 160, addons: {} },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "白油黑字", base: 165, addons: {} },
+    ]
+  },
+  "94HB纸板": {
+    "恒丽": [
+      { voltage: "通用", thickness: "1.0", copper: "15", ink: "白油黑字", base: 90, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "15", ink: "白油黑字", base: 95, addons: { "爆光线路": 15, "喷锡": 10 } },
+    ],
+    "豪鹏赢": [
+      { voltage: "通用", thickness: "1.0", copper: "15", ink: "白油黑字", base: 108, addons: {} },
+      { voltage: "通用", thickness: "1.2", copper: "15", ink: "白油黑字", base: 110, addons: {} },
+    ]
+  },
+  "FR-4玻纤板-单面": {
+    "恒丽": [
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "绿油白字", base: 150, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "绿油白字", base: 160, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "绿油白字", base: 165, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 160, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 170, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 175, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "36", ink: "绿油白字", base: 210, addons: { "爆光线路": 15, "喷锡": 10 } },
+    ],
+    "正创": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 165, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 173, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "白油黑字", base: 160, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "白油黑字", base: 168, addons: { "爆光线路": 15, "喷锡": 15 } },
+    ],
+    "鑫阳": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 270, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 282, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 305, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+    ],
+    "健达": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 240, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 250, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 260, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+    ],
+    "豪鹏赢": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "白油黑字", base: 175, addons: {} },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "白油黑字", base: 182, addons: {} },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "白油黑字", base: 190, addons: {} },
+    ]
+  },
+  "FR-4玻纤板-双面": {
+    "恒丽": [
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "绿油白字", base: 260, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "绿油白字", base: 270, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "绿油白字", base: 305, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 265, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 275, addons: { "爆光线路": 15, "喷锡": 10 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 310, addons: { "爆光线路": 15, "喷锡": 10 } },
+    ],
+    "鑫阳": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 368, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 380, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 403, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "绿油白字", base: 350, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "绿油白字", base: 362, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "绿油白字", base: 385, addons: { "爆光线路": 15, "喷锡": 25, "半孔板": 30 } },
+    ],
+    "健达": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 330, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 340, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 360, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.0", copper: "25", ink: "绿油白字", base: 310, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.2", copper: "25", ink: "绿油白字", base: 320, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+      { voltage: "通用", thickness: "1.6", copper: "25", ink: "绿油白字", base: 340, addons: { "爆光线路": 0, "喷锡": 15, "半孔板": 50 } },
+    ],
+    "正创": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "绿油白字", base: 280, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "绿油白字", base: 290, addons: { "爆光线路": 15, "喷锡": 15 } },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "绿油白字", base: 310, addons: { "爆光线路": 15, "喷锡": 15 } },
+    ],
+    "豪鹏赢": [
+      { voltage: "通用", thickness: "1.0", copper: "35", ink: "白油黑字", base: 285, addons: {} },
+      { voltage: "通用", thickness: "1.2", copper: "35", ink: "白油黑字", base: 295, addons: {} },
+      { voltage: "通用", thickness: "1.6", copper: "35", ink: "白油黑字", base: 310, addons: {} },
+    ]
+  }
 };
 
-// ============================================================
-// STATE
-// ============================================================
-let currentResult = null;
-let currentFilter = 'all';
+const supplierNotes = {
+  "正创": "正创：单款金额不足1000元需加收100元工程费；底面字符加5元/平；<strong>绿油/黑油比白油贵5元/平</strong>。",
+  "鑫阳": "鑫阳：CNC钻锣+50元/平方；喷锡另加25元/平方；半孔板+30元/平方。单面板最低消费1000元（低于收200元工程费）；双面板最低消费1500元（低于收300元工程费）。",
+  "健达": "健达：异形加1.6mm间距V割；默认15万孔/平，超出1万孔+2元，超出30万孔每平+10元并×超出孔位。",
+  "恒丽": "恒丽：价格稳定，无额外特殊规则。",
+  "豪鹏赢": "豪鹏赢：仅支持 OSP 抗氧化工艺；不支持爆光线路、喷锡、半孔板等附加工艺。"
+};
 
-// ============================================================
-// BOARD TYPE SELECTION
-// ============================================================
-function selectBoardType(el) {
-  document.querySelectorAll('.board-type-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  const type = el.dataset.type;
-  const cfg = BOARD_TYPES[type];
-  document.getElementById('boardTypeBadge').textContent = cfg.name;
-  document.getElementById('resultBoardType').textContent = cfg.name;
+// ==================== 常量 ====================
+const el = (id) => document.getElementById(id);
+let currentProcess = "OSP抗氧化";
+let filledBySupplier = null;
 
-  // Update panel note visibility
-  const note = document.getElementById('panelNote');
-  if (type === 'aluminum' || type === 'hb') {
-    note.textContent = '铝基板/HB板无需拼板，公式: 面积 x 单价';
-    document.getElementById('panelCount').value = 1;
-  } else {
-    note.textContent = 'FR4板: (面积+10) x 单价 / 拼板数';
+// ==================== 参数联动 ====================
+function getAllEntries() {
+  const category = el("boardCategory").value;
+  const all = {};
+  for (const [supplier, entries] of Object.entries(priceDB[category] || {})) {
+    all[supplier] = entries;
   }
+  return all;
+}
+
+function getMatchedEntries() {
+  const copper = el("copperThickness").value;
+  const thickness = el("boardThickness").value;
+  const voltage = el("voltageLevel").value;
+  const ink = el("inkMethod").value;
+  const all = getAllEntries();
+  const matched = {};
+
+  for (const [supplier, entries] of Object.entries(all)) {
+    let filtered = entries.filter(e => e.copper === copper && e.thickness === thickness && e.voltage === voltage);
+
+    if (ink && filtered.length > 0) {
+      const inkMatch = filtered.filter(e => {
+        if (!e.ink) return true;
+        return e.ink.includes(ink.split('-')[0].replace('白油', '白油').replace('绿油', '绿油'));
+      });
+      if (inkMatch.length > 0) filtered = inkMatch;
+    }
+
+    if (filtered.length > 0) {
+      matched[supplier] = filtered[0];
+    }
+  }
+  return matched;
+}
+
+function updateParameterOptions() {
+  const category = el("boardCategory").value;
+  const all = getAllEntries();
+  const allEntries = Object.values(all).flat();
+
+  const coppers = [...new Set(allEntries.map(e => e.copper))].sort((a,b) => parseInt(a)-parseInt(b));
+  const thicknesses = [...new Set(allEntries.map(e => e.thickness))].sort((a,b) => parseFloat(a)-parseFloat(b));
+  const voltages = [...new Set(allEntries.map(e => e.voltage))];
+
+  el("copperThickness").innerHTML = coppers.map(c => `<option value="${c}">${c}um</option>`).join('');
+  el("boardThickness").innerHTML = thicknesses.map(t => `<option value="${t}">${t}mm</option>`).join('');
+  el("voltageLevel").innerHTML = voltages.map(v => `<option value="${v}">${v}</option>`).join('');
+
+  updateRefTable();
   calculate();
 }
 
-// ============================================================
-// CALCULATION
-// ============================================================
-function calculate() {
-  var length = parseFloat(document.getElementById('pcbLength').value) || 0;
-  var width = parseFloat(document.getElementById('pcbWidth').value) || 0;
-  var panelCount = parseInt(document.getElementById('panelCount').value) || 1;
-  var unitPrice = parseFloat(document.getElementById('unitPrice').value) || 0;
-  var boardType = document.querySelector('.board-type-card.active')?.dataset.type || 'fr4-double';
+// ==================== 供应商参考表 ====================
+function updateRefTable() {
+  const matched = getMatchedEntries();
+  const tbody = el("refTableBody");
+  const copper = el("copperThickness").value;
+  const thickness = el("boardThickness").value;
+  const voltage = el("voltageLevel").value;
+  const ink = el("inkMethod").value || '不限';
 
-  if (length <= 0 || width <= 0 || unitPrice <= 0) {
-    document.getElementById('pcsPrice').textContent = '--';
-    document.getElementById('singleArea').textContent = '--';
-    document.getElementById('panelArea').textContent = '--';
-    document.getElementById('formulaBox').textContent = '请输入有效的板长、板宽和平方单价';
-    document.getElementById('mobilePcsPrice').textContent = '--';
-    document.getElementById('mobileBoardArea').textContent = '--';
-    document.getElementById('mobilePanelCount').textContent = '--';
+  el("filterParams").textContent = `${copper}um / ${thickness}mm / ${voltage} / ${ink}`;
+
+  if (Object.keys(matched).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-ref"><span class="icon">🔍</span>当前参数无匹配的供应商参考价<br><small>可尝试切换铜厚、板厚、耐压或油墨方式</small></td></tr>';
+    updateQuickStats(0);
     return;
   }
 
-  var area = length * width; // mm2
-  var sqmArea = area / 1000000; // m2
-  var pcsPrice;
-  var formulaStr;
+  updateQuickStats(Object.keys(matched).length);
 
-  if (boardType === 'aluminum' || boardType === 'hb') {
-    pcsPrice = sqmArea * unitPrice;
-    formulaStr = '(' + length + ' x ' + width + ') / 1,000,000 x ' + unitPrice + ' = ' + pcsPrice.toFixed(4) + ' 元/PCS';
-  } else {
-    pcsPrice = ((area + 10) / 1000000) * unitPrice / panelCount;
-    formulaStr = '((' + length + ' x ' + width + ' + 10) / 1,000,000) x ' + unitPrice + ' / ' + panelCount + ' = ' + pcsPrice.toFixed(4) + ' 元/PCS';
+  let html = '';
+  const supplierOrder = ["正创", "恒丽", "鑫阳", "健达", "豪鹏赢"];
+  const sorted = Object.entries(matched).sort((a, b) => {
+    const ia = supplierOrder.indexOf(a[0]); const ib = supplierOrder.indexOf(b[0]);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+
+  for (const [supplier, entry] of sorted) {
+    const expose = entry.addons["爆光线路"] != null ? entry.addons["爆光线路"] : '—';
+    const spray = entry.addons["喷锡"] != null ? entry.addons["喷锡"] : '—';
+    const halfHole = entry.addons["半孔板"] != null ? entry.addons["半孔板"] : '—';
+    const isFilled = filledBySupplier === supplier ? ' filled' : '';
+    const isSelected = filledBySupplier === supplier ? ' selected' : '';
+
+    const inkTag = entry.ink
+      ? `<span class="ink-tag ${entry.ink.includes('绿油') ? 'green' : 'white_ink'}">${entry.ink}</span>`
+      : '<span class="ink-tag">—</span>';
+
+    html += `<tr class="${isSelected}">
+      <td><strong>${supplier}</strong></td>
+      <td>${inkTag}</td>
+      <td>¥${entry.base}</td>
+      <td>${expose === '—' ? '<span class="na">—</span>' : '+¥'+expose}</td>
+      <td>${spray === '—' ? '<span class="na">—</span>' : '+¥'+spray}</td>
+      <td>${halfHole === '—' ? '<span class="na">—</span>' : '+¥'+halfHole}</td>
+      <td><button class="btn-fill${isFilled}" onclick="fillFromSupplier('${supplier}', ${entry.base}, ${expose === '—' ? 0 : expose}, ${spray === '—' ? 0 : spray}, ${halfHole === '—' ? 0 : halfHole})">${isFilled ? '已选' : '填入'}</button></td>
+    </tr>`;
   }
-
-  currentResult = {
-    pcsPrice: pcsPrice,
-    sqmArea: sqmArea,
-    panelArea: sqmArea * panelCount,
-    formula: formulaStr,
-    length: length,
-    width: width,
-    panelCount: panelCount,
-    unitPrice: unitPrice,
-    boardType: boardType,
-    timestamp: new Date().toISOString()
-  };
-
-  // Animate the price update
-  animateValue('pcsPrice', pcsPrice, 4);
-  document.getElementById('singleArea').textContent = sqmArea.toFixed(6);
-  document.getElementById('panelArea').textContent = (sqmArea * panelCount).toFixed(6);
-  document.getElementById('resultSize').textContent = length + 'x' + width;
-  document.getElementById('formulaBox').textContent = formulaStr;
-
-  // Mobile bar
-  document.getElementById('mobilePcsPrice').textContent = pcsPrice.toFixed(4);
-  document.getElementById('mobileBoardArea').textContent = sqmArea.toFixed(6);
-  document.getElementById('mobilePanelCount').textContent = panelCount;
-
-  // Update panel badge
-  document.getElementById('panelBadge').textContent = panelCount + ' PCS';
-
-  // Redraw canvas
-  drawPanel();
+  tbody.innerHTML = html;
 }
 
-function recalculate() {
+function updateQuickStats(count) {
+  el("statSuppliers").textContent = count;
+}
+
+function fillFromSupplier(supplier, base, expose, spray, halfHole) {
+  el("inputBasePrice").value = base;
+  el("inputExposeAddon").value = expose;
+  el("inputSprayAddon").value = spray;
+  el("inputHalfHoleAddon").value = halfHole;
+  filledBySupplier = supplier;
+
+  el("supplierStatus").textContent = `✅ ${supplier}报价`;
+  el("supplierStatus").className = "supplier-badge active";
+
+  el("supplierNotes").innerHTML = `<strong>${supplier} 备注：</strong><br>${supplierNotes[supplier] || "无特殊规则"}`;
+
+  updateRefTable();
   calculate();
-  showMsg('saveMsg', '重新计算完成');
 }
 
-// ============================================================
-// COUNT-UP ANIMATION
-// ============================================================
-function animateValue(elementId, targetValue, decimals) {
-  var el = document.getElementById(elementId);
-  var startValue = parseFloat(el.textContent) || 0;
-  if (isNaN(startValue)) startValue = 0;
-  var duration = 400;
-  var startTime = null;
-
-  function step(timestamp) {
-    if (!startTime) startTime = timestamp;
-    var progress = Math.min((timestamp - startTime) / duration, 1);
-    var eased = 1 - Math.pow(1 - progress, 3);
-    var current = startValue + (targetValue - startValue) * eased;
-    el.textContent = current.toFixed(decimals);
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  }
-  requestAnimationFrame(step);
+function clearSupplierSelection() {
+  filledBySupplier = null;
+  el("supplierStatus").textContent = "手动输入";
+  el("supplierStatus").className = "supplier-badge none";
+  el("supplierNotes").innerHTML = `提示：先选择板材类别和参数，右侧会显示匹配的供应商价格。<br>点击任意供应商行的「填入」按钮即可自动填入左侧价格。<br>填入后可手动修改价格，修改后标记为"手动输入"。`;
 }
 
-// ============================================================
-// PANEL SIMULATION (Canvas)
-// ============================================================
-function updateSpacingDisplay() {
-  document.getElementById('spacingVal').textContent = document.getElementById('spacingSlider').value;
-}
+// ==================== 工艺选择按钮 ====================
+function updateProcessButtons() {
+  const base = parseInt(el("inputBasePrice").value) || 0;
+  const expose = parseInt(el("inputExposeAddon").value) || 0;
+  const spray = parseInt(el("inputSprayAddon").value) || 0;
+  const halfHole = parseInt(el("inputHalfHoleAddon").value) || 0;
 
-function getBoardTypeColor(type) {
-  return BOARD_TYPES[type]?.color || '#2E7D32';
-}
+  const processes = [
+    { name: "OSP抗氧化", addon: 0 },
+    { name: "爆光线路", addon: expose },
+    { name: "喷锡", addon: spray },
+    { name: "半孔板", addon: halfHole },
+  ];
 
-function drawPanel() {
-  var canvas = document.getElementById('panelCanvas');
-  var ctx = canvas.getContext('2d');
-  var length = parseFloat(document.getElementById('pcbLength').value) || 100;
-  var width = parseFloat(document.getElementById('pcbWidth').value) || 80;
-  var panelCount = parseInt(document.getElementById('panelCount').value) || 1;
-  var boardType = document.querySelector('.board-type-card.active')?.dataset.type || 'fr4-double';
-  var spacing = parseFloat(document.getElementById('spacingSlider').value) || 0;
-  var showVCut = document.getElementById('toggleVCut').checked;
-  var showNumbers = document.getElementById('toggleNumbers').checked;
-  var showEdge = document.getElementById('toggleEdge').checked;
-  var boardColor = getBoardTypeColor(boardType);
-
-  // Clear canvas
-  var w = canvas.width;
-  var h = canvas.height;
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#F8FAFC';
-  ctx.fillRect(0, 0, w, h);
-
-  if (panelCount <= 0 || length <= 0 || width <= 0) return;
-
-  // Determine grid layout
-  var cols, rows;
-  if (panelCount === 1) { cols = 1; rows = 1; }
-  else if (panelCount === 2) { cols = 2; rows = 1; }
-  else if (panelCount <= 4) { cols = 2; rows = 2; }
-  else if (panelCount <= 6) { cols = 3; rows = 2; }
-  else if (panelCount <= 9) { cols = 3; rows = 3; }
-  else { cols = 4; rows = Math.ceil(panelCount / 4); }
-
-  var edgeSize = showEdge ? 15 : 0;
-  var totalW = cols * length + (cols - 1) * spacing + edgeSize * 2;
-  var totalH = rows * width + (rows - 1) * spacing + edgeSize * 2;
-
-  // Scale to fit canvas
-  var margin = 30;
-  var availW = w - margin * 2;
-  var availH = h - margin * 2;
-  var scale = Math.min(availW / totalW, availH / totalH);
-
-  var drawW = totalW * scale;
-  var drawH = totalH * scale;
-  var offsetX = (w - drawW) / 2;
-  var offsetY = (h - drawH) / 2;
-
-  // Draw process edge
-  if (showEdge) {
-    ctx.strokeStyle = '#E3B341';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([6, 4]);
-    ctx.strokeRect(offsetX, offsetY, drawW, drawH);
-    ctx.setLineDash([]);
-
-    // Fiducial marks
-    ctx.fillStyle = '#E3B341';
-    var fidR = 3;
-    var fidPositions = [
-      [offsetX + edgeSize * scale * 0.5, offsetY + edgeSize * scale * 0.5],
-      [offsetX + drawW - edgeSize * scale * 0.5, offsetY + edgeSize * scale * 0.5],
-      [offsetX + edgeSize * scale * 0.5, offsetY + drawH - edgeSize * scale * 0.5],
-      [offsetX + drawW - edgeSize * scale * 0.5, offsetY + drawH - edgeSize * scale * 0.5]
-    ];
-    fidPositions.forEach(function(pos) {
-      ctx.beginPath();
-      ctx.arc(pos[0], pos[1], fidR, 0, Math.PI * 2);
-      ctx.fill();
-    });
-  }
-
-  // Draw individual boards
-  for (var i = 0; i < panelCount; i++) {
-    var col = i % cols;
-    var row = Math.floor(i / cols);
-    var bx = offsetX + edgeSize * scale + col * (length * scale + spacing * scale);
-    var by = offsetY + edgeSize * scale + row * (width * scale + spacing * scale);
-    var bw = length * scale;
-    var bh = width * scale;
-
-    // Board fill
-    ctx.fillStyle = hexToRgba(boardColor, 0.25);
-    ctx.fillRect(bx, by, bw, bh);
-
-    // Board border
-    ctx.strokeStyle = boardColor;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(bx, by, bw, bh);
-
-    // V-Cut lines
-    if (showVCut) {
-      ctx.strokeStyle = '#F85149';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 3]);
-      // Vertical V-Cut
-      if (col < cols - 1 && i + 1 < panelCount) {
-        ctx.beginPath();
-        ctx.moveTo(bx + bw + spacing * scale / 2, by - 2);
-        ctx.lineTo(bx + bw + spacing * scale / 2, by + bh + 2);
-        ctx.stroke();
-      }
-      // Horizontal V-Cut
-      if (row < rows - 1 && i + cols < panelCount) {
-        ctx.beginPath();
-        ctx.moveTo(bx - 2, by + bh + spacing * scale / 2);
-        ctx.lineTo(bx + bw + 2, by + bh + spacing * scale / 2);
-        ctx.stroke();
-      }
-      ctx.setLineDash([]);
-    }
-
-    // Board number
-    if (showNumbers) {
-      ctx.fillStyle = boardColor;
-      ctx.font = 'bold ' + Math.max(12, Math.min(bw, bh) * 0.3) + 'px ' + getFontFamily();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(String(i + 1), bx + bw / 2, by + bh / 2);
-    }
-  }
-
-  // Dimension arrows
-  ctx.fillStyle = '#475569';
-  ctx.font = '11px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'top';
-  var dimY = offsetY + drawH + 8;
-  drawArrow(ctx, offsetX, dimY, offsetX + drawW, dimY, length + ' x ' + width + ' mm (单board)');
-}
-
-function drawArrow(ctx, x1, y1, x2, y2, label) {
-  ctx.strokeStyle = '#475569';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  // Arrow heads
-  var headSize = 4;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x1 + headSize, y1 - headSize);
-  ctx.lineTo(x1 + headSize, y1 + headSize);
-  ctx.closePath();
-  ctx.fill();
-  ctx.beginPath();
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headSize, y2 - headSize);
-  ctx.lineTo(x2 - headSize, y2 + headSize);
-  ctx.closePath();
-  ctx.fill();
-  // Label
-  ctx.fillStyle = '#475569';
-  ctx.textAlign = 'center';
-  ctx.fillText(label, (x1 + x2) / 2, y1 + 6);
-}
-
-function hexToRgba(hex, alpha) {
-  var r = parseInt(hex.slice(1, 3), 16);
-  var g = parseInt(hex.slice(3, 5), 16);
-  var b = parseInt(hex.slice(5, 7), 16);
-  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
-}
-
-function getFontFamily() {
-  return "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
-}
-
-// ============================================================
-// SUPABASE CRUD
-// ============================================================
-async function saveToSupabase(record) {
-  if (!supabase) return null;
-  try {
-    var payload = {
-      board_type: record.boardType,
-      board_type_name: BOARD_TYPES[record.boardType]?.name || record.boardType,
-      length_mm: record.length,
-      width_mm: record.width,
-      panel_count: record.panelCount,
-      unit_price_sqm: record.unitPrice,
-      pcs_price: record.pcsPrice,
-      single_area_sqm: record.sqmArea,
-      panel_area_sqm: record.panelArea,
-      formula_used: record.formula,
-      created_at: record.timestamp
-    };
-    var resp = await supabase.from('pcb_calculations').upsert(payload, { onConflict: 'id' });
-    if (resp.error) throw resp.error;
-    return resp.data;
-  } catch (e) {
-    console.warn('Supabase save failed:', e);
-    return null;
-  }
-}
-
-async function loadFromSupabase() {
-  if (!supabase) return [];
-  try {
-    var resp = await supabase.from('pcb_calculations').select('*').order('created_at', { ascending: false }).limit(100);
-    if (resp.error) throw resp.error;
-    return resp.data || [];
-  } catch (e) {
-    console.warn('Supabase load failed:', e);
-    return [];
-  }
-}
-
-async function deleteFromSupabase(id) {
-  if (!supabase || !id) return false;
-  try {
-    var resp = await supabase.from('pcb_calculations').delete().eq('id', id);
-    if (resp.error) throw resp.error;
-    return true;
-  } catch (e) {
-    console.warn('Supabase delete failed:', e);
-    return false;
-  }
-}
-
-// ============================================================
-// LOCALSTORAGE
-// ============================================================
-function saveToLocal(record) {
-  try {
-    var arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    arr.unshift({
-      id: 'local_' + Date.now(),
-      board_type: record.boardType,
-      board_type_name: BOARD_TYPES[record.boardType]?.name || record.boardType,
-      length_mm: record.length,
-      width_mm: record.width,
-      panel_count: record.panelCount,
-      unit_price_sqm: record.unitPrice,
-      pcs_price: record.pcsPrice,
-      created_at: record.timestamp
-    });
-    if (arr.length > 200) arr = arr.slice(0, 200);
-    localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    return arr;
-  } catch (e) {
-    console.warn('Local save failed:', e);
-    return [];
-  }
-}
-
-function loadFromLocal() {
-  try {
-    return JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-  } catch (e) {
-    return [];
-  }
-}
-
-function deleteFromLocal(id) {
-  try {
-    var arr = JSON.parse(localStorage.getItem(LS_KEY) || '[]');
-    arr = arr.filter(function(r) { return r.id !== id; });
-    localStorage.setItem(LS_KEY, JSON.stringify(arr));
-    return arr;
-  } catch (e) {
-    return [];
-  }
-}
-
-// ============================================================
-// SAVE / COPY / HISTORY UI
-// ============================================================
-async function saveRecord() {
-  if (!currentResult) {
-    showMsg('saveMsgErr', '请先输入参数并计算');
-    return;
-  }
-
-  // Save to Supabase
-  var supData = await saveToSupabase(currentResult);
-
-  // Save to localStorage
-  saveToLocal(currentResult);
-
-  // Refresh history display
-  renderHistory();
-
-  if (supData) {
-    showMsg('saveMsg', '已保存到云端和本地');
-  } else {
-    showMsg('saveMsg', '已保存到本地（云端连接失败）');
-  }
-}
-
-function copyResult() {
-  if (!currentResult) return;
-  var text = 'PCB板成本计算结果\n' +
-    '板类型: ' + BOARD_TYPES[currentResult.boardType].name + '\n' +
-    '尺寸: ' + currentResult.length + ' x ' + currentResult.width + ' mm\n' +
-    '拼板数: ' + currentResult.panelCount + ' PCS\n' +
-    '平方单价: ' + currentResult.unitPrice + ' 元/m2\n' +
-    '单板面积: ' + currentResult.sqmArea.toFixed(6) + ' m2\n' +
-    '拼板面积: ' + currentResult.panelArea.toFixed(6) + ' m2\n' +
-    'PCS单价: ' + currentResult.pcsPrice.toFixed(4) + ' 元/PCS\n' +
-    '公式: ' + currentResult.formula;
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(function() {
-      showMsg('copyMsg', '已复制到剪贴板');
-    }).catch(function() {
-      fallbackCopy(text);
-    });
-  } else {
-    fallbackCopy(text);
-  }
-}
-
-function fallbackCopy(text) {
-  var ta = document.createElement('textarea');
-  ta.value = text;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showMsg('copyMsg', '已复制到剪贴板');
-  } catch (e) {
-    showMsg('saveMsgErr', '复制失败');
-  }
-  document.body.removeChild(ta);
-}
-
-function showMsg(elId, text) {
-  var el = document.getElementById(elId);
-  if (text) el.textContent = text;
-  el.classList.add('show');
-  setTimeout(function() { el.classList.remove('show'); }, 2500);
-}
-
-// ============================================================
-// HISTORY RENDERING
-// ============================================================
-function getTagClass(type) {
-  switch(type) {
-    case 'aluminum': return 'tag-aluminum';
-    case 'hb': return 'tag-hb';
-    case 'fr4-single': return 'tag-fr4s';
-    case 'fr4-double': return 'tag-fr4d';
-    case 'fr4-four': return 'tag-fr4f';
-    default: return 'tag-fr4d';
-  }
-}
-
-function formatTime(iso) {
-  if (!iso) return '--';
-  var d = new Date(iso);
-  var now = new Date();
-  var pad = function(n) { return n < 10 ? '0' + n : n; };
-  if (d.toDateString() === now.toDateString()) {
-    return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
-  }
-  return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-
-async function renderHistory() {
-  // Load from both sources
-  var localRecords = loadFromLocal();
-  var supRecords = await loadFromSupabase();
-
-  // Merge, dedupe by id
-  var allMap = {};
-  localRecords.forEach(function(r) { allMap[r.id] = r; });
-  supRecords.forEach(function(r) { allMap[r.id || ('sup_' + r.created_at)] = r; });
-  var all = Object.values(allMap);
-
-  // Sort by time desc
-  all.sort(function(a, b) { return new Date(b.created_at) - new Date(a.created_at); });
-
-  // Filter
-  var filtered = currentFilter === 'all' ? all : all.filter(function(r) { return r.board_type === currentFilter; });
-
-  var tbody = document.getElementById('historyBody');
-  if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--slate-400);padding:20px;">暂无记录</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(function(r) {
-    var typeName = BOARD_TYPES[r.board_type]?.name || r.board_type_name || r.board_type;
-    return '<tr>' +
-      '<td>' + formatTime(r.created_at) + '</td>' +
-      '<td><span class="tag ' + getTagClass(r.board_type) + '">' + typeName + '</span></td>' +
-      '<td>' + r.length_mm + '&times;' + r.width_mm + '</td>' +
-      '<td>' + r.panel_count + '</td>' +
-      '<td>&yen;' + r.unit_price_sqm + '</td>' +
-      '<td style="font-weight:700;color:var(--primary-dark);font-family:var(--font-mono);">&yen;' + parseFloat(r.pcs_price).toFixed(4) + '</td>' +
-      '<td><button class="del-btn" onclick="deleteHistoryRecord(\'' + (r.id || '') + '\')">&#128465;</button></td>' +
-      '</tr>';
+  el("processSelect").innerHTML = processes.map(p => {
+    const active = currentProcess === p.name ? ' active' : '';
+    const addonText = p.addon ? `+${p.addon}` : '¥0';
+    return `<button class="process-btn${active}" onclick="selectProcess('${p.name}', ${p.addon})">
+      ${p.name}<br><span class="addon">${addonText}</span>
+    </button>`;
   }).join('');
 }
 
-async function deleteHistoryRecord(id) {
-  if (!id) return;
-  if (!confirm('确定要删除这条记录吗？')) return;
-  // Delete from both
-  if (supabase && !id.startsWith('local_')) {
-    await deleteFromSupabase(id);
-  }
-  deleteFromLocal(id);
-  renderHistory();
-}
-
-function filterHistory(type) {
-  currentFilter = type;
-  document.querySelectorAll('.history-filter-btn').forEach(function(btn) {
-    btn.classList.remove('active');
-    if (btn.textContent.indexOf(type === 'all' ? '全部' : BOARD_TYPES[type]?.name || type) !== -1) {
-      btn.classList.add('active');
-    }
-  });
-  // Reset filter button states
-  var filterLabels = { 'all': '全部', 'aluminum': '铝基板', 'hb': 'HB纸板', 'fr4-single': 'FR4单面板', 'fr4-double': 'FR4双面板', 'fr4-four': 'FR4四层板' };
-  document.querySelectorAll('.history-filter-btn').forEach(function(btn, idx) {
-    var keys = Object.keys(filterLabels);
-    if (keys[idx] === type) {
-      btn.classList.add('active');
-    } else if (idx < keys.length) {
-      btn.classList.remove('active');
-    }
-  });
-  renderHistory();
-}
-
-function exportHistory() {
-  var records = loadFromLocal();
-  var csv = '\uFEFF';
-  csv += '\u65F6\u95F4,\u677F\u7C7B\u578B,\u5C3A\u5BF8(\u957Fx\u5BBD),\u62FC\u677F\u6570,\u5E73\u65B9\u5355\u4EF7,PCS\u5355\u4EF7\n';
-  records.forEach(function(r) {
-    var typeName = BOARD_TYPES[r.board_type]?.name || r.board_type;
-    csv += r.created_at + ',' + typeName + ',' + r.length_mm + 'x' + r.width_mm + ',' + r.panel_count + ',' + r.unit_price_sqm + ',' + parseFloat(r.pcs_price).toFixed(4) + '\n';
-  });
-  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  var link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'pcb_calculation_history_' + new Date().toISOString().slice(0, 10) + '.csv';
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
-
-// ============================================================
-// COLLAPSE
-// ============================================================
-function toggleSection(titleEl) {
-  var card = titleEl.closest('.card');
-  card.classList.toggle('collapsed');
-}
-
-// ============================================================
-// INIT
-// ============================================================
-document.addEventListener('DOMContentLoaded', function() {
-  // Select FR4 double as default
-  var defaultCard = document.querySelector('[data-type="fr4-double"]');
-  if (defaultCard) selectBoardType(defaultCard);
-
-  // Initial calculation
+function selectProcess(name, addon) {
+  currentProcess = name;
+  updateProcessButtons();
   calculate();
+}
 
-  // Load history
-  renderHistory();
-});
+// ==================== 计算 ====================
+function calculate() {
+  const category = el("boardCategory").value;
+  const basePrice = parseInt(el("inputBasePrice").value) || 0;
+  const exposeAddon = parseInt(el("inputExposeAddon").value) || 0;
+  const sprayAddon = parseInt(el("inputSprayAddon").value) || 0;
+  const halfHoleAddon = parseInt(el("inputHalfHoleAddon").value) || 0;
+  const length = parseFloat(el("length").value) || 0;
+  const width = parseFloat(el("width").value) || 0;
+  const panelCount = Math.max(1, parseInt(el("panelCount").value) || 1);
+  const boardEdge = parseFloat(el("boardEdge").value) || 0;
+
+  const effLength = length + boardEdge * 2;
+  const effWidth = width + boardEdge * 2;
+  const rawArea = length * width / 1000000;
+  const effArea = effLength * effWidth / 1000000;
+
+  const isSimpleFormula = (category === "铝基板" || category === "94HB纸板");
+  const calcAreaM2 = isSimpleFormula
+    ? effArea
+    : (effLength * effWidth + 10) / 1000000;
+
+  const addonMap = { "OSP抗氧化": 0, "爆光线路": exposeAddon, "喷锡": sprayAddon, "半孔板": halfHoleAddon };
+  const currentAddon = addonMap[currentProcess] || 0;
+  const totalUnitPrice = basePrice + currentAddon;
+
+  const costPerBoard = calcAreaM2 * totalUnitPrice / panelCount;
+
+  el("edgeIndicator").innerHTML = `<span>有效尺寸</span><span class="eff-dims">${effLength.toFixed(1)} × ${effWidth.toFixed(1)} mm</span>`;
+  el("finalUnitPrice").innerHTML = `<span>最终平方单价 = OSP¥${basePrice} + ${currentProcess}¥${currentAddon}</span><strong>¥${totalUnitPrice}/㎡</strong>`;
+  el("statBasePrice").textContent = `¥${basePrice}`;
+  el("statUnitPrice").textContent = `¥${totalUnitPrice}`;
+  el("resultPrice").textContent = `¥${costPerBoard.toFixed(4)}`;
+  const edgeText = boardEdge > 0 ? `板边${boardEdge}mm` : '无边距';
+  el("resultDetail").textContent = `${category} | ${currentProcess} | 拼板 ${panelCount} 拼 | ${edgeText}`;
+  el("resultFormula").textContent = `${effLength.toFixed(1)}×${effWidth.toFixed(1)}${isSimpleFormula ? '' : ' +10'} / 1,000,000 × ¥${totalUnitPrice} / ${panelCount}`;
+
+  const copper = el("copperThickness").value;
+  const thickness = el("boardThickness").value;
+  const voltage = el("voltageLevel").value;
+  const ink = el("inkMethod").value || '不限';
+
+  el("breakdownContent").innerHTML = `
+    <div class="price-row"><span>板材类别</span><span class="val">${category}</span></div>
+    <div class="price-row"><span>铜厚 / 板厚 / 耐压</span><span class="val">${copper}um / ${thickness}mm / ${voltage}</span></div>
+    <div class="price-row"><span>油墨方式</span><span class="val">${ink}</span></div>
+    <div class="price-row"><span>PCB 原始尺寸</span><span class="val">${length} × ${width} mm</span></div>
+    <div class="price-row"><span>原始面积</span><span class="val">${(rawArea*10000).toFixed(1)} cm² (${rawArea.toFixed(6)} m²)</span></div>
+    <div class="price-row"><span>板边</span><span class="val">${boardEdge} mm（四周各加 ${boardEdge}mm）</span></div>
+    <div class="price-row"><span>有效尺寸</span><span class="val">${effLength.toFixed(1)} × ${effWidth.toFixed(1)} mm</span></div>
+    <div class="price-row"><span>有效面积 ${isSimpleFormula ? '' : '（含+10mm²余量）'}</span><span class="val">${(calcAreaM2*10000).toFixed(1)} cm² (${calcAreaM2.toFixed(6)} m²)</span></div>
+    <div class="price-row"><span>拼板数</span><span class="val">${panelCount} 拼</span></div>
+    <div class="price-row hl"><span>OSP 基准单价</span><span class="val">¥${basePrice}/㎡</span></div>
+    <div class="price-row hl"><span>工艺加成 — ${currentProcess}</span><span class="val">+¥${currentAddon}/㎡</span></div>
+    <div class="price-row hl"><span>最终平方单价</span><span class="val" style="color:#1e40af;font-weight:600">¥${totalUnitPrice}/㎡</span></div>
+    <div class="total-row"><span>单块 PCB 成本</span><span class="total-val">¥${costPerBoard.toFixed(4)}</span></div>
+  `;
+}
+
+// ==================== 事件监听 ====================
+el("boardCategory").addEventListener("change", updateParameterOptions);
+el("inkMethod").addEventListener("change", () => { updateRefTable(); calculate(); });
+el("copperThickness").addEventListener("change", () => { updateRefTable(); calculate(); });
+el("boardThickness").addEventListener("change", () => { updateRefTable(); calculate(); });
+el("voltageLevel").addEventListener("change", () => { updateRefTable(); calculate(); });
+
+el("inputBasePrice").addEventListener("input", () => { clearSupplierSelection(); updateProcessButtons(); updateRefTable(); calculate(); });
+el("inputExposeAddon").addEventListener("input", () => { clearSupplierSelection(); updateProcessButtons(); calculate(); });
+el("inputSprayAddon").addEventListener("input", () => { clearSupplierSelection(); updateProcessButtons(); calculate(); });
+el("inputHalfHoleAddon").addEventListener("input", () => { clearSupplierSelection(); updateProcessButtons(); calculate(); });
+
+el("length").addEventListener("input", calculate);
+el("width").addEventListener("input", calculate);
+el("panelCount").addEventListener("input", calculate);
+el("boardEdge").addEventListener("input", calculate);
+
+// Init
+updateParameterOptions();
+updateProcessButtons();
+calculate();
 </script>
 </body>
 </html>
