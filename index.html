@@ -1268,6 +1268,14 @@
 <!-- Footer -->
 <div class="site-footer">成本测算工具 · 实时计算含税成本</div>
 
+
+<!-- ############################################################ -->
+<!-- PAGE 4: PCB板计算器                                               -->
+<!-- ############################################################ -->
+<div class="page-panel" id="page-pcb">
+  <iframe src="pcb-calculator.html" style="width:100%;height:calc(100vh - 70px);border:none;" title="PCB板成本计算器"></iframe>
+</div>
+
 <script>
 // ############################################################
 // PAGE SWITCHING
@@ -1895,31 +1903,5 @@ window.addEventListener('resize', function() {
   }
 });
 </script>
-<!-- ############################################################ -->
-<!-- PAGE 4: PCB板                                                   -->
-<!-- ############################################################ -->
-<div id="page-pcb" class="page-panel">
-
-<!-- Mobile Result Bar -->
-<div class="mobile-result-bar" id="mobileBar-pcb" style="display:none;">
-  <div class="mrb-top">
-    <div class="mrb-label">PCS单价</div>
-    <div class="mrb-total">¥<span id="mobPcbTotal">—</span></div>
-  </div>
-</div>
-
-<div class="layout" style="max-width:1340px;margin:0 auto;padding:20px;">
-  <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--slate-200);">
-    <div style="font-size:48px;margin-bottom:16px;">🖥️</div>
-    <h2 style="font-size:22px;color:var(--slate-800);margin-bottom:8px;">PCB板成本计算器</h2>
-    <p style="color:var(--slate-500);font-size:14px;margin-bottom:24px;">支持铝基板、HB纸板、FR4单面板/双面板/四层板的成本核算与拼板模拟</p>
-    <a href="pcb-calculator.html" style="display:inline-block;padding:12px 28px;background:var(--primary);color:#fff;text-decoration:none;border-radius:var(--radius-sm);font-weight:600;font-size:14px;">打开PCB计算器 →</a>
-    <p style="color:var(--slate-400);font-size:12px;margin-top:16px;">将在新页面中打开完整功能（含拼板可视化、历史记录、Supabase云端同步）</p>
-  </div>
-</div>
-
-</div>
-<!-- END PAGE: PCB板 -->
-
 </body>
 </html>
