@@ -245,18 +245,17 @@
   }
   .sync-bar .sync-btn.secondary:hover { background: var(--blue-light); }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 <!-- Sync Status Bar -->
 <div class="sync-bar" id="syncBar">
   <span>☁️ 云端同步</span>
-  <span class="sync-status loading" id="syncStatus">检测中…</span>
+  <span class="sync-status local" id="syncStatus">📋 本地模式</span>
   <span style="flex:1"></span>
   <button class="sync-btn secondary" id="syncLoadBtn" onclick="loadFromSupabase()" style="display:none">⬇ 加载云端数据</button>
   <button class="sync-btn" id="syncPushBtn" onclick="pushToSupabase()" style="display:none">⬆ 上传到云端</button>
-  <span id="syncInfo" style="color:var(--text-secondary);font-size:11px;"></span>
+  <span id="syncInfo" style="color:var(--text-secondary);font-size:11px;">使用内置122条定价数据</span>
 </div>
 
 <div class="app-header">
@@ -635,41 +634,65 @@ const supplierNotes = {
   "豪鹏赢": "豪鹏赢：仅支持 OSP 抗氧化工艺；不支持爆光线路、喷锡、半孔板等附加工艺。"
 };
 
-// ==================== Supabase 云端同步 ====================
+// ==================== Supabase 云端同步（异步非阻塞） ====================
 const SUPABASE_URL = "https://vmtmctgcrwzjejqtnngp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";
 let supabase = null;
-let cloudPriceDB = null;  // Pricing loaded from Supabase
+let cloudPriceDB = null;
 let cloudLoaded = false;
+let supabaseReady = false;
+
+// 异步加载 Supabase SDK，不阻塞页面
+(function() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.onload = function() {
+    initSupabase();
+  };
+  script.onerror = function() {
+    setSyncStatus('local', 'SDK加载失败（使用本地数据）');
+  };
+  // 3秒超时自动降级
+  setTimeout(function() {
+    if (!supabaseReady && !supabase) {
+      setSyncStatus('local', 'SDK超时（使用本地数据）');
+    }
+  }, 3000);
+  document.head.appendChild(script);
+})();
 
 function initSupabase() {
   try {
-    if (typeof supabaseJs !== 'undefined' && supabaseJs.createClient) {
-      supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
-    } else if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+    // Supabase v2 CDN exposes global 'supabase' with createClient
+    if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
+      // The CDN script already polluted window.supabase as the module itself
+      // We need to use it correctly
+      supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
       supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     } else {
-      setSyncStatus('local', '离线模式（SDK未加载）');
+      setSyncStatus('local', 'SDK格式异常（使用本地数据）');
       return;
     }
+    supabaseReady = true;
+    setSyncStatus('loading', '连接云端…');
     loadFromSupabase(true);
   } catch(e) {
-    setSyncStatus('local', '离线模式（初始化失败）');
-    console.log('Supabase init error:', e);
+    setSyncStatus('local', '初始化失败（使用本地数据）');
   }
 }
 
 async function loadFromSupabase(silent) {
-  if (!supabase) { setSyncStatus('local', '离线模式'); return; }
+  if (!supabase) { setSyncStatus('local', '未连接（使用本地数据）'); return; }
   setSyncStatus('loading', '加载云端数据…');
   try {
     const { data, error } = await supabase.from('pcb_pricing').select('*');
     if (error) {
-      if (error.code === 'PGRST205' || error.message.includes('does not exist')) {
+      if (error.code === 'PGRST205' || (error.message && error.message.includes('does not exist'))) {
         if (!silent) alert('云端表还未创建，请先在 Supabase SQL Editor 中运行 pcb_migration.sql');
         setSyncStatus('local', '表未创建（使用本地数据）');
       } else {
-        setSyncStatus('error', '加载失败: ' + error.message);
+        setSyncStatus('local', '加载失败（使用本地数据）');
       }
       return;
     }
@@ -694,8 +717,7 @@ async function loadFromSupabase(silent) {
         });
       }
       cloudLoaded = true;
-      const count = data.length;
-      setSyncStatus('cloud', '云端数据已同步 (' + count + '条)');
+      setSyncStatus('cloud', '云端数据已同步 (' + data.length + '条)');
       document.getElementById('syncLoadBtn').style.display = 'none';
       document.getElementById('syncPushBtn').style.display = 'inline-block';
       updateRefTable();
@@ -705,8 +727,7 @@ async function loadFromSupabase(silent) {
       document.getElementById('syncLoadBtn').style.display = 'inline-block';
     }
   } catch(e) {
-    setSyncStatus('error', '连接失败: ' + e.message);
-    console.error('Supabase load error:', e);
+    setSyncStatus('local', '连接失败（使用本地数据）');
   }
 }
 
@@ -714,11 +735,9 @@ async function pushToSupabase() {
   if (!supabase) { alert('未连接云端'); return; }
   if (!confirm('将当前所有本地价格数据（' + estimateLocalCount() + '条）上传到云端？这将以本地数据覆盖云端已有数据。')) return;
   setSyncStatus('loading', '上传中…');
-  
   try {
-    // First delete all existing
     const { error: delErr } = await supabase.from('pcb_pricing').delete().neq('id', 0);
-    if (delErr && delErr.code !== 'PGRST116') {  // PGRST116 = no rows to delete, ok
+    if (delErr && delErr.code !== 'PGRST116') {
       if (delErr.message && delErr.message.includes('does not exist')) {
         alert('云端表还未创建！请在 Supabase SQL Editor 运行 pcb_migration.sql 后重试。');
         setSyncStatus('local', '表未创建');
@@ -726,19 +745,14 @@ async function pushToSupabase() {
       }
       throw delErr;
     }
-    
-    // Insert all entries
     const records = [];
     for (const [material, suppliers] of Object.entries(priceDB)) {
       for (const [supplier, entries] of Object.entries(suppliers)) {
         for (const e of entries) {
           records.push({
-            supplier, material,
-            name: '', process: 'OSP',
-            ink_method: e.ink || '',
-            voltage: e.voltage,
-            thickness: e.thickness,
-            copper: e.copper,
+            supplier, material, name: '', process: 'OSP',
+            ink_method: e.ink || '', voltage: e.voltage,
+            thickness: e.thickness, copper: e.copper,
             base_price: e.base,
             exposure_addon: e.addons['爆光线路'] || 0,
             spray_tin_addon: e.addons['喷锡'] || 0,
@@ -747,27 +761,24 @@ async function pushToSupabase() {
         }
       }
     }
-    
-    // Insert in batches of 50
     for (let i = 0; i < records.length; i += 50) {
       const batch = records.slice(i, i + 50);
       const { error } = await supabase.from('pcb_pricing').insert(batch);
       if (error) throw error;
     }
-    
     await loadFromSupabase(true);
     alert('上传成功！' + records.length + '条价格数据已同步到云端。');
   } catch(e) {
-    setSyncStatus('error', '上传失败: ' + e.message);
+    setSyncStatus('local', '上传失败（使用本地数据）');
     alert('上传失败: ' + e.message);
   }
 }
 
 function setSyncStatus(status, info) {
-  const el = document.getElementById('syncStatus');
-  if (el) {
-    el.className = 'sync-status ' + status;
-    el.textContent = status === 'cloud' ? '✅ 云端同步' : status === 'local' ? '📋 本地模式' : status === 'loading' ? '⏳ 检测中…' : '❌ 错误';
+  const statusEl = document.getElementById('syncStatus');
+  if (statusEl) {
+    statusEl.className = 'sync-status ' + status;
+    statusEl.textContent = status === 'cloud' ? '✅ 云端同步' : status === 'local' ? '📋 本地模式' : status === 'loading' ? '⏳ ' + (info || '检测中…') : '❌ 错误';
   }
   const infoEl = document.getElementById('syncInfo');
   if (infoEl && info) infoEl.textContent = info;
@@ -784,16 +795,14 @@ function setSyncStatus(status, info) {
 
 function estimateLocalCount() {
   let count = 0;
-  for (const suppliers of Object.values(priceDB)) {
-    for (const entries of Object.values(suppliers)) {
+  for (const suppliers of Object.values(priceDB))
+    for (const entries of Object.values(suppliers))
       count += entries.length;
-    }
-  }
   return count;
 }
 
 function getEffectivePriceDB() {
-  return cloudLoaded ? cloudPriceDB : priceDB;
+  return cloudLoaded && cloudPriceDB ? cloudPriceDB : priceDB;
 }
 
 // ==================== 常量 ====================
@@ -1057,11 +1066,11 @@ el("width").addEventListener("input", calculate);
 el("panelCount").addEventListener("input", calculate);
 el("boardEdge").addEventListener("input", calculate);
 
-// Init
+// Init — 核心计算器立即运行，不等待 Supabase
 updateParameterOptions();
 updateProcessButtons();
 calculate();
-initSupabase();
+// Supabase 通过异步 script.onload 自动初始化，不阻塞页面
 </script>
 </body>
 </html>
