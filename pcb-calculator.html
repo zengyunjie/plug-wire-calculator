@@ -222,9 +222,42 @@
     .form-row.cols2, .form-row.cols3, .form-row.cols4, .form-row.cols13, .form-row.cols23 { grid-template-columns: 1fr; }
     .quick-stats { flex-direction: column; }
   }
+  /* Supabase sync bar */
+  .sync-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; background: var(--card);
+    border-bottom: 1px solid var(--border); font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .sync-bar .sync-status { padding: 3px 10px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
+  .sync-bar .sync-status.local { background: #fef3c7; color: #92400e; }
+  .sync-bar .sync-status.cloud { background: var(--green-bg); color: #065f46; }
+  .sync-bar .sync-status.error { background: var(--red-bg); color: #991b1b; }
+  .sync-bar .sync-status.loading { background: var(--blue-light); color: var(--blue-dark); }
+  .sync-bar .sync-btn {
+    padding: 4px 12px; border: 1px solid var(--blue); border-radius: 6px;
+    background: var(--blue); color: #fff; font-size: 11px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; font-family: inherit;
+  }
+  .sync-bar .sync-btn:hover { background: var(--blue-dark); }
+  .sync-bar .sync-btn.secondary {
+    background: #fff; color: var(--blue); border: 1px solid var(--blue);
+  }
+  .sync-bar .sync-btn.secondary:hover { background: var(--blue-light); }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- Sync Status Bar -->
+<div class="sync-bar" id="syncBar">
+  <span>☁️ 云端同步</span>
+  <span class="sync-status loading" id="syncStatus">检测中…</span>
+  <span style="flex:1"></span>
+  <button class="sync-btn secondary" id="syncLoadBtn" onclick="loadFromSupabase()" style="display:none">⬇ 加载云端数据</button>
+  <button class="sync-btn" id="syncPushBtn" onclick="pushToSupabase()" style="display:none">⬆ 上传到云端</button>
+  <span id="syncInfo" style="color:var(--text-secondary);font-size:11px;"></span>
+</div>
 
 <div class="app-header">
   <h1>PCB板成本核算计算器 v4</h1>
@@ -602,6 +635,167 @@ const supplierNotes = {
   "豪鹏赢": "豪鹏赢：仅支持 OSP 抗氧化工艺；不支持爆光线路、喷锡、半孔板等附加工艺。"
 };
 
+// ==================== Supabase 云端同步 ====================
+const SUPABASE_URL = "https://vmtmctgcrwzjejqtnngp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";
+let supabase = null;
+let cloudPriceDB = null;  // Pricing loaded from Supabase
+let cloudLoaded = false;
+
+function initSupabase() {
+  try {
+    if (typeof supabaseJs !== 'undefined' && supabaseJs.createClient) {
+      supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    } else {
+      setSyncStatus('local', '离线模式（SDK未加载）');
+      return;
+    }
+    loadFromSupabase(true);
+  } catch(e) {
+    setSyncStatus('local', '离线模式（初始化失败）');
+    console.log('Supabase init error:', e);
+  }
+}
+
+async function loadFromSupabase(silent) {
+  if (!supabase) { setSyncStatus('local', '离线模式'); return; }
+  setSyncStatus('loading', '加载云端数据…');
+  try {
+    const { data, error } = await supabase.from('pcb_pricing').select('*');
+    if (error) {
+      if (error.code === 'PGRST205' || error.message.includes('does not exist')) {
+        if (!silent) alert('云端表还未创建，请先在 Supabase SQL Editor 中运行 pcb_migration.sql');
+        setSyncStatus('local', '表未创建（使用本地数据）');
+      } else {
+        setSyncStatus('error', '加载失败: ' + error.message);
+      }
+      return;
+    }
+    if (data && data.length > 0) {
+      cloudPriceDB = {};
+      for (const row of data) {
+        const m = row.material;
+        const s = row.supplier;
+        if (!cloudPriceDB[m]) cloudPriceDB[m] = {};
+        if (!cloudPriceDB[m][s]) cloudPriceDB[m][s] = [];
+        cloudPriceDB[m][s].push({
+          voltage: row.voltage,
+          thickness: row.thickness,
+          copper: row.copper,
+          ink: row.ink_method,
+          base: Number(row.base_price),
+          addons: {
+            ...(row.exposure_addon > 0 ? { '爆光线路': Number(row.exposure_addon) } : {}),
+            ...(row.spray_tin_addon > 0 ? { '喷锡': Number(row.spray_tin_addon) } : {}),
+            ...(row.half_hole_addon > 0 ? { '半孔板': Number(row.half_hole_addon) } : {}),
+          }
+        });
+      }
+      cloudLoaded = true;
+      const count = data.length;
+      setSyncStatus('cloud', '云端数据已同步 (' + count + '条)');
+      document.getElementById('syncLoadBtn').style.display = 'none';
+      document.getElementById('syncPushBtn').style.display = 'inline-block';
+      updateRefTable();
+      calculate();
+    } else {
+      setSyncStatus('local', '云端无数据（使用本地数据）');
+      document.getElementById('syncLoadBtn').style.display = 'inline-block';
+    }
+  } catch(e) {
+    setSyncStatus('error', '连接失败: ' + e.message);
+    console.error('Supabase load error:', e);
+  }
+}
+
+async function pushToSupabase() {
+  if (!supabase) { alert('未连接云端'); return; }
+  if (!confirm('将当前所有本地价格数据（' + estimateLocalCount() + '条）上传到云端？这将以本地数据覆盖云端已有数据。')) return;
+  setSyncStatus('loading', '上传中…');
+  
+  try {
+    // First delete all existing
+    const { error: delErr } = await supabase.from('pcb_pricing').delete().neq('id', 0);
+    if (delErr && delErr.code !== 'PGRST116') {  // PGRST116 = no rows to delete, ok
+      if (delErr.message && delErr.message.includes('does not exist')) {
+        alert('云端表还未创建！请在 Supabase SQL Editor 运行 pcb_migration.sql 后重试。');
+        setSyncStatus('local', '表未创建');
+        return;
+      }
+      throw delErr;
+    }
+    
+    // Insert all entries
+    const records = [];
+    for (const [material, suppliers] of Object.entries(priceDB)) {
+      for (const [supplier, entries] of Object.entries(suppliers)) {
+        for (const e of entries) {
+          records.push({
+            supplier, material,
+            name: '', process: 'OSP',
+            ink_method: e.ink || '',
+            voltage: e.voltage,
+            thickness: e.thickness,
+            copper: e.copper,
+            base_price: e.base,
+            exposure_addon: e.addons['爆光线路'] || 0,
+            spray_tin_addon: e.addons['喷锡'] || 0,
+            half_hole_addon: e.addons['半孔板'] || 0,
+          });
+        }
+      }
+    }
+    
+    // Insert in batches of 50
+    for (let i = 0; i < records.length; i += 50) {
+      const batch = records.slice(i, i + 50);
+      const { error } = await supabase.from('pcb_pricing').insert(batch);
+      if (error) throw error;
+    }
+    
+    await loadFromSupabase(true);
+    alert('上传成功！' + records.length + '条价格数据已同步到云端。');
+  } catch(e) {
+    setSyncStatus('error', '上传失败: ' + e.message);
+    alert('上传失败: ' + e.message);
+  }
+}
+
+function setSyncStatus(status, info) {
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.className = 'sync-status ' + status;
+    el.textContent = status === 'cloud' ? '✅ 云端同步' : status === 'local' ? '📋 本地模式' : status === 'loading' ? '⏳ 检测中…' : '❌ 错误';
+  }
+  const infoEl = document.getElementById('syncInfo');
+  if (infoEl && info) infoEl.textContent = info;
+  const loadBtn = document.getElementById('syncLoadBtn');
+  const pushBtn = document.getElementById('syncPushBtn');
+  if (status === 'cloud') {
+    if (loadBtn) loadBtn.style.display = 'none';
+    if (pushBtn) pushBtn.style.display = 'inline-block';
+  } else if (status === 'local') {
+    if (loadBtn) loadBtn.style.display = 'inline-block';
+    if (pushBtn) pushBtn.style.display = 'none';
+  }
+}
+
+function estimateLocalCount() {
+  let count = 0;
+  for (const suppliers of Object.values(priceDB)) {
+    for (const entries of Object.values(suppliers)) {
+      count += entries.length;
+    }
+  }
+  return count;
+}
+
+function getEffectivePriceDB() {
+  return cloudLoaded ? cloudPriceDB : priceDB;
+}
+
 // ==================== 常量 ====================
 const el = (id) => document.getElementById(id);
 let currentProcess = "OSP抗氧化";
@@ -610,8 +804,9 @@ let filledBySupplier = null;
 // ==================== 参数联动 ====================
 function getAllEntries() {
   const category = el("boardCategory").value;
+  const db = getEffectivePriceDB();
   const all = {};
-  for (const [supplier, entries] of Object.entries(priceDB[category] || {})) {
+  for (const [supplier, entries] of Object.entries(db[category] || {})) {
     all[supplier] = entries;
   }
   return all;
@@ -626,17 +821,21 @@ function getMatchedEntries() {
   const matched = {};
 
   for (const [supplier, entries] of Object.entries(all)) {
+    // Match by copper, thickness, voltage
     let filtered = entries.filter(e => e.copper === copper && e.thickness === thickness && e.voltage === voltage);
 
+    // If ink method is specified, try to match ink
     if (ink && filtered.length > 0) {
       const inkMatch = filtered.filter(e => {
-        if (!e.ink) return true;
+        if (!e.ink) return true;  // entries without ink field pass
+        // Match first part of ink (白油黑字 vs 绿油白字)
         return e.ink.includes(ink.split('-')[0].replace('白油', '白油').replace('绿油', '绿油'));
       });
       if (inkMatch.length > 0) filtered = inkMatch;
     }
 
     if (filtered.length > 0) {
+      // Use the first match (prefer exact ink match if available)
       matched[supplier] = filtered[0];
     }
   }
@@ -669,6 +868,7 @@ function updateRefTable() {
   const voltage = el("voltageLevel").value;
   const ink = el("inkMethod").value || '不限';
 
+  // Update filter hint
   el("filterParams").textContent = `${copper}um / ${thickness}mm / ${voltage} / ${ink}`;
 
   if (Object.keys(matched).length === 0) {
@@ -680,6 +880,7 @@ function updateRefTable() {
   updateQuickStats(Object.keys(matched).length);
 
   let html = '';
+  // Sort: 正创, 恒丽, 鑫阳, 健达, 豪鹏赢
   const supplierOrder = ["正创", "恒丽", "鑫阳", "健达", "豪鹏赢"];
   const sorted = Object.entries(matched).sort((a, b) => {
     const ia = supplierOrder.indexOf(a[0]); const ib = supplierOrder.indexOf(b[0]);
@@ -693,6 +894,7 @@ function updateRefTable() {
     const isFilled = filledBySupplier === supplier ? ' filled' : '';
     const isSelected = filledBySupplier === supplier ? ' selected' : '';
 
+    // Ink tag
     const inkTag = entry.ink
       ? `<span class="ink-tag ${entry.ink.includes('绿油') ? 'green' : 'white_ink'}">${entry.ink}</span>`
       : '<span class="ink-tag">—</span>';
@@ -721,9 +923,11 @@ function fillFromSupplier(supplier, base, expose, spray, halfHole) {
   el("inputHalfHoleAddon").value = halfHole;
   filledBySupplier = supplier;
 
+  // Update supplier status badge
   el("supplierStatus").textContent = `✅ ${supplier}报价`;
   el("supplierStatus").className = "supplier-badge active";
 
+  // Update supplier notes
   el("supplierNotes").innerHTML = `<strong>${supplier} 备注：</strong><br>${supplierNotes[supplier] || "无特殊规则"}`;
 
   updateRefTable();
@@ -734,7 +938,7 @@ function clearSupplierSelection() {
   filledBySupplier = null;
   el("supplierStatus").textContent = "手动输入";
   el("supplierStatus").className = "supplier-badge none";
-  el("supplierNotes").innerHTML = `提示：先选择板材类别和参数，右侧会显示匹配的供应商价格。<br>点击任意供应商行的「填入」按钮即可自动填入左侧价格。<br>填入后可手动修改价格，修改后标记为"手动输入"。`;
+  el("supplierNotes").innerHTML = `<strong>提示：</strong>先选择板材类别和参数，右侧会显示匹配的供应商价格。<br>点击任意供应商行的「填入」按钮即可自动填入左侧价格。<br>填入后可手动修改价格，修改后标记为"手动输入"。`;
 }
 
 // ==================== 工艺选择按钮 ====================
@@ -794,15 +998,26 @@ function calculate() {
 
   const costPerBoard = calcAreaM2 * totalUnitPrice / panelCount;
 
+  // Edge indicator
   el("edgeIndicator").innerHTML = `<span>有效尺寸</span><span class="eff-dims">${effLength.toFixed(1)} × ${effWidth.toFixed(1)} mm</span>`;
+
+  // Final unit price
   el("finalUnitPrice").innerHTML = `<span>最终平方单价 = OSP¥${basePrice} + ${currentProcess}¥${currentAddon}</span><strong>¥${totalUnitPrice}/㎡</strong>`;
+
+  // Quick stats
   el("statBasePrice").textContent = `¥${basePrice}`;
   el("statUnitPrice").textContent = `¥${totalUnitPrice}`;
+
+  // Result card
   el("resultPrice").textContent = `¥${costPerBoard.toFixed(4)}`;
   const edgeText = boardEdge > 0 ? `板边${boardEdge}mm` : '无边距';
+  const formulaText = isSimpleFormula
+    ? `(长+板边×2)×(宽+板边×2) ÷ 1,000,000 × 单价 ÷ 拼板数`
+    : `((长+板边×2)×(宽+板边×2)+10) ÷ 1,000,000 × 单价 ÷ 拼板数`;
   el("resultDetail").textContent = `${category} | ${currentProcess} | 拼板 ${panelCount} 拼 | ${edgeText}`;
   el("resultFormula").textContent = `${effLength.toFixed(1)}×${effWidth.toFixed(1)}${isSimpleFormula ? '' : ' +10'} / 1,000,000 × ¥${totalUnitPrice} / ${panelCount}`;
 
+  // Breakdown
   const copper = el("copperThickness").value;
   const thickness = el("boardThickness").value;
   const voltage = el("voltageLevel").value;
@@ -846,6 +1061,7 @@ el("boardEdge").addEventListener("input", calculate);
 updateParameterOptions();
 updateProcessButtons();
 calculate();
+initSupabase();
 </script>
 </body>
 </html>
