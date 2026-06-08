@@ -1026,7 +1026,8 @@
         <div>⑤ 胶皮截面积 = 0.7854×外径² − 导体截面积×芯数</div>
         <div>⑥ 胶皮成本(元/m) = 胶皮截面积 × 密度 × 胶料价 / 1000</div>
         <div>⑦ 小计 = 每米线材成本×线长 + 加工费 + 配件费</div>
-        <div>⑧ 含税成本 = 小计 × (1+利润率%) × (1+税率%)</div>
+        <div>⑧ 利润 = 线材成本(每米成本×线长) × 利润率%</div>
+        <div>⑨ 含税成本 = 小计 + 利润 + (小计+利润)×税率%</div>
       </div>
     </div>
 
@@ -1501,7 +1502,8 @@ function calcPlug() {
   var terminalCost = terminalPrice * terminalQty;
   var radCostTotal = radFee * wireLength;
   var subtotal = wireCostPerM * wireLength + radCostTotal + plugCost + switchCost + tailFee + terminalCost + shipFee;
-  var profit = subtotal * profitRate;
+  var wireMaterialCost = wireCostPerM * wireLength;
+  var profit = wireMaterialCost * profitRate;
   var taxBase = subtotal + profit;
   var taxAmt = taxBase * taxRate;
   var total = subtotal + profit + taxAmt;
@@ -1597,7 +1599,7 @@ function calcPlug() {
     { name: '端子费', formula: terminalPrice + ' × ' + terminalQty + '个', val: terminalCost, unit: '元' },
     { name: '运费', formula: '按1条计', val: shipFee, unit: '元' },
     { name: '小计（不含利润税）', formula: '每米成本×' + wireLength + ' + 加工费 + 配件', val: subtotal, unit: '元', total: true },
-    { name: '利润（' + (profitRate*100).toFixed(0) + '%）', formula: '小计 × ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '元', total: true },
+    { name: '利润（' + (profitRate*100).toFixed(0) + '%）', formula: '线材成本(' + wireMaterialCost.toFixed(4) + ') × ' + (profitRate*100).toFixed(0) + '%', val: profit, unit: '元', total: true },
     { name: '税额（' + (taxRate*100).toFixed(0) + '%）', formula: '(小计+利润) × ' + (taxRate*100).toFixed(0) + '%', val: taxAmt, unit: '元', total: true },
     { name: '★ 整条含税总成本 ★', formula: '小计 + 利润 + 税额', val: total, unit: '元', total: true },
   ];
