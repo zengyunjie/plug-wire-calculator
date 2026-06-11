@@ -330,8 +330,8 @@ async function sha256Hash(password) {
 
 // 验证密码：先尝试 bcrypt，失败则尝试 SHA-256（兼容旧格式）
 async function verifyPassword(password, hash) {
-  // 1. 如果是 bcrypt 格式（$2b$ 开头），用 bcrypt 验证
-  if (hash && hash.startsWith('$2b$')) {
+  // 1. 如果是 bcrypt 格式（$2a$ 或 $2b$ 开头），用 bcrypt 验证
+  if (hash && (hash.startsWith('$2a$') || hash.startsWith('$2b$'))) {
     var bcrypt = getBcrypt();
     if (!bcrypt) throw new Error('bcrypt 库未加载');
     return bcrypt.compareSync(password, hash);

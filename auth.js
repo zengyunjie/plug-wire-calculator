@@ -201,10 +201,8 @@ async function changePassword() {
   var msgEl = document.getElementById('acctPwMsg');
   if (!newPw || newPw.length < 6) { msgEl.textContent = '密码至少6位'; return; }
 
-  var bcrypt = window.dcodeIO ? window.dcodeIO.bcrypt : window.bcrypt;
-  if (!bcrypt) { msgEl.textContent = 'bcrypt库未加载，请刷新'; return; }
-
   try {
+    var bcrypt = ensureBcrypt();
     var hash = bcrypt.hashSync(newPw, bcrypt.genSaltSync(10));
     await supabaseUpdate('app_users', { id: user.id }, { password_hash: hash });
     msgEl.style.color = '#10B981';
@@ -283,9 +281,8 @@ async function adminToggleUser(userId, approve) {
 // 管理员：重置密码（设为 123456）
 async function adminResetPassword(userId, username) {
   if (!confirm('确认将用户 ' + username + ' 的密码重置为 123456？')) return;
-  var bcrypt = window.dcodeIO ? window.dcodeIO.bcrypt : window.bcrypt;
-  if (!bcrypt) { alert('bcrypt库未加载'); return; }
   try {
+    var bcrypt = ensureBcrypt();
     var hash = bcrypt.hashSync('123456', bcrypt.genSaltSync(10));
     await supabaseUpdate('app_users', { id: userId }, { password_hash: hash });
     alert('密码已重置为 123456');
@@ -305,9 +302,21 @@ async function adminDeleteUser(userId, username) {
   }
 }
 
-// ==================== Supabase REST API 封装 ====================
+// ==================== bcrypt 工具 ====================
 
-async function supabaseQuery(table, params) {
+function getBcrypt() {
+  if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) return dcodeIO.bcrypt;
+  if (typeof window !== 'undefined' && window.dcodeIO && window.dcodeIO.bcrypt) return window.dcodeIO.bcrypt;
+  if (typeof window !== 'undefined' && window.bcrypt) return window.bcrypt;
+  return null;
+}
+
+// 确保 bcrypt 可用（从 login.html 的 script 标签加载）
+function ensureBcrypt() {
+  var bcrypt = getBcrypt();
+  if (!bcrypt) throw new Error('bcrypt库未加载，请从登录页刷新后重试');
+  return bcrypt;
+}
   var url = SUPABASE_REST_URL + table;
   if (params) {
     var searchParams = new URLSearchParams();
