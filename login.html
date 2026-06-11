@@ -12,6 +12,19 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
+<script>
+  // bcryptjs 就绪检查（同步脚本加载后应立即可用）
+  var _bcryptReady = false;
+  (function checkBcrypt() {
+    if (window.dcodeIO && window.dcodeIO.bcrypt) { _bcryptReady = true; return; }
+    if (window.bcrypt) { _bcryptReady = true; return; }
+    // 如果同步未加载，延迟检查（可能是异步加载问题）
+    setTimeout(function() {
+      if (window.dcodeIO && window.dcodeIO.bcrypt) _bcryptReady = true;
+      else if (window.bcrypt) _bcryptReady = true;
+    }, 500);
+  })();
+</script>
 <style>
   :root {
     --primary: #3B82F6;
@@ -420,7 +433,12 @@ async function handleLogin() {
     window.location.href = getRedirectUrl();
 
   } catch(e) {
-    showError('loginError', '登录失败，请检查网络连接');
+    var errMsg = e.message || '';
+    if (errMsg.indexOf('bcrypt') !== -1 || errMsg.indexOf('Failed to fetch') !== -1 || errMsg.indexOf('NetworkError') !== -1) {
+      showError('loginError', '网络异常或安全组件未加载，请刷新页面后重试（Ctrl+Shift+R）');
+    } else {
+      showError('loginError', '登录失败，请检查网络连接');
+    }
     console.error('Login error:', e);
   } finally {
     btn.disabled = false;
@@ -528,6 +546,8 @@ async function handleRegister() {
     var errMsg = '注册失败';
     if (e.message && e.message.indexOf('duplicate key') !== -1) {
       errMsg = '用户名已被注册';
+    } else if (e.message && e.message.indexOf('bcrypt') !== -1) {
+      errMsg = '安全组件未加载，请刷新页面后重试（Ctrl+Shift+R）';
     } else if (e.message) {
       errMsg = '注册失败：' + e.message;
     }
