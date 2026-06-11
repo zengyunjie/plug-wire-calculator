@@ -244,7 +244,42 @@
     background: #fff; color: var(--blue); border: 1px solid var(--blue);
   }
   .sync-bar .sync-btn.secondary:hover { background: var(--blue-light); }
+
+  /* ========== USER AREA ========== */
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .user-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: #f3f4f6;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .logout-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .logout-btn:hover {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
 </style>
+<script src="auth.js"></script>
 </head>
 <body>
 
@@ -256,6 +291,11 @@
   <button class="sync-btn secondary" id="syncLoadBtn" onclick="loadFromSupabase()" style="display:none">⬇ 加载云端数据</button>
   <button class="sync-btn" id="syncPushBtn" onclick="pushToSupabase()" style="display:none">⬆ 上传到云端</button>
   <span id="syncInfo" style="color:var(--text-secondary);font-size:11px;">使用内置122条定价数据</span>
+  <span style="flex:1"></span>
+  <div class="user-area" id="userArea" style="display:none;">
+    <span class="user-badge" id="userBadge"></span>
+    <button class="logout-btn" onclick="logout()">退出</button>
+  </div>
 </div>
 
 <div class="app-header">
@@ -446,6 +486,24 @@
 </div>
 
 <script>
+// ==================== AUTH CHECK ====================
+// 如果在 iframe 中（被 index.html 嵌入），依赖父页面的认证
+// 如果独立访问，需要检查登录状态
+(function() {
+  // 检测是否在 iframe 中（且不是顶层窗口）
+  var inIframe = false;
+  try { inIframe = window.self !== window.top; } catch(e) { inIframe = true; }
+  
+  if (inIframe) {
+    // 在 iframe 中，父页面已做认证，只初始化用户 UI
+    initUserUI();
+    return;
+  }
+  // 独立访问，需要登录
+  if (!requireAuth()) return;
+  initUserUI();
+})();
+
 // ==================== 价格数据库（扩展版） ====================
 const priceDB = {
   "铝基板": {
@@ -635,8 +693,7 @@ const supplierNotes = {
 };
 
 // ==================== Supabase 云端同步（异步非阻塞） ====================
-const SUPABASE_URL = "https://vmtmctgcrwzjejqtnngp.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";
+// SUPABASE_URL and SUPABASE_KEY are defined in auth.js (shared module)
 let supabase = null;
 let cloudPriceDB = null;
 let cloudLoaded = false;

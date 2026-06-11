@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="auth.js"></script>
 <style>
   :root {
     --primary: #3B82F6;
@@ -88,6 +89,41 @@
   .top-nav .tab-btn.active {
     background: #fff; color: var(--primary);
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  /* ========== USER AREA ========== */
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .user-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate-600);
+    background: var(--slate-100);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .logout-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate-500);
+    background: none;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .logout-btn:hover {
+    background: var(--red-light);
+    border-color: var(--red);
+    color: var(--red);
   }
 
   /* ========== PAGE PANELS ========== */
@@ -444,6 +480,9 @@
     .top-nav .logo .dot svg { width: 13px; height: 13px; }
     .top-nav .tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .top-nav .tab-btn { padding: 7px 12px; font-size: 12px; flex-shrink: 0; }
+    .user-area { width: 100%; justify-content: flex-end; padding-top: 4px; }
+    .user-badge { font-size: 11px; padding: 3px 8px; }
+    .logout-btn { font-size: 11px; padding: 4px 10px; }
     .layout { padding: 10px; gap: 10px; }
     .pkg-layout { padding: 10px; gap: 10px; }
     .card { padding: 12px 14px; border-radius: var(--radius-sm); }
@@ -515,6 +554,10 @@
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
     <button class="tab-btn" onclick="switchPage('pcb')">🖥️ PCB板</button>
+  </div>
+  <div class="user-area" id="userArea" style="display:none;">
+    <span class="user-badge" id="userBadge"></span>
+    <button class="logout-btn" onclick="logout()">退出</button>
   </div>
 </div>
 
@@ -1883,6 +1926,12 @@ function clearAlu() {
 // INIT
 // ############################################################
 window.addEventListener('DOMContentLoaded', function() {
+  // 路由保护：未登录跳转到登录页
+  if (!requireAuth()) return;
+
+  // 初始化用户 UI
+  initUserUI();
+
   onInsulationChange();
   onWireSpecChange();
   selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));

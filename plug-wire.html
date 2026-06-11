@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="auth.js"></script>
 <style>
   :root {
     --primary: #3B82F6;
@@ -79,6 +80,41 @@
     white-space: nowrap; margin-left: auto;
   }
   .top-nav .nav-back:hover { color: var(--primary); }
+
+  /* ========== USER AREA ========== */
+  .user-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+  .user-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate-600);
+    background: var(--slate-100);
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .logout-btn {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--slate-500);
+    background: none;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .logout-btn:hover {
+    background: var(--red-light);
+    border-color: var(--red);
+    color: var(--red);
+  }
 
   /* ========== MOBILE RESULT BAR ========== */
   .mobile-result-bar {
@@ -389,6 +425,9 @@
     .top-nav .logo .dot { width: 22px; height: 22px; border-radius: 6px; }
     .top-nav .logo .dot svg { width: 13px; height: 13px; }
     .top-nav .nav-back { font-size: 11px; }
+    .user-area { width: 100%; justify-content: flex-end; padding-top: 4px; }
+    .user-badge { font-size: 11px; padding: 3px 8px; }
+    .logout-btn { font-size: 11px; padding: 4px 10px; }
     .layout { padding: 10px; gap: 10px; }
     .card { padding: 12px 14px; border-radius: var(--radius-sm); }
     .card-title { font-size: 13px; margin-bottom: 8px; padding-bottom: 8px; }
@@ -447,6 +486,10 @@
     <a href="pcb-calculator.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">🖥️ PCB板</a>
     <a href="packaging-aluminum.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">📦 包材</a>
     <a class="nav-back" href="index.html">← 返回首页</a>
+  </div>
+  <div class="user-area" id="userArea" style="display:none;">
+    <span class="user-badge" id="userBadge"></span>
+    <button class="logout-btn" onclick="logout()">退出</button>
   </div>
 </div>
 
@@ -1007,6 +1050,14 @@
 <div class="site-footer">插头线成本计价工具 · 实时计算含税成本</div>
 
 <script>
+// ============================================================
+// AUTH CHECK - 未登录跳转到登录页
+// ============================================================
+(function() {
+  if (!requireAuth()) return;
+  initUserUI();
+})();
+
 // ============================================================
 // PLUG-WIRE LOGIC
 // ============================================================

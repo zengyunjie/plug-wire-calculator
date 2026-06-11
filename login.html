@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+<meta name="theme-color" content="#0F172A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>登录 - 成本测算工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+<script src="auth.js"></script>
+<style>
+  :root {
+    --primary: #3B82F6;
+    --primary-light: #EFF6FF;
+    --primary-dark: #2563EB;
+    --green: #10B981;
+    --green-light: #ECFDF5;
+    --red: #F43F5E;
+    --red-light: #FFF1F2;
+    --slate-50: #F8FAFC;
+    --slate-100: #F1F5F9;
+    --slate-200: #E2E8F0;
+    --slate-300: #CBD5E1;
+    --slate-400: #94A3B8;
+    --slate-500: #64748B;
+    --slate-600: #475569;
+    --slate-700: #334155;
+    --slate-800: #1E293B;
+    --slate-900: #0F172A;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
+    --shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--slate-50);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ========== LOGIN WRAPPER ========== */
+  .login-wrapper {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .login-card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--slate-200);
+    padding: 32px 28px;
+  }
+
+  /* ========== HEADER / BRAND ========== */
+  .login-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .login-header .logo-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: var(--primary);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 14px;
+  }
+  .login-header .logo-icon svg {
+    width: 26px; height: 26px; color: #fff;
+  }
+  .login-header h1 {
+    font-size: 22px; font-weight: 800; color: var(--slate-900);
+    margin-bottom: 4px;
+  }
+  .login-header p {
+    font-size: 13px; color: var(--slate-500); font-weight: 400;
+  }
+
+  /* ========== FORM ========== */
+  .login-form .field {
+    display: flex; flex-direction: column; gap: 4px;
+    margin-bottom: 14px;
+  }
+  .login-form .field label {
+    font-size: 12px; color: var(--slate-500); font-weight: 600;
+  }
+  .login-form .field input {
+    width: 100%; height: 42px; padding: 0 12px;
+    border: 1.5px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    font-size: 14px; color: var(--slate-900); background: #fff;
+    outline: none; font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .login-form .field input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+  .login-form .field input::placeholder {
+    color: var(--slate-400);
+  }
+
+  /* ========== ERROR MESSAGE ========== */
+  .form-error {
+    font-size: 12px; color: var(--red); min-height: 18px;
+    margin-bottom: 8px; line-height: 1.4;
+    display: none;
+  }
+  .form-error.show { display: block; }
+
+  /* ========== SUCCESS MESSAGE ========== */
+  .form-success {
+    font-size: 12px; color: #059669; min-height: 18px;
+    margin-bottom: 8px; line-height: 1.4;
+    display: none;
+  }
+  .form-success.show { display: block; }
+
+  /* ========== PRIMARY BUTTON ========== */
+  .btn-primary {
+    width: 100%; height: 44px;
+    background: var(--primary); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ========== FORM SWITCH LINK ========== */
+  .form-switch {
+    text-align: center; margin-top: 18px; padding-top: 16px;
+    border-top: 1px solid var(--slate-100);
+  }
+  .form-switch span { font-size: 13px; color: var(--slate-500); }
+  .form-switch a {
+    font-size: 13px; color: var(--primary); font-weight: 600;
+    text-decoration: none; cursor: pointer; margin-left: 4px;
+  }
+  .form-switch a:hover { color: var(--primary-dark); text-decoration: underline; }
+
+  /* ========== FOOTER NOTE ========== */
+  .login-footer {
+    text-align: center; margin-top: 20px;
+    font-size: 11px; color: var(--slate-400);
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 480px) {
+    body { padding: 12px; align-items: flex-start; padding-top: 60px; }
+    .login-card { padding: 24px 18px; }
+    .login-header h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <!-- 品牌区域 -->
+    <div class="login-header">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <h1>成本测算工具</h1>
+      <p id="formSubtitle">登录以使用完整功能</p>
+    </div>
+
+    <!-- ========== 登录表单 ========== -->
+    <div class="login-form" id="loginForm">
+      <div class="field">
+        <label>用户名</label>
+        <input type="text" id="loginUsername" placeholder="请输入用户名" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>密码</label>
+        <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
+      </div>
+      <div class="form-error" id="loginError"></div>
+      <button class="btn-primary" id="loginBtn" onclick="handleLogin()">登 录</button>
+    </div>
+
+    <!-- ========== 注册表单（默认隐藏） ========== -->
+    <div class="login-form" id="registerForm" style="display:none;">
+      <div class="field">
+        <label>用户名 <span style="font-weight:400;color:var(--slate-400);">(4-20个字符)</span></label>
+        <input type="text" id="regUsername" placeholder="请输入用户名" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>显示名称 <span style="font-weight:400;color:var(--slate-400);">(可选)</span></label>
+        <input type="text" id="regDisplayName" placeholder="请输入显示名称" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>密码 <span style="font-weight:400;color:var(--slate-400);">(至少6位)</span></label>
+        <input type="password" id="regPassword" placeholder="请输入密码" autocomplete="new-password">
+      </div>
+      <div class="field">
+        <label>确认密码</label>
+        <input type="password" id="regPasswordConfirm" placeholder="请再次输入密码" autocomplete="new-password">
+      </div>
+      <div class="form-error" id="regError"></div>
+      <button class="btn-primary" id="regBtn" onclick="handleRegister()">注 册</button>
+    </div>
+
+    <!-- 切换链接 -->
+    <div class="form-switch">
+      <span id="switchText">还没有账号？</span>
+      <a href="javascript:void(0)" id="switchLink" onclick="toggleForm()">立即注册</a>
+    </div>
+
+  </div>
+
+  <div class="login-footer">成本测算工具 · 插头线/包材/铝型材/PCB板</div>
+</div>
+
+<script>
+// ==================== 初始化 ====================
+
+// 如果已登录，直接跳转到首页
+if (isLoggedIn()) {
+  window.location.href = 'index.html';
+}
+
+// 支持回车键提交
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    var loginVisible = document.getElementById('loginForm').style.display !== 'none';
+    if (loginVisible) {
+      handleLogin();
+    } else {
+      handleRegister();
+    }
+  }
+});
+
+// ==================== 表单切换 ====================
+
+var isLoginForm = true;
+
+function toggleForm() {
+  isLoginForm = !isLoginForm;
+  var loginForm = document.getElementById('loginForm');
+  var registerForm = document.getElementById('registerForm');
+  var switchText = document.getElementById('switchText');
+  var switchLink = document.getElementById('switchLink');
+  var subtitle = document.getElementById('formSubtitle');
+
+  // 清除错误信息
+  hideError('loginError');
+  hideError('regError');
+
+  if (isLoginForm) {
+    loginForm.style.display = 'block';
+    registerForm.style.display = 'none';
+    switchText.textContent = '还没有账号？';
+    switchLink.textContent = '立即注册';
+    subtitle.textContent = '登录以使用完整功能';
+  } else {
+    loginForm.style.display = 'none';
+    registerForm.style.display = 'block';
+    switchText.textContent = '已有账号？';
+    switchLink.textContent = '返回登录';
+    subtitle.textContent = '创建新账号';
+  }
+}
+
+// ==================== 错误/成功提示 ====================
+
+function showError(id, msg) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+}
+
+function hideError(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.textContent = '';
+    el.classList.remove('show');
+  }
+}
+
+// ==================== 密码处理（bcrypt + SHA-256 兼容） ====================
+
+function getBcrypt() {
+  if (window.dcodeIO && window.dcodeIO.bcrypt) {
+    return window.dcodeIO.bcrypt;
+  }
+  if (window.bcrypt) {
+    return window.bcrypt;
+  }
+  return null;
+}
+
+function hashPassword(password) {
+  var bcrypt = getBcrypt();
+  if (!bcrypt) throw new Error('bcrypt 库未加载');
+  var salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
+}
+
+// SHA-256 密码哈希（兼容旧格式，用于验证）
+async function sha256Hash(password) {
+  var encoder = new TextEncoder();
+  var data = encoder.encode(password);
+  var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  var hashArray = Array.from(new Uint8Array(hashBuffer));
+  var hashBase64 = btoa(String.fromCharCode.apply(null, hashArray));
+  return hashBase64;
+}
+
+// 验证密码：先尝试 bcrypt，失败则尝试 SHA-256（兼容旧格式）
+async function verifyPassword(password, hash) {
+  // 1. 如果是 bcrypt 格式（$2b$ 开头），用 bcrypt 验证
+  if (hash && hash.startsWith('$2b$')) {
+    var bcrypt = getBcrypt();
+    if (!bcrypt) throw new Error('bcrypt 库未加载');
+    return bcrypt.compareSync(password, hash);
+  }
+  
+  // 2. 如果是 SHA-256 Base64 格式（旧格式），用 SHA-256 验证
+  var sha256Result = await sha256Hash(password);
+  return sha256Result === hash;
+}
+
+// ==================== 重定向 ====================
+
+function getRedirectUrl() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('redirect') || 'index.html';
+}
+
+// ==================== 登录处理 ====================
+
+async function handleLogin() {
+  var username = document.getElementById('loginUsername').value.trim();
+  var password = document.getElementById('loginPassword').value;
+  var btn = document.getElementById('loginBtn');
+
+  // 前端校验
+  if (!username || !password) {
+    showError('loginError', '请输入用户名和密码');
+    return;
+  }
+
+  // 禁用按钮防止重复提交
+  btn.disabled = true;
+  btn.textContent = '登录中...';
+  hideError('loginError');
+
+  try {
+    // 查询用户（使用 Supabase REST API）
+    var users = await supabaseQuery('app_users', {
+      username: 'eq.' + encodeURIComponent(username),
+      select: '*'
+    });
+
+    if (!users || users.length === 0) {
+      showError('loginError', '用户名或密码错误');
+      return;
+    }
+
+    var user = users[0];
+
+    // 验证密码（兼容 bcrypt 和 SHA-256 两种格式）
+    var valid = false;
+    try {
+      valid = await verifyPassword(password, user.password_hash);
+    } catch(bcryptErr) {
+      showError('loginError', '密码验证失败，请刷新页面重试');
+      console.error('verify error:', bcryptErr);
+      return;
+    }
+
+    if (!valid) {
+      showError('loginError', '用户名或密码错误');
+      return;
+    }
+
+    // 登录成功，存储用户信息到 localStorage
+    localStorage.setItem('app_user', JSON.stringify({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      display_name: user.display_name || user.username,
+      is_approved: user.is_approved !== false,
+      login_time: Date.now()
+    }));
+
+    // 跳转到目标页面
+    window.location.href = getRedirectUrl();
+
+  } catch(e) {
+    showError('loginError', '登录失败，请检查网络连接');
+    console.error('Login error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '登 录';
+  }
+}
+
+// ==================== 注册处理 ====================
+
+async function handleRegister() {
+  var username = document.getElementById('regUsername').value.trim();
+  var displayName = document.getElementById('regDisplayName').value.trim();
+  var password = document.getElementById('regPassword').value;
+  var passwordConfirm = document.getElementById('regPasswordConfirm').value;
+  var btn = document.getElementById('regBtn');
+
+  hideError('regError');
+
+  // 前端校验
+  if (!username) {
+    showError('regError', '请输入用户名');
+    return;
+  }
+  if (username.length < 4 || username.length > 20) {
+    showError('regError', '用户名长度需在4-20个字符之间');
+    return;
+  }
+  if (!/^[a-zA-Z0-9_\u4e00-\u9fa5]+$/.test(username)) {
+    showError('regError', '用户名只能包含字母、数字、下划线和中文');
+    return;
+  }
+  if (!password) {
+    showError('regError', '请输入密码');
+    return;
+  }
+  if (password.length < 6) {
+    showError('regError', '密码长度至少6位');
+    return;
+  }
+  if (password !== passwordConfirm) {
+    showError('regError', '两次输入的密码不一致');
+    return;
+  }
+
+  // 禁用按钮
+  btn.disabled = true;
+  btn.textContent = '注册中...';
+
+  try {
+    // 1. 检查用户名是否已存在
+    var existing = await supabaseQuery('app_users', {
+      username: 'eq.' + encodeURIComponent(username),
+      select: 'id'
+    });
+
+    if (existing && existing.length > 0) {
+      showError('regError', '用户名已被注册，请更换');
+      return;
+    }
+
+    // 2. 检查当前用户总数，第一个注册的用户为管理员
+    var allUsers = await supabaseQuery('app_users', { select: 'id' });
+    var role = (allUsers && allUsers.length === 0) ? 'admin' : 'user';
+
+    // 3. 加密密码
+    var passwordHash;
+    try {
+      passwordHash = hashPassword(password);
+    } catch(bcryptErr) {
+      showError('regError', '密码加密失败，请刷新页面重试');
+      console.error('bcrypt error:', bcryptErr);
+      return;
+    }
+
+    // 4. 插入用户（适配现有表结构：包含 is_approved 和 last_login 字段）
+    var result = await supabaseInsert('app_users', {
+      username: username,
+      password_hash: passwordHash,
+      role: role,
+      display_name: displayName || username,
+      is_approved: true
+    });
+
+    // 5. 自动登录
+    var newUser = result[0];
+    localStorage.setItem('app_user', JSON.stringify({
+      id: newUser.id,
+      username: newUser.username,
+      role: newUser.role,
+      display_name: newUser.display_name || newUser.username,
+      is_approved: newUser.is_approved !== false,
+      login_time: Date.now()
+    }));
+
+    // 6. 跳转
+    window.location.href = getRedirectUrl();
+
+  } catch(e) {
+    var errMsg = '注册失败';
+    if (e.message && e.message.indexOf('duplicate key') !== -1) {
+      errMsg = '用户名已被注册';
+    } else if (e.message) {
+      errMsg = '注册失败：' + e.message;
+    }
+    showError('regError', errMsg);
+    console.error('Register error:', e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '注 册';
+  }
+}
+</script>
+
+</body>
+</html>
