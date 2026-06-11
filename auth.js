@@ -317,6 +317,10 @@ function ensureBcrypt() {
   if (!bcrypt) throw new Error('bcrypt库未加载，请从登录页刷新后重试');
   return bcrypt;
 }
+
+// ==================== Supabase REST API 封装 ====================
+
+async function supabaseQuery(table, params) {
   var url = SUPABASE_REST_URL + table;
   if (params) {
     var searchParams = new URLSearchParams();
