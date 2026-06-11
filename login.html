@@ -227,7 +227,7 @@
 
   </div>
 
-  <div class="login-footer">成本测算工具 · 插头线/包材/铝型材/PCB板</div>
+  <div class="login-footer">Designed by KevinZeng</div>
 </div>
 
 <script>
@@ -396,11 +396,15 @@ async function handleLogin() {
       return;
     }
 
+    // 检查是否已通过审批
+    if (user.is_approved === false) {
+      showError('loginError', '账号尚未通过管理员审批，请等待审核');
+      return;
+    }
+
     // 登录成功，存储用户信息到 localStorage
-    // 显示名优先使用注册时输入的 displayName，否则使用 username
     var savedDisplayName = (user.display_name && user.display_name !== 'null') ? user.display_name : null;
     if (!savedDisplayName) {
-      // 尝试从注册表单的输入值获取（通过闭包变量）
       savedDisplayName = username;
     }
     localStorage.setItem('app_user', JSON.stringify({
@@ -491,32 +495,34 @@ async function handleRegister() {
       return;
     }
 
-    // 4. 插入用户（显式生成 UUID 避免 DEFAULT 被 RLS 策略跳过）
+    // 4. 插入用户（is_approved=false，等待管理员审批）
     var userId = crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
-    var result = await supabaseInsert('app_users', {
+    await supabaseInsert('app_users', {
       id: userId,
       username: username,
       password_hash: passwordHash,
       role: role,
-      is_approved: true
+      is_approved: false
     });
 
-    // 5. 自动登录（使用用户输入的 displayName 或回退到 username）
-    var newUser = result[0];
-    localStorage.setItem('app_user', JSON.stringify({
-      id: newUser.id,
-      username: newUser.username,
-      role: newUser.role,
-      display_name: displayName || newUser.username,
-      is_approved: newUser.is_approved !== false,
-      login_time: Date.now()
-    }));
-
-    // 6. 跳转
-    window.location.href = getRedirectUrl();
+    // 5. 注册成功，显示提示，跳转回登录页
+    showError('regError', ''); // 清除错误
+    var regErrorEl = document.getElementById('regError');
+    if (regErrorEl) {
+      regErrorEl.textContent = '注册成功！请等待管理员审批后登录';
+      regErrorEl.style.color = '#059669';
+      regErrorEl.classList.add('show');
+    }
+    btn.textContent = '注 册';
+    btn.disabled = true;
+    // 3秒后切换到登录表单
+    setTimeout(function() {
+      toggleForm();
+      btn.disabled = false;
+    }, 3000);
 
   } catch(e) {
     var errMsg = '注册失败';
