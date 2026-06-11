@@ -397,11 +397,17 @@ async function handleLogin() {
     }
 
     // 登录成功，存储用户信息到 localStorage
+    // 显示名优先使用注册时输入的 displayName，否则使用 username
+    var savedDisplayName = (user.display_name && user.display_name !== 'null') ? user.display_name : null;
+    if (!savedDisplayName) {
+      // 尝试从注册表单的输入值获取（通过闭包变量）
+      savedDisplayName = username;
+    }
     localStorage.setItem('app_user', JSON.stringify({
       id: user.id,
       username: user.username,
       role: user.role,
-      display_name: user.display_name || user.username,
+      display_name: savedDisplayName,
       is_approved: user.is_approved !== false,
       login_time: Date.now()
     }));
@@ -485,22 +491,21 @@ async function handleRegister() {
       return;
     }
 
-    // 4. 插入用户（适配现有表结构：包含 is_approved 和 last_login 字段）
+    // 4. 插入用户（只使用现有表的字段：id, username, password_hash, role, is_approved, created_at）
     var result = await supabaseInsert('app_users', {
       username: username,
       password_hash: passwordHash,
       role: role,
-      display_name: displayName || username,
       is_approved: true
     });
 
-    // 5. 自动登录
+    // 5. 自动登录（使用用户输入的 displayName 或回退到 username）
     var newUser = result[0];
     localStorage.setItem('app_user', JSON.stringify({
       id: newUser.id,
       username: newUser.username,
       role: newUser.role,
-      display_name: newUser.display_name || newUser.username,
+      display_name: displayName || newUser.username,
       is_approved: newUser.is_approved !== false,
       login_time: Date.now()
     }));
