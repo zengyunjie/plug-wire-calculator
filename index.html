@@ -442,6 +442,7 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
+    <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
   </div>
 </div>
 
@@ -930,6 +931,115 @@
 </div><!-- /pkg-layout -->
 </div><!-- /page-pkg -->
 
+<!-- ############################################################ -->
+<!-- PAGE 3: 铝型材                                                  -->
+<!-- ############################################################ -->
+<div id="page-alu" class="page-panel">
+<div class="layout">
+  <div class="left-col">
+
+    <!-- ① 型材基础参数 -->
+    <div class="card">
+      <div class="card-title">① 型材基础参数</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>型材长度 <span class="unit-label">(mm)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluLength" value="1695" min="0" step="1" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>型材整条重量 <span class="unit-label">(克)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluWeight" value="389" min="0" step="1" oninput="calcAlu()">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:10px;padding:10px;background:var(--primary-light);border-radius:8px;font-size:13px;">
+        <span style="color:var(--gray-500);">每米重量（自动计算）：</span>
+        <strong id="aluWeightPerM" style="color:var(--primary-dark);font-size:16px;"></strong>
+      </div>
+    </div>
+
+    <!-- ② 费用明细 -->
+    <div class="card">
+      <div class="card-title">② 费用明细</div>
+      <div class="form-grid form-grid-3">
+        <div class="field">
+          <label>原材料单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluRawPrice" value="24200" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>加工费单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluProcPrice" value="2200" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>表面处理单价 <span class="unit-label">(元/吨)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluSurfPrice" value="800" min="0" step="100" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>包装费 <span class="unit-label">(元/条)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluPackFee" value="0" min="0" step="0.01" oninput="calcAlu()">
+          </div>
+        </div>
+        <div class="field">
+          <label>税率 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="aluTaxRate" value="9" min="0" step="0.1" oninput="calcAlu()">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="preset-btn" onclick="clearAlu()" style="background:#fef2f2;color:#ef4444;border-color:#fecaca;">🗑 清空重填</button>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ========== 右侧结果区 ========== -->
+  <div class="right-col">
+
+    <div class="result-card">
+      <div class="label">铝材含税总成本（整条）</div>
+      <div class="total-price"><span class="currency">¥ </span><span id="aluResultTotal">-</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本分解明细</div>
+      <div id="aluDetailList"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本占比</div>
+      <div class="chart-wrap"><canvas id="aluChart"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">计价公式说明</div>
+      <div class="formula-box">
+        每米重量 = 整条重量(g) ÷ 型材长度(mm) × 1000<br>
+        ─────────────────<br>
+        整条单价 = 单价(元/吨) × 整条重量(g) ÷ 1,000,000<br>
+        每米单价 = 单价(元/吨) × 每米重量(g) ÷ 1,000,000<br>
+        ─────────────────<br>
+        税负(整条) = (原材料+加工费+表面处理) × 税率%<br>
+        总成本(整条) = 原材料 + 加工费 + 表面处理 + 包装 + 税负
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /layout -->
+</div><!-- /page-alu -->
+
+
+
 
 
 
@@ -941,6 +1051,7 @@ function switchPage(page) {
   var tabs = document.querySelectorAll('.top-nav .tab-btn');
   tabs[0].classList.toggle('active', page === 'plug');
   tabs[1].classList.toggle('active', page === 'pkg');
+  tabs[2].classList.toggle('active', page === 'alu');
   var panels = document.querySelectorAll('.page-panel');
   for (var i = 0; i < panels.length; i++) {
     panels[i].classList.remove('active');
@@ -948,6 +1059,7 @@ function switchPage(page) {
   document.getElementById('page-' + page).classList.add('active');
   if (page === 'plug') { /* already calculated */ }
   if (page === 'pkg') { calcPkg(); }
+  if (page === 'alu') { calcAlu(); }
 }
 
 // ############################################################
@@ -1353,6 +1465,83 @@ function calcPkg() {
   document.getElementById('pkgDetailContent').innerHTML = dh;
 }
 
+
+// ############################################################
+// ALUMINUM LOGIC
+// ############################################################
+var aluChart = null;
+function calcAlu() {
+  var rawPrice  = parseFloat(document.getElementById('aluRawPrice').value) || 0;
+  var procPrice = parseFloat(document.getElementById('aluProcPrice').value) || 0;
+  var surfPrice = parseFloat(document.getElementById('aluSurfPrice').value) || 0;
+  var packFee   = parseFloat(document.getElementById('aluPackFee').value) || 0;
+  var length    = parseFloat(document.getElementById('aluLength').value) || 0;
+  var weight    = parseFloat(document.getElementById('aluWeight').value) || 0;
+  var taxRate   = (parseFloat(document.getElementById('aluTaxRate').value) || 0);
+  var weightPerM = length > 0 ? (weight / length * 1000) : 0;
+  var rawCostPiece  = rawPrice * weight / 1000000;
+  var procCostPiece = procPrice * weight / 1000000;
+  var surfCostPiece = surfPrice * weight / 1000000;
+  var taxPiece = (rawCostPiece + procCostPiece + surfCostPiece) * (taxRate / 100);
+  var totalPiece = rawCostPiece + procCostPiece + surfCostPiece + packFee + taxPiece;
+  document.getElementById('aluWeightPerM').textContent = weightPerM.toFixed(2) + ' 克';
+  document.getElementById('aluResultTotal').textContent = totalPiece.toFixed(4);
+  var rows = [
+    { label: '原材料', val: rawCostPiece },
+    { label: '加工费', val: procCostPiece },
+    { label: '表面处理', val: surfCostPiece },
+    { label: '包装', val: packFee },
+    { label: '税负 (' + taxRate + '%)', val: taxPiece },
+  ];
+  var dh = '';
+  for (var i = 0; i < rows.length; i++) {
+    dh += '<div class="items-row"><span class="ir-label">' + rows[i].label + '</span><span class="ir-val">¥ ' + rows[i].val.toFixed(4) + '</span></div>';
+  }
+  dh += '<div class="items-row total-row"><span class="ir-label">总成本（整条·含税）</span><span class="ir-val">¥ ' + totalPiece.toFixed(4) + '</span></div>';
+  document.getElementById('aluDetailList').innerHTML = dh;
+  // Chart
+  var ctx3 = document.getElementById('aluChart');
+  if (!ctx3) return;
+  var colors = ['#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ef4444'];
+  if (aluChart) {
+    aluChart.data.datasets[0].data = rows.map(function(r){ return r.val; });
+    aluChart.update();
+  } else {
+    aluChart = new Chart(ctx3.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: rows.map(function(r){ return r.label; }),
+        datasets: [{ data: rows.map(function(r){ return r.val; }), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+function clearAlu() {
+  ['aluLength','aluWeight','aluRawPrice','aluProcPrice','aluSurfPrice','aluPackFee','aluTaxRate'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  calcAlu();
+}
+
+
 // ############################################################
 // CLEAR FUNCTIONS
 // ############################################################
@@ -1371,6 +1560,7 @@ window.addEventListener('DOMContentLoaded', function() {
   onInsulationChange();
   onWireSpecChange();
   selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
+  calcAlu();
 });
 </script>
 </body>
