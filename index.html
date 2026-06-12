@@ -475,6 +475,7 @@
     <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
+    <button class="tab-btn" onclick="switchPage('plastic')">🧩 塑胶件</button>
   </div>
   <div class="user-area" id="userArea">
     <span class="user-name" id="userBadge" style="cursor:pointer;" title="点击管理账户"></span>
@@ -1075,6 +1076,171 @@
 </div><!-- /page-alu -->
 
 
+<!-- ############################################################ -->
+<!-- PAGE 4: 塑胶件                                                  -->
+<!-- ############################################################ -->
+<div id="page-plastic" class="page-panel">
+<div class="layout">
+  <div class="left-col">
+
+    <!-- ① 生产核心参数 -->
+    <div class="card">
+      <div class="card-title">① 生产核心参数</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>材料单价 <span class="unit-label">(元/kg)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plMatPrice" value="18" min="0" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>产品净重 <span class="unit-label">(g)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plNetWeight" value="49.9" min="0" step="0.1" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>水口重/模 <span class="unit-label">(g)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plGateWeight" value="3" min="0" step="0.1" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>机台时租 <span class="unit-label">(元)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plMachineRent" value="50" min="0" step="1" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>注塑周期 <span class="unit-label">(秒)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plCycleTime" value="25" min="0" step="1" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>模具穴数</label>
+          <div class="input-wrap">
+            <input type="number" id="plCavities" value="2" min="1" step="1" oninput="calcPlastic()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 人工与辅助成本 -->
+    <div class="card">
+      <div class="card-title">② 人工与辅助成本</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>工人月薪(综合) <span class="unit-label">(元)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plSalary" value="7500" min="0" step="100" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>一人看管机台数</label>
+          <div class="input-wrap">
+            <input type="number" id="plMachinesPerPerson" value="3" min="1" step="1" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>辅助设备能耗系数</label>
+          <div class="input-wrap">
+            <input type="number" id="plEnergyCoeff" value="1" min="0" step="0.1" oninput="calcPlastic()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ 品质与包装 -->
+    <div class="card">
+      <div class="card-title">③ 品质与包装</div>
+      <div class="form-grid form-grid-2">
+        <div class="field">
+          <label>预估良品率 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plYieldRate" value="99" min="0" max="100" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>包装及Tray盘 <span class="unit-label">(元/件)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plPackCost" value="0" min="0" step="0.01" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>模具维护金 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plMoldMaint" value="0" min="0" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 经营加成 -->
+    <div class="card">
+      <div class="card-title">④ 经营加成</div>
+      <div class="form-grid form-grid-3">
+        <div class="field">
+          <label>管理费分摊 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plAdminFee" value="5" min="0" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>目标利润率 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plProfitRate" value="10" min="0" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+        <div class="field">
+          <label>账期财务成本 <span class="unit-label">(%)</span></label>
+          <div class="input-wrap">
+            <input type="number" id="plFinCost" value="0" min="0" step="0.5" oninput="calcPlastic()">
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:12px;text-align:right;">
+        <button class="preset-btn" onclick="clearPlastic()" style="background:#FEF2F2;color:#EF4444;border-color:#FECACA;">🗑️ 清空重填</button>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ========== 右侧结果区 ========== -->
+  <div class="right-col">
+
+    <div class="result-card">
+      <div class="label">塑胶件最终报价（含税）</div>
+      <div class="total-price"><span class="currency">¥ </span><span id="plResultFinal">-</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本分解明细</div>
+      <div id="plDetailList"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">成本占比</div>
+      <div class="chart-wrap"><canvas id="plChart"></canvas></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">计价公式说明</div>
+      <div class="formula-box">
+        基础制造单价 = ((净重 + 水口重/穴数) × 1.05 × 材料单价/1000 + (机台时租×能耗系数/3600×注塑周期)/穴数) ÷ 良品率<br>
+        ─────────────────<br>
+        单件人工分摊 = (月薪/26/11/看管机台数/3600×注塑周期) ÷ 穴数<br>
+        综合总成本 = 基础制造单价 + 单件人工分摊 + 包装及Tray盘<br>
+        ─────────────────<br>
+        最终报价(含税) = 总成本 × (1+管理费%) × (1+模具维护金%) × (1+财务成本%) × (1+利润率%) × 1.1
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /layout -->
+</div><!-- /page-plastic -->
+
+
 
 
 
@@ -1085,7 +1251,7 @@
 // ############################################################
 function switchPage(page) {
   var tabs = document.querySelectorAll('.top-nav .tab-btn');
-  var pageMap = {plug:0, pkg:1, alu:2};
+  var pageMap = {plug:0, pkg:1, alu:2, plastic:3};
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].classList.toggle('active', i === pageMap[page]);
   }
@@ -1097,6 +1263,7 @@ function switchPage(page) {
   if (page === 'plug') { /* already calculated */ }
   if (page === 'pkg') { calcPkg(); }
   if (page === 'alu') { calcAlu(); }
+  if (page === 'plastic') { calcPlastic(); }
 }
 
 // ############################################################
@@ -1578,6 +1745,119 @@ function clearAlu() {
   calcAlu();
 }
 
+// ############################################################
+// PAGE 4: 塑胶件
+// ############################################################
+var plChart = null;
+
+function calcPlastic() {
+  var matPrice     = parseFloat(document.getElementById('plMatPrice').value) || 0;
+  var netWeight    = parseFloat(document.getElementById('plNetWeight').value) || 0;
+  var gateWeight   = parseFloat(document.getElementById('plGateWeight').value) || 0;
+  var machineRent  = parseFloat(document.getElementById('plMachineRent').value) || 0;
+  var cycleTime    = parseFloat(document.getElementById('plCycleTime').value) || 0;
+  var cavities     = parseFloat(document.getElementById('plCavities').value) || 1;
+  var salary       = parseFloat(document.getElementById('plSalary').value) || 0;
+  var machinesP    = parseFloat(document.getElementById('plMachinesPerPerson').value) || 1;
+  var energyCoeff  = parseFloat(document.getElementById('plEnergyCoeff').value) || 0;
+  var yieldRate    = (parseFloat(document.getElementById('plYieldRate').value) || 100) / 100;
+  var packCost     = parseFloat(document.getElementById('plPackCost').value) || 0;
+  var moldMaint    = (parseFloat(document.getElementById('plMoldMaint').value) || 0) / 100;
+  var adminFee     = (parseFloat(document.getElementById('plAdminFee').value) || 0) / 100;
+  var profitRate   = (parseFloat(document.getElementById('plProfitRate').value) || 0) / 100;
+  var finCost      = (parseFloat(document.getElementById('plFinCost').value) || 0) / 100;
+
+  if (cavities < 1) cavities = 1;
+  if (yieldRate <= 0) yieldRate = 1;
+
+  // 基础制造单价 = ((净重 + 水口重/穴数) * 1.05 * 材料单价/1000 + (机台时租*能耗系数/3600*注塑周期)/穴数) / 良品率
+  var materialCost = (netWeight + gateWeight / cavities) * 1.05 * (matPrice / 1000);
+  var machineCost  = (machineRent * energyCoeff / 3600 * cycleTime) / cavities;
+  var basePrice    = (materialCost + machineCost) / yieldRate;
+
+  // 单件人工分摊 = (月薪/26/11/看管机台数/3600*注塑周期) / 穴数
+  var laborCost = (salary / 26 / 11 / machinesP / 3600 * cycleTime) / cavities;
+
+  // 综合总成本 = 基础制造单价 + 单件人工分摊 + 包装及Tray盘
+  var totalCost = basePrice + laborCost + packCost;
+
+  // 最终报价(含税) = 总成本 * (1+管理费) * (1+模具维护金) * (1+财务成本) * (1+利润率) * 1.1
+  var finalPrice = totalCost * (1 + adminFee) * (1 + moldMaint) * (1 + finCost) * (1 + profitRate) * 1.1;
+
+  // 显示结果
+  document.getElementById('plResultFinal').textContent = finalPrice.toFixed(4);
+
+  // 明细
+  var rows = [
+    { label: '材料成本', val: materialCost / yieldRate },
+    { label: '机台成本', val: machineCost / yieldRate },
+    { label: '人工分摊', val: laborCost },
+    { label: '包装及Tray盘', val: packCost },
+    { label: '管理费加成', val: totalCost * adminFee },
+    { label: '模具维护金', val: totalCost * (1 + adminFee) * moldMaint },
+    { label: '财务成本', val: totalCost * (1 + adminFee) * (1 + moldMaint) * finCost },
+    { label: '利润加成', val: totalCost * (1 + adminFee) * (1 + moldMaint) * (1 + finCost) * profitRate },
+    { label: '税(×1.1)', val: finalPrice - totalCost * (1 + adminFee) * (1 + moldMaint) * (1 + finCost) * (1 + profitRate) },
+  ];
+
+  var dh = '';
+  for (var i = 0; i < rows.length; i++) {
+    dh += '<div class="items-row"><span class="ir-label">' + rows[i].label + '</span><span class="ir-val">¥ ' + rows[i].val.toFixed(4) + '</span></div>';
+  }
+  dh += '<div class="items-row total-row"><span class="ir-label">综合总成本（不含税）</span><span class="ir-val">¥ ' + totalCost.toFixed(4) + '</span></div>';
+  dh += '<div class="items-row total-row" style="color:var(--primary);"><span class="ir-label">最终报价（含税）</span><span class="ir-val">¥ ' + finalPrice.toFixed(4) + '</span></div>';
+  document.getElementById('plDetailList').innerHTML = dh;
+
+  // 饼图 — 只用核心4项做占比
+  var chartRows = [
+    { label: '材料成本', val: materialCost / yieldRate },
+    { label: '机台成本', val: machineCost / yieldRate },
+    { label: '人工分摊', val: laborCost },
+    { label: '包装', val: packCost },
+  ];
+  var ctx4 = document.getElementById('plChart');
+  if (!ctx4) return;
+  var colors = ['#3b82f6','#f59e0b','#22c55e','#8b5cf6'];
+  if (plChart) {
+    plChart.data.datasets[0].data = chartRows.map(function(r){ return r.val; });
+    plChart.update();
+  } else {
+    plChart = new Chart(ctx4.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: chartRows.map(function(r){ return r.label; }),
+        datasets: [{ data: chartRows.map(function(r){ return r.val; }), backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { padding: 12, font: { size: 11 } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                var total = ctx.dataset.data.reduce(function(a,b){ return a+b; }, 0);
+                var pct = total > 0 ? ((ctx.raw / total) * 100).toFixed(1) : 0;
+                return ctx.label + ': ¥' + ctx.raw.toFixed(4) + ' (' + pct + '%)';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+function clearPlastic() {
+  ['plMatPrice','plNetWeight','plGateWeight','plMachineRent','plCycleTime','plCavities',
+   'plSalary','plMachinesPerPerson','plEnergyCoeff','plYieldRate','plPackCost','plMoldMaint',
+   'plAdminFee','plProfitRate','plFinCost'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  calcPlastic();
+}
+
 
 // ############################################################
 // CLEAR FUNCTIONS
@@ -1602,6 +1882,7 @@ window.addEventListener('DOMContentLoaded', function() {
   onWireSpecChange();
   selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
   calcAlu();
+  calcPlastic();
 });
 </script>
 </body>
