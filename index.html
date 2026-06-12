@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>成本测算工具</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="auth.js"></script>
+<script>
+  // 登录检查：未登录则重定向到 login.html
+  if (!isLoggedIn()) {
+    window.location.href = 'login.html';
+  }
+</script>
 <style>
   :root {
     --primary: #1a6fc4;
@@ -74,6 +81,30 @@
   }
   .top-nav .tab-btn:hover { background: var(--gray-50); color: var(--primary); }
   .top-nav .tab-btn.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(26,111,196,0.3); }
+  .top-nav .user-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--gray-600);
+  }
+  .top-nav .user-name {
+    font-weight: 600;
+    color: var(--gray-900);
+  }
+  .top-nav .logout-btn {
+    padding: 6px 14px;
+    background: var(--gray-100);
+    color: var(--gray-700);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .top-nav .logout-btn:hover { background: var(--gray-200); }
 
   /* ========== PAGE PANELS ========== */
   .page-panel { display: none; }
@@ -443,6 +474,10 @@
     <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
+  </div>
+  <div class="user-area">
+    <span class="user-name" id="currentUserName"></span>
+    <button class="logout-btn" onclick="logout()">退出</button>
   </div>
 </div>
 
@@ -1557,11 +1592,23 @@ function clearPkg() {
 // INIT
 // ############################################################
 window.addEventListener('DOMContentLoaded', function() {
+  // 显示当前用户名
+  var user = getCurrentUser();
+  if (user && user.display_name) {
+    var nameEl = document.getElementById('currentUserName');
+    if (nameEl) nameEl.textContent = user.display_name;
+  }
   onInsulationChange();
   onWireSpecChange();
   selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
   calcAlu();
 });
+
+// 退出登录
+function logout() {
+  localStorage.removeItem('app_user');
+  window.location.href = 'login.html';
+}
 </script>
 </body>
 </html>
