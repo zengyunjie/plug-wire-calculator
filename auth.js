@@ -163,8 +163,21 @@ function openAccountPanel() {
   if (isAdmin()) {
     var section2 = document.createElement('div');
     section2.style.cssText = 'margin-top:20px;';
-    section2.innerHTML = '<h4 style="font-size:14px;font-weight:600;color:#334155;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E2E8F0;">用户管理（管理员）</h4>' +
-      '<div id="adminUserList" style="font-size:12px;color:#94A3B8;text-align:center;padding:12px;">加载中...</div>';
+    section2.innerHTML = '<h4 style="font-size:14px;font-weight:600;color:#334155;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #E2E8F0;">👥 用户管理 <span style="background:#EFF6FF;color:#3B82F6;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;">管理员</span></h4>' +
+      '<div style="display:flex;gap:6px;margin-bottom:10px;align-items:center;">' +
+      '<button class="preset-btn active" onclick="filterUsers(\'all\')" id="filterAll" style="padding:4px 10px;font-size:11px;">全部</button>' +
+      '<button class="preset-btn" onclick="filterUsers(\'pending\')" id="filterPending" style="padding:4px 10px;font-size:11px;">待审批</button>' +
+      '<button class="preset-btn" onclick="filterUsers(\'active\')" id="filterActive" style="padding:4px 10px;font-size:11px;">已激活</button>' +
+      '<button onclick="loadAdminUserList()" style="background:none;border:1px solid #c3daff;color:#1a6fc4;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-left:auto;">🔄 刷新</button>' +
+      '</div>' +
+      '<div id="adminUserList" style="font-size:12px;color:#94A3B8;text-align:center;padding:12px;">加载中...</div>' +
+      '<div style="margin-top:10px;padding-top:8px;border-top:1px solid #F1F5F9;font-size:11px;line-height:1.8;color:#94A3B8;">' +
+      '<div><strong style="color:#22c55e;">通过</strong> — 审批待审核用户</div>' +
+      '<div><strong style="color:#f97316;">禁用</strong> — 暂停已激活用户</div>' +
+      '<div><strong style="color:#3B82F6;">重置密码</strong> — 重置为 <code>123456</code></div>' +
+      '<div><strong style="color:#8b5cf6;">角色</strong> — 切换管理员/普通用户</div>' +
+      '<div><strong style="color:#ef4444;">删除</strong> — 永久删除，不可撤销</div>' +
+      '</div>';
     panel.appendChild(section2);
 
     // 异步加载用户列表
@@ -216,59 +229,97 @@ async function changePassword() {
   }
 }
 
-// 管理员：加载用户列表
+// 管理员：加载用户列表（弹窗内）
 async function loadAdminUserList() {
   var container = document.getElementById('adminUserList');
   if (!container) return;
   try {
-    var users = await supabaseQuery('app_users', { select: '*', order: 'created_at.desc' });
-    var currentUser = getCurrentUser();
-    if (!users || users.length === 0) {
-      container.innerHTML = '<div style="color:#94A3B8;">暂无用户</div>';
-      return;
-    }
-    var html = '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
-      '<thead><tr style="border-bottom:2px solid #E2E8F0;text-align:left;color:#64748B;">' +
-      '<th style="padding:6px 4px;">用户名</th>' +
-      '<th style="padding:6px 4px;">角色</th>' +
-      '<th style="padding:6px 4px;">状态</th>' +
-      '<th style="padding:6px 4px;text-align:right;">操作</th>' +
-      '</tr></thead><tbody>';
-
-    for (var i = 0; i < users.length; i++) {
-      var u = users[i];
-      var isMe = u.id === currentUser.id;
-      var statusText = u.is_approved !== false ? '<span style="color:#10B981;">已激活</span>' : '<span style="color:#F59E0B;">待审批</span>';
-      var roleText = u.role === 'admin' ? '管理员' : '用户';
-      var actions = '';
-
-      if (!isMe) {
-        // 审批/禁用切换
-        if (u.is_approved !== false) {
-          actions += '<button onclick="adminToggleUser(\'' + u.id + '\',false)" style="background:none;border:1px solid #F59E0B;color:#F59E0B;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;margin-right:2px;">禁用</button>';
-        } else {
-          actions += '<button onclick="adminToggleUser(\'' + u.id + '\',true)" style="background:none;border:1px solid #10B981;color:#10B981;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;margin-right:2px;">通过</button>';
-        }
-        // 重置密码
-        actions += '<button onclick="adminResetPassword(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #3B82F6;color:#3B82F6;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;margin-right:2px;">重置密码</button>';
-        // 删除
-        actions += '<button onclick="adminDeleteUser(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #F43F5E;color:#F43F5E;border-radius:4px;padding:2px 6px;font-size:11px;cursor:pointer;">删除</button>';
-      } else {
-        actions = '<span style="color:#94A3B8;">当前用户</span>';
-      }
-
-      html += '<tr style="border-bottom:1px solid #F1F5F9;">' +
-        '<td style="padding:6px 4px;">' + u.username + '</td>' +
-        '<td style="padding:6px 4px;">' + roleText + '</td>' +
-        '<td style="padding:6px 4px;">' + statusText + '</td>' +
-        '<td style="padding:6px 4px;text-align:right;">' + actions + '</td>' +
-        '</tr>';
-    }
-    html += '</tbody></table>';
-    container.innerHTML = html;
+    _allUsers = await supabaseQuery('app_users', { select: '*', order: 'created_at.desc' });
+    renderAdminUserList();
   } catch(e) {
     container.innerHTML = '<div style="color:#F43F5E;">加载失败: ' + e.message + '</div>';
   }
+}
+
+// 弹窗内渲染用户列表
+function renderAdminUserList() {
+  var container = document.getElementById('adminUserList');
+  if (!container || !_allUsers) return;
+
+  var currentUser = getCurrentUser();
+  var users = _allUsers;
+
+  // 按筛选条件过滤
+  if (_userFilter === 'pending') {
+    users = users.filter(function(u) { return u.is_approved === false; });
+  } else if (_userFilter === 'active') {
+    users = users.filter(function(u) { return u.is_approved !== false; });
+  }
+
+  if (users.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#94A3B8;">暂无' +
+      (_userFilter === 'pending' ? '待审批' : _userFilter === 'active' ? '已激活' : '') + '用户</div>';
+    return;
+  }
+
+  // 统计
+  var pendingCount = _allUsers.filter(function(u) { return u.is_approved === false; }).length;
+  var activeCount = _allUsers.filter(function(u) { return u.is_approved !== false; }).length;
+  var statsHtml = '<div style="display:flex;gap:8px;margin-bottom:10px;">' +
+    '<div style="background:#f0fdf4;border-radius:6px;padding:4px 10px;font-size:11px;">已激活 <strong style="color:#22c55e;">' + activeCount + '</strong></div>' +
+    '<div style="background:#fff7ed;border-radius:6px;padding:4px 10px;font-size:11px;">待审批 <strong style="color:#f97316;">' + pendingCount + '</strong></div>' +
+    '<div style="background:#f3f4f6;border-radius:6px;padding:4px 10px;font-size:11px;">总计 <strong>' + _allUsers.length + '</strong></div>' +
+    '</div>';
+
+  var html = statsHtml + '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+    '<thead><tr style="border-bottom:2px solid #E2E8F0;text-align:left;color:#64748B;">' +
+    '<th style="padding:6px 4px;">用户名</th>' +
+    '<th style="padding:6px 4px;">角色</th>' +
+    '<th style="padding:6px 4px;">状态</th>' +
+    '<th style="padding:6px 4px;text-align:right;">操作</th>' +
+    '</tr></thead><tbody>';
+
+  for (var i = 0; i < users.length; i++) {
+    var u = users[i];
+    var isMe = u.id === currentUser.id;
+    var statusHtml = u.is_approved !== false ?
+      '<span style="color:#22c55e;font-weight:600;font-size:11px;">✓ 已激活</span>' :
+      '<span style="color:#f97316;font-weight:600;font-size:11px;">⏳ 待审批</span>';
+    var roleHtml = u.role === 'admin' ?
+      '<span style="background:#EFF6FF;color:#3B82F6;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;">管理员</span>' :
+      '<span style="background:#F1F5F9;color:#64748B;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;">用户</span>';
+    var actionsHtml = '';
+
+    if (!isMe) {
+      // 审批/禁用
+      if (u.is_approved !== false) {
+        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',false)" style="background:none;border:1px solid #f97316;color:#f97316;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;margin-right:2px;">禁用</button>';
+      } else {
+        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',true)" style="background:none;border:1px solid #22c55e;color:#22c55e;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;margin-right:2px;">通过</button>';
+      }
+      // 角色切换
+      if (u.role === 'admin') {
+        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'user\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;margin-right:2px;">降为用户</button>';
+      } else {
+        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'admin\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;margin-right:2px;">升为管理员</button>';
+      }
+      // 重置密码
+      actionsHtml += '<button onclick="adminResetPassword(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #3B82F6;color:#3B82F6;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;margin-right:2px;">重置密码</button>';
+      // 删除
+      actionsHtml += '<button onclick="adminDeleteUser(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;cursor:pointer;">删除</button>';
+    } else {
+      actionsHtml = '<span style="color:#94A3B8;font-size:10px;">当前用户</span>';
+    }
+
+    html += '<tr style="border-bottom:1px solid #F1F5F9;' + (isMe ? 'background:#EFF6FF;' : '') + '">' +
+      '<td style="padding:6px 4px;font-weight:600;color:#1E293B;">' + u.username + '</td>' +
+      '<td style="padding:6px 4px;">' + roleHtml + '</td>' +
+      '<td style="padding:6px 4px;">' + statusHtml + '</td>' +
+      '<td style="padding:6px 4px;text-align:right;white-space:nowrap;">' + actionsHtml + '</td>' +
+      '</tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
 }
 
 // 管理员：审批/禁用用户
@@ -276,9 +327,7 @@ async function adminToggleUser(userId, approve) {
   if (!confirm(approve ? '确认通过该用户的审批？' : '确认禁用该用户？')) return;
   try {
     await supabaseUpdate('app_users', { id: userId }, { is_approved: approve });
-    // 同时刷新 popup 和 admin 页面
     loadAdminUserList();
-    loadAdminPage();
   } catch(e) {
     alert('操作失败: ' + e.message);
   }
@@ -303,7 +352,6 @@ async function adminDeleteUser(userId, username) {
   try {
     await supabaseDelete('app_users', { id: userId });
     loadAdminUserList();
-    loadAdminPage();
   } catch(e) {
     alert('删除失败: ' + e.message);
   }
@@ -426,19 +474,7 @@ async function supabaseDelete(table, match) {
   }
 }
 
-// ==================== 管理员页面专用函数 ====================
-
-// 加载管理员用户管理页面
-async function loadAdminPage() {
-  var container = document.getElementById('adminUserTable');
-  if (!container) return;
-  try {
-    _allUsers = await supabaseQuery('app_users', { select: '*', order: 'created_at.desc' });
-    renderAdminTable();
-  } catch(e) {
-    container.innerHTML = '<div style="color:#F43F5E;text-align:center;padding:20px;">加载失败: ' + e.message + '</div>';
-  }
-}
+// ==================== 管理员弹窗内筛选 ====================
 
 // 筛选用户
 function filterUsers(type) {
@@ -449,107 +485,8 @@ function filterUsers(type) {
     var btn = document.getElementById(btnIds[i]);
     if (btn) {
       var isActive = btnIds[i] === 'filter' + type.charAt(0).toUpperCase() + type.slice(1);
-      // filterAll → 'All', filterPending → 'Pending', filterActive → 'Active'
       btn.classList.toggle('active', isActive);
     }
   }
-  renderAdminTable();
-}
-
-// 渲染用户表格
-function renderAdminTable() {
-  var container = document.getElementById('adminUserTable');
-  if (!container || !_allUsers) return;
-
-  var currentUser = getCurrentUser();
-  var users = _allUsers;
-
-  // 按筛选条件过滤
-  if (_userFilter === 'pending') {
-    users = users.filter(function(u) { return u.is_approved === false; });
-  } else if (_userFilter === 'active') {
-    users = users.filter(function(u) { return u.is_approved !== false; });
-  }
-
-  if (users.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">暂无' +
-      (_userFilter === 'pending' ? '待审批' : _userFilter === 'active' ? '已激活' : '') + '用户</div>';
-    return;
-  }
-
-  // 统计信息
-  var pendingCount = _allUsers.filter(function(u) { return u.is_approved === false; }).length;
-  var activeCount = _allUsers.filter(function(u) { return u.is_approved !== false; }).length;
-  var statsHtml = '<div style="display:flex;gap:12px;margin-bottom:14px;">' +
-    '<div style="background:#ECFDF5;border-radius:8px;padding:8px 14px;font-size:12px;">已激活 <strong style="color:#10B981;">' + activeCount + '</strong></div>' +
-    '<div style="background:#FFF7ED;border-radius:8px;padding:8px 14px;font-size:12px;">待审批 <strong style="color:#F59E0B;">' + pendingCount + '</strong></div>' +
-    '<div style="background:#F8FAFC;border-radius:8px;padding:8px 14px;font-size:12px;">总计 <strong>' + _allUsers.length + '</strong></div>' +
-    '</div>';
-
-  var html = statsHtml + '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
-    '<thead><tr style="border-bottom:2px solid #E2E8F0;text-align:left;color:#64748B;">' +
-    '<th style="padding:8px 6px;">用户名</th>' +
-    '<th style="padding:8px 6px;">显示名</th>' +
-    '<th style="padding:8px 6px;">角色</th>' +
-    '<th style="padding:8px 6px;">状态</th>' +
-    '<th style="padding:8px 6px;">注册时间</th>' +
-    '<th style="padding:8px 6px;text-align:right;">操作</th>' +
-    '</tr></thead><tbody>';
-
-  for (var i = 0; i < users.length; i++) {
-    var u = users[i];
-    var isMe = u.id === currentUser.id;
-    var statusHtml = u.is_approved !== false ?
-      '<span style="color:#10B981;font-weight:600;">✓ 已激活</span>' :
-      '<span style="color:#F59E0B;font-weight:600;">⏳ 待审批</span>';
-    var roleHtml = u.role === 'admin' ?
-      '<span style="background:#EFF6FF;color:#3B82F6;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">管理员</span>' :
-      '<span style="background:#F1F5F9;color:#64748B;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">用户</span>';
-    var timeStr = u.created_at ? new Date(u.created_at).toLocaleDateString('zh-CN') : '—';
-    var actionsHtml = '';
-
-    if (!isMe) {
-      // 审批/禁用
-      if (u.is_approved !== false) {
-        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',false)" style="background:none;border:1px solid #F59E0B;color:#F59E0B;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">禁用</button>';
-      } else {
-        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',true)" style="background:none;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">通过</button>';
-      }
-      // 角色切换
-      if (u.role === 'admin') {
-        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'user\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">降为用户</button>';
-      } else {
-        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'admin\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">升为管理员</button>';
-      }
-      // 重置密码
-      actionsHtml += '<button onclick="adminResetPassword(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #3B82F6;color:#3B82F6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">重置密码</button>';
-      // 删除
-      actionsHtml += '<button onclick="adminDeleteUser(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #F43F5E;color:#F43F5E;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">删除</button>';
-    } else {
-      actionsHtml = '<span style="color:#94A3B8;font-size:11px;">当前账号</span>';
-    }
-
-    html += '<tr style="border-bottom:1px solid #F1F5F9;' + (isMe ? 'background:#EFF6FF;' : '') + '">' +
-      '<td style="padding:8px 6px;font-weight:600;color:#1E293B;">' + u.username + '</td>' +
-      '<td style="padding:8px 6px;color:#475569;">' + (u.display_name || u.username) + '</td>' +
-      '<td style="padding:8px 6px;">' + roleHtml + '</td>' +
-      '<td style="padding:8px 6px;">' + statusHtml + '</td>' +
-      '<td style="padding:8px 6px;color:#94A3B8;font-size:12px;">' + timeStr + '</td>' +
-      '<td style="padding:8px 6px;text-align:right;white-space:nowrap;">' + actionsHtml + '</td>' +
-      '</tr>';
-  }
-  html += '</tbody></table>';
-  container.innerHTML = html;
-}
-
-// 管理员：切换用户角色
-async function adminChangeRole(userId, newRole) {
-  var roleLabel = newRole === 'admin' ? '管理员' : '普通用户';
-  if (!confirm('确认将此用户角色更改为「' + roleLabel + '」？')) return;
-  try {
-    await supabaseUpdate('app_users', { id: userId }, { role: newRole });
-    loadAdminPage();
-  } catch(e) {
-    alert('操作失败: ' + e.message);
-  }
+  renderAdminUserList();
 }
