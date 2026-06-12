@@ -5,6 +5,10 @@ const SUPABASE_URL = "https://vmtmctgcrwzjejqtnngp.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";
 const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1/";
 
+// 用户列表缓存（管理员页面用）
+var _allUsers = null;
+var _userFilter = 'all';
+
 // ==================== 用户会话管理 ====================
 
 function getCurrentUser() {
@@ -122,7 +126,7 @@ function openAccountPanel() {
     '<button onclick="closeAccountPanel()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#94A3B8;padding:0;line-height:1;">&times;</button>';
   panel.appendChild(header);
 
-  // 当前用户信息
+  // 当前用户信���
   var info = document.createElement('div');
   info.style.cssText = 'background:#F8FAFC;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#475569;';
   info.innerHTML = '<div style="margin-bottom:4px;"><strong>用户名：</strong>' + user.username + '</div>' +
@@ -272,7 +276,9 @@ async function adminToggleUser(userId, approve) {
   if (!confirm(approve ? '确认通过该用户的审批？' : '确认禁用该用户？')) return;
   try {
     await supabaseUpdate('app_users', { id: userId }, { is_approved: approve });
+    // 同时刷新 popup 和 admin 页面
     loadAdminUserList();
+    loadAdminPage();
   } catch(e) {
     alert('操作失败: ' + e.message);
   }
@@ -297,6 +303,7 @@ async function adminDeleteUser(userId, username) {
   try {
     await supabaseDelete('app_users', { id: userId });
     loadAdminUserList();
+    loadAdminPage();
   } catch(e) {
     alert('删除失败: ' + e.message);
   }
@@ -416,5 +423,133 @@ async function supabaseDelete(table, match) {
     var errText = '';
     try { errText = await response.text(); } catch(e) {}
     throw new Error('Delete failed (' + response.status + '): ' + errText);
+  }
+}
+
+// ==================== 管理员页面专用函数 ====================
+
+// 加载管理员用户管理页面
+async function loadAdminPage() {
+  var container = document.getElementById('adminUserTable');
+  if (!container) return;
+  try {
+    _allUsers = await supabaseQuery('app_users', { select: '*', order: 'created_at.desc' });
+    renderAdminTable();
+  } catch(e) {
+    container.innerHTML = '<div style="color:#F43F5E;text-align:center;padding:20px;">加载失败: ' + e.message + '</div>';
+  }
+}
+
+// 筛选用户
+function filterUsers(type) {
+  _userFilter = type;
+  // 更新筛选按钮样式
+  var btnIds = ['filterAll', 'filterPending', 'filterActive'];
+  for (var i = 0; i < btnIds.length; i++) {
+    var btn = document.getElementById(btnIds[i]);
+    if (btn) {
+      var isActive = btnIds[i] === 'filter' + type.charAt(0).toUpperCase() + type.slice(1);
+      // filterAll → 'All', filterPending → 'Pending', filterActive → 'Active'
+      btn.classList.toggle('active', isActive);
+    }
+  }
+  renderAdminTable();
+}
+
+// 渲染用户表格
+function renderAdminTable() {
+  var container = document.getElementById('adminUserTable');
+  if (!container || !_allUsers) return;
+
+  var currentUser = getCurrentUser();
+  var users = _allUsers;
+
+  // 按筛选条件过滤
+  if (_userFilter === 'pending') {
+    users = users.filter(function(u) { return u.is_approved === false; });
+  } else if (_userFilter === 'active') {
+    users = users.filter(function(u) { return u.is_approved !== false; });
+  }
+
+  if (users.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:#94A3B8;">暂无' +
+      (_userFilter === 'pending' ? '待审批' : _userFilter === 'active' ? '已激活' : '') + '用户</div>';
+    return;
+  }
+
+  // 统计信息
+  var pendingCount = _allUsers.filter(function(u) { return u.is_approved === false; }).length;
+  var activeCount = _allUsers.filter(function(u) { return u.is_approved !== false; }).length;
+  var statsHtml = '<div style="display:flex;gap:12px;margin-bottom:14px;">' +
+    '<div style="background:#ECFDF5;border-radius:8px;padding:8px 14px;font-size:12px;">已激活 <strong style="color:#10B981;">' + activeCount + '</strong></div>' +
+    '<div style="background:#FFF7ED;border-radius:8px;padding:8px 14px;font-size:12px;">待审批 <strong style="color:#F59E0B;">' + pendingCount + '</strong></div>' +
+    '<div style="background:#F8FAFC;border-radius:8px;padding:8px 14px;font-size:12px;">总计 <strong>' + _allUsers.length + '</strong></div>' +
+    '</div>';
+
+  var html = statsHtml + '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+    '<thead><tr style="border-bottom:2px solid #E2E8F0;text-align:left;color:#64748B;">' +
+    '<th style="padding:8px 6px;">用户名</th>' +
+    '<th style="padding:8px 6px;">显示名</th>' +
+    '<th style="padding:8px 6px;">角色</th>' +
+    '<th style="padding:8px 6px;">状态</th>' +
+    '<th style="padding:8px 6px;">注册时间</th>' +
+    '<th style="padding:8px 6px;text-align:right;">操作</th>' +
+    '</tr></thead><tbody>';
+
+  for (var i = 0; i < users.length; i++) {
+    var u = users[i];
+    var isMe = u.id === currentUser.id;
+    var statusHtml = u.is_approved !== false ?
+      '<span style="color:#10B981;font-weight:600;">✓ 已激活</span>' :
+      '<span style="color:#F59E0B;font-weight:600;">⏳ 待审批</span>';
+    var roleHtml = u.role === 'admin' ?
+      '<span style="background:#EFF6FF;color:#3B82F6;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">管理员</span>' :
+      '<span style="background:#F1F5F9;color:#64748B;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;">用户</span>';
+    var timeStr = u.created_at ? new Date(u.created_at).toLocaleDateString('zh-CN') : '—';
+    var actionsHtml = '';
+
+    if (!isMe) {
+      // 审批/禁用
+      if (u.is_approved !== false) {
+        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',false)" style="background:none;border:1px solid #F59E0B;color:#F59E0B;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">禁用</button>';
+      } else {
+        actionsHtml += '<button onclick="adminToggleUser(\'' + u.id + '\',true)" style="background:none;border:1px solid #10B981;color:#10B981;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">通过</button>';
+      }
+      // 角色切换
+      if (u.role === 'admin') {
+        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'user\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">降为用户</button>';
+      } else {
+        actionsHtml += '<button onclick="adminChangeRole(\'' + u.id + '\',\'admin\')" style="background:none;border:1px solid #8b5cf6;color:#8b5cf6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">升为管理员</button>';
+      }
+      // 重置密码
+      actionsHtml += '<button onclick="adminResetPassword(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #3B82F6;color:#3B82F6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;margin-right:4px;">重置密码</button>';
+      // 删除
+      actionsHtml += '<button onclick="adminDeleteUser(\'' + u.id + '\',\'' + u.username + '\')" style="background:none;border:1px solid #F43F5E;color:#F43F5E;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;">删除</button>';
+    } else {
+      actionsHtml = '<span style="color:#94A3B8;font-size:11px;">当前账号</span>';
+    }
+
+    html += '<tr style="border-bottom:1px solid #F1F5F9;' + (isMe ? 'background:#EFF6FF;' : '') + '">' +
+      '<td style="padding:8px 6px;font-weight:600;color:#1E293B;">' + u.username + '</td>' +
+      '<td style="padding:8px 6px;color:#475569;">' + (u.display_name || u.username) + '</td>' +
+      '<td style="padding:8px 6px;">' + roleHtml + '</td>' +
+      '<td style="padding:8px 6px;">' + statusHtml + '</td>' +
+      '<td style="padding:8px 6px;color:#94A3B8;font-size:12px;">' + timeStr + '</td>' +
+      '<td style="padding:8px 6px;text-align:right;white-space:nowrap;">' + actionsHtml + '</td>' +
+      '</tr>';
+  }
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+// 管理员：切换用户角色
+async function adminChangeRole(userId, newRole) {
+  var roleLabel = newRole === 'admin' ? '管理员' : '普通用户';
+  if (!confirm('确认将此用户角色更改为「' + roleLabel + '」？')) return;
+  try {
+    await supabaseUpdate('app_users', { id: userId }, { role: newRole });
+    loadAdminPage();
+  } catch(e) {
+    alert('操作失败: ' + e.message);
   }
 }
