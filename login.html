@@ -27,23 +27,23 @@
 </script>
 <style>
   :root {
-    --primary: #3B82F6;
-    --primary-light: #EFF6FF;
-    --primary-dark: #2563EB;
-    --green: #10B981;
-    --green-light: #ECFDF5;
-    --red: #F43F5E;
-    --red-light: #FFF1F2;
-    --slate-50: #F8FAFC;
-    --slate-100: #F1F5F9;
-    --slate-200: #E2E8F0;
-    --slate-300: #CBD5E1;
-    --slate-400: #94A3B8;
-    --slate-500: #64748B;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1E293B;
-    --slate-900: #0F172A;
+    --primary: #1a6fc4;
+    --primary-light: #e8f3ff;
+    --primary-dark: #155a9e;
+    --green: #22c55e;
+    --green-light: #f0fdf4;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --slate-50: #f9fafb;
+    --slate-100: #f3f4f6;
+    --slate-200: #e5e7eb;
+    --slate-300: #d1d5db;
+    --slate-400: #94a3b8;
+    --slate-500: #6b7280;
+    --slate-600: #4b5563;
+    --slate-700: #374151;
+    --slate-800: #1f2937;
+    --slate-900: #111827;
     --radius: 12px;
     --radius-sm: 8px;
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.04);
@@ -119,7 +119,7 @@
   }
   .login-form .field input:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    box-shadow: 0 0 0 3px rgba(26,111,196,0.1);
   }
   .login-form .field input::placeholder {
     color: var(--slate-400);
@@ -540,6 +540,7 @@ async function handleRegister() {
     await supabaseInsert('app_users', {
       id: userId,
       username: username,
+      display_name: displayName || username,
       password_hash: passwordHash,
       role: role,
       is_approved: false
@@ -555,7 +556,7 @@ async function handleRegister() {
     }
     btn.textContent = '注 册';
     btn.disabled = true;
-    // 3秒后切换到登录表单
+    // 3秒后切换到登��表单
     setTimeout(function() {
       toggleForm();
       btn.disabled = false;
