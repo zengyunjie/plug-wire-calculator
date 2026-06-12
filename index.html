@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>成本测算工具</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
 <script>
   // 登录检查：未登录则重定向到 login.html
@@ -474,9 +475,10 @@
     <button class="tab-btn active" onclick="switchPage('plug')">🔌 插头线</button>
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
+    <button class="tab-btn" id="adminTab" onclick="switchPage('admin')" style="display:none;">👥 用户管理</button>
   </div>
-  <div class="user-area">
-    <span class="user-name" id="currentUserName"></span>
+  <div class="user-area" id="userArea">
+    <span class="user-name" id="userBadge" style="cursor:pointer;" title="点击管理账户"></span>
     <button class="logout-btn" onclick="logout()">退出</button>
   </div>
 </div>
@@ -1074,6 +1076,38 @@
 </div><!-- /page-alu -->
 
 
+<!-- ############################################################ -->
+<!-- PAGE 4: 用户管理 (管理员专属)                                      -->
+<!-- ############################################################ -->
+<div id="page-admin" class="page-panel">
+<div style="max-width:1340px;margin:0 auto;">
+  <div class="card">
+    <div class="card-title">👥 用户管理 <span class="badge">管理员专属</span></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;">
+      <button class="preset-btn active" onclick="filterUsers('all')" id="filterAll">全部</button>
+      <button class="preset-btn" onclick="filterUsers('pending')" id="filterPending">待审批</button>
+      <button class="preset-btn" onclick="filterUsers('active')" id="filterActive">已激活</button>
+      <button class="preset-btn" onclick="loadAdminPage()" style="background:var(--primary-light);color:var(--primary);border-color:#c3daff;">🔄 刷新列表</button>
+    </div>
+    <div id="adminUserTable" style="min-height:120px;">
+      <div style="text-align:center;padding:30px;color:var(--gray-400);">加载中...</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <div class="card-title">📝 操作说明</div>
+    <div style="font-size:12px;line-height:2;color:var(--gray-600);">
+      <div><strong style="color:var(--green);">通过</strong> — 审批待审核用户，激活后可正常登录</div>
+      <div><strong style="color:var(--orange);">禁用</strong> — 暂停已激活用户，禁用后无法登录</div>
+      <div><strong style="color:var(--primary);">重置密码</strong> — 将用户密码重置为默认密码 <code>123456</code></div>
+      <div><strong style="color:var(--red);">删除</strong> — 永久删除用户，不可撤销</div>
+      <div><strong style="color:#8b5cf6;">角色</strong> — 切换用户角色（管理员/普通用户），管理员拥有用户管理权限</div>
+      <div>⏎ 普通用户可在主页点击用户名 → 修改密码/显示名</div>
+    </div>
+  </div>
+</div>
+</div><!-- /page-admin -->
+
+
 
 
 
@@ -1084,9 +1118,10 @@
 // ############################################################
 function switchPage(page) {
   var tabs = document.querySelectorAll('.top-nav .tab-btn');
-  tabs[0].classList.toggle('active', page === 'plug');
-  tabs[1].classList.toggle('active', page === 'pkg');
-  tabs[2].classList.toggle('active', page === 'alu');
+  var pageMap = {plug:0, pkg:1, alu:2, admin:3};
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle('active', i === pageMap[page]);
+  }
   var panels = document.querySelectorAll('.page-panel');
   for (var i = 0; i < panels.length; i++) {
     panels[i].classList.remove('active');
@@ -1095,6 +1130,7 @@ function switchPage(page) {
   if (page === 'plug') { /* already calculated */ }
   if (page === 'pkg') { calcPkg(); }
   if (page === 'alu') { calcAlu(); }
+  if (page === 'admin') { loadAdminPage(); }
 }
 
 // ############################################################
@@ -1592,23 +1628,21 @@ function clearPkg() {
 // INIT
 // ############################################################
 window.addEventListener('DOMContentLoaded', function() {
-  // 显示当前用户名
-  var user = getCurrentUser();
-  if (user && user.display_name) {
-    var nameEl = document.getElementById('currentUserName');
-    if (nameEl) nameEl.textContent = user.display_name;
+  // 初始化认证 UI（显示用户名徽章、管理员Tab）
+  initUserUI();
+  refreshCurrentUser();
+
+  // 管理员：显示用户管理 Tab
+  if (isAdmin()) {
+    var adminTab = document.getElementById('adminTab');
+    if (adminTab) adminTab.style.display = '';
   }
+
   onInsulationChange();
   onWireSpecChange();
   selectPkgType('牛皮盒', document.querySelector('.pkg-type-btn.active'));
   calcAlu();
 });
-
-// 退出登录
-function logout() {
-  localStorage.removeItem('app_user');
-  window.location.href = 'login.html';
-}
 </script>
 </body>
 </html>
