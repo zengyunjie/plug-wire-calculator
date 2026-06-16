@@ -378,13 +378,14 @@ function ensureBcrypt() {
 async function supabaseQuery(table, params) {
   var url = SUPABASE_REST_URL + table;
   if (params) {
-    var searchParams = new URLSearchParams();
+    var parts = [];
     for (var key in params) {
       if (params.hasOwnProperty(key)) {
-        searchParams.append(key, params[key]);
+        // 直接拼接，避免 URLSearchParams 对已编码的值进行二次编码
+        parts.push(encodeURIComponent(key) + '=' + params[key]);
       }
     }
-    url += '?' + searchParams.toString();
+    url += '?' + parts.join('&');
   }
   var response = await fetch(url, {
     method: 'GET',
