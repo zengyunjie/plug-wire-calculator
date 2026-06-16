@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录诊断工具 v2</title>
+<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+<style>
+body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; background: #f8fafc; color: #1e293b; }
+.card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+h2 { font-size: 18px; margin: 0 0 16px; color: #0f172a; }
+.pass { color: #059669; font-weight: 700; }
+.fail { color: #dc2626; font-weight: 700; }
+.warn { color: #d97706; font-weight: 700; }
+pre { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; line-height: 1.5; margin: 8px 0; }
+button { background: #3b82f6; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; margin-right: 8px; }
+button:hover { background: #2563eb; }
+button:disabled { background: #94a3b8; cursor: not-allowed; }
+input { width: 100%; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; }
+.row { display: flex; gap: 12px; align-items: flex-end; }
+.row input { flex: 1; }
+.status { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+.status-ok { background: #d1fae5; color: #065f46; }
+.status-err { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+<h1>🔍 登录诊断工具 v2</h1>
+<p style="color:#64748b;">此页面模拟完整登录流程，逐步排查问题。</p>
+
+<div class="card">
+  <h2>步骤 0：bcryptjs 库加载检查</h2>
+  <div id="step0"></div>
+</div>
+
+<div class="card">
+  <h2>步骤 1：API 连通性测试</h2>
+  <div id="step1"></div>
+</div>
+
+<div class="card">
+  <h2>步骤 2：查询测试用户</h2>
+  <div class="row">
+    <input id="username" value="测试用户" placeholder="输入用户名">
+    <button onclick="runStep2()">查询</button>
+  </div>
+  <div id="step2"></div>
+</div>
+
+<div class="card">
+  <h2>步骤 3：密码验证（核心）</h2>
+  <div class="row">
+    <input id="password" value="123456" type="password" placeholder="输入密码">
+    <button onclick="runStep3()" id="btn3">验证</button>
+  </div>
+  <div id="step3"></div>
+</div>
+
+<div class="card">
+  <h2>步骤 4：完整登录模拟</h2>
+  <button onclick="runStep4()" id="btn4">模拟完整登录</button>
+  <div id="step4"></div>
+</div>
+
+<script>
+// ==================== 与 login.html 完全相同的函数 ====================
+
+// login.html 中的 getBcrypt（内联版本）
+function getBcrypt_login() {
+  if (window.dcodeIO && window.dcodeIO.bcrypt) {
+    return window.dcodeIO.bcrypt;
+  }
+  if (window.bcrypt) {
+    return window.bcrypt;
+  }
+  return null;
+}
+
+// auth.js 中的 getBcrypt
+function getBcrypt_auth() {
+  if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) return dcodeIO.bcrypt;
+  if (typeof window !== 'undefined' && window.dcodeIO && window.dcodeIO.bcrypt) return window.dcodeIO.bcrypt;
+  if (typeof window !== 'undefined' && window.bcrypt) return window.bcrypt;
+  return null;
+}
+
+// Supabase 配置
+const SUPABASE_URL = "https://vmtmctgcrwzjejqtnngp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";
+const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1/";
+
+async function supabaseQuery(table, params) {
+  var url = SUPABASE_REST_URL + table;
+  if (params) {
+    var searchParams = new URLSearchParams();
+    for (var key in params) {
+      if (params.hasOwnProperty(key)) searchParams.append(key, params[key]);
+    }
+    url += '?' + searchParams.toString();
+  }
+  var response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json'
+    }
+  });
+  if (!response.ok) {
+    var errText = '';
+    try { errText = await response.text(); } catch(e) {}
+    throw new Error('Query failed (' + response.status + '): ' + errText);
+  }
+  return response.json();
+}
+
+// login.html 中的 verifyPassword
+async function verifyPassword_login(password, hash) {
+  if (hash && (hash.startsWith('$2a$') || hash.startsWith('$2b$'))) {
+    var bcrypt = getBcrypt_login();
+    if (!bcrypt) throw new Error('bcrypt 库未加载');
+    return bcrypt.compareSync(password, hash);
+  }
+  // fallback SHA-256
+  var encoder = new TextEncoder();
+  var data = encoder.encode(password);
+  var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  var hashArray = Array.from(new Uint8Array(hashBuffer));
+  var hashBase64 = btoa(String.fromCharCode.apply(null, hashArray));
+  return hashBase64 === hash;
+}
+
+// ==================== 诊断函数 ====================
+
+// 步骤 0
+(function runStep0() {
+  var div = document.getElementById('step0');
+  var html = [];
+
+  html.push('<p><strong>window.dcodeIO:</strong> ' + typeof window.dcodeIO + '</p>');
+  html.push('<p><strong>window.dcodeIO.bcrypt:</strong> ' + (window.dcodeIO && !!window.dcodeIO.bcrypt ? '<span class="pass">✓ 存在</span>' : '<span class="fail">✗ 不存在</span>') + '</p>');
+  html.push('<p><strong>window.bcrypt:</strong> ' + (window.bcrypt ? '<span class="pass">✓ 存在</span>' : '<span class="fail">✗ 不存在</span>') + '</p>');
+  html.push('<p><strong>dcodeIO (无window):</strong> ' + typeof dcodeIO + '</p>');
+
+  var bc1 = getBcrypt_login();
+  var bc2 = getBcrypt_auth();
+  html.push('<p><strong>getBcrypt_login():</strong> ' + (bc1 ? '<span class="pass">✓ 返回 bcrypt 实例</span>' : '<span class="fail">✗ 返回 null</span>') + '</p>');
+  html.push('<p><strong>getBcrypt_auth():</strong> ' + (bc2 ? '<span class="pass">✓ 返回 bcrypt 实例</span>' : '<span class="fail">✗ 返回 null</span>') + '</p>');
+
+  if (bc1) {
+    try {
+      var salt = bc1.genSaltSync(10);
+      html.push('<p><strong>genSaltSync(10):</strong> <span class="pass">✓ 成功</span> → ' + salt + '</p>');
+
+      var testHash = bc1.hashSync('123456', salt);
+      html.push('<p><strong>hashSync("123456"):</strong> <span class="pass">✓ 成功</span> → ' + testHash + '</p>');
+      html.push('<p>　长度: ' + testHash.length + ', 前缀: ' + testHash.substring(0, 4) + '</p>');
+
+      var selfVerify = bc1.compareSync('123456', testHash);
+      html.push('<p><strong>compareSync 自验证:</strong> ' + (selfVerify ? '<span class="pass">✓ 通过</span>' : '<span class="fail">✗ 失败！库本身有问题！</span>') + '</p>');
+
+    } catch(e) {
+      html.push('<p><span class="fail">异常: ' + e.message + '</span></p>');
+    }
+  }
+
+  div.innerHTML = html.join('');
+})();
+
+// 步骤 1
+(async function runStep1() {
+  var div = document.getElementById('step1');
+  try {
+    var resp = await fetch(SUPABASE_REST_URL + 'app_users?select=id&limit=1', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (resp.ok) {
+      var data = await resp.json();
+      div.innerHTML = '<p><span class="pass">✓ API 连通正常</span> — 返回 ' + data.length + ' 条记录</p>';
+    } else {
+      div.innerHTML = '<p><span class="fail">✗ API 返回错误: ' + resp.status + '</span></p>';
+    }
+  } catch(e) {
+    div.innerHTML = '<p><span class="fail">✗ API 请求失败: ' + e.message + '</span></p>';
+  }
+})();
+
+// 存储步骤2的查询结果
+var _step2User = null;
+
+// 步骤 2
+async function runStep2() {
+  var div = document.getElementById('step2');
+  var username = document.getElementById('username').value.trim();
+  if (!username) { div.innerHTML = '<p class="fail">请输入用户名</p>'; return; }
+
+  div.innerHTML = '<p>查询中...</p>';
+  _step2User = null;
+
+  try {
+    var users = await supabaseQuery('app_users', {
+      username: 'eq.' + encodeURIComponent(username),
+      select: '*'
+    });
+
+    if (!users || users.length === 0) {
+      div.innerHTML = '<p><span class="fail">✗ 未找到用户 "' + username + '"</span></p>';
+      return;
+    }
+
+    var user = users[0];
+    _step2User = user;
+
+    var html = [];
+    html.push('<p><span class="pass">✓ 找到用户</span></p>');
+    html.push('<table style="width:100%;font-size:13px;border-collapse:collapse;">');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;width:100px;">ID</td><td>' + user.id + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">用户名</td><td><strong>' + user.username + '</strong></td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">角色</td><td>' + user.role + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">审批状态</td><td>' + (user.is_approved !== false ? '<span class="pass">✓ 已通过</span>' : '<span class="warn">⏳ 待审批</span>') + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">显示名</td><td>' + (user.display_name || '(空)') + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">密码哈希</td><td style="font-family:monospace;font-size:11px;word-break:break-all;">' + user.password_hash + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">哈希长度</td><td>' + (user.password_hash ? user.password_hash.length : 'N/A') + '</td></tr>');
+    html.push('<tr><td style="padding:4px 8px;color:#64748b;">哈希前缀</td><td>' + (user.password_hash ? user.password_hash.substring(0, 4) : 'N/A') + '</td></tr>');
+    html.push('</table>');
+
+    // 快速检查
+    if (user.password_hash && (user.password_hash.startsWith('$2a$') || user.password_hash.startsWith('$2b$'))) {
+      html.push('<p>哈希格式: <span class="pass">✓ bcrypt</span></p>');
+    } else {
+      html.push('<p>哈希格式: <span class="warn">⚠ 非 bcrypt 格式！</span></p>');
+    }
+
+    div.innerHTML = html.join('');
+  } catch(e) {
+    div.innerHTML = '<p><span class="fail">✗ 查询失败: ' + e.message + '</span></p>';
+  }
+}
+
+// 步骤 3 - 核心：测试 bcrypt.compareSync
+async function runStep3() {
+  var div = document.getElementById('step3');
+  var btn = document.getElementById('btn3');
+  var password = document.getElementById('password').value;
+
+  if (!_step2User) {
+    div.innerHTML = '<p class="warn">⚠ 请先执行步骤2查询用户</p>';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '验证中...';
+
+  var user = _step2User;
+  var dbHash = user.password_hash;
+  var html = [];
+
+  html.push('<p><strong>输入密码:</strong> "' + password + '"</p>');
+  html.push('<p><strong>数据库哈希:</strong> <code>' + dbHash + '</code></p>');
+  html.push('<p><strong>哈希长度:</strong> ' + (dbHash ? dbHash.length : 'N/A') + '</p>');
+
+  if (!dbHash) {
+    html.push('<p><span class="fail">✗ password_hash 为空！</span></p>');
+    div.innerHTML = html.join('');
+    btn.disabled = false;
+    btn.textContent = '验证';
+    return;
+  }
+
+  // === 测试 1: 直接用 bcryptjs compareSync ===
+  html.push('<hr><p><strong>【测试1】直接 bcrypt.compareSync:</strong></p>');
+  var bc1 = getBcrypt_login();
+  if (!bc1) {
+    html.push('<p><span class="fail">✗ getBcrypt_login() 返回 null — bcryptjs 库未加载！</span></p>');
+    html.push('<p>这是浏览器端问题的根本原因：CDN 脚本加载失败。</p>');
+    html.push('<p>请尝试：Ctrl+Shift+R 强制刷新，或检查网络是否能访问 cdn.jsdelivr.net</p>');
+  } else {
+    html.push('<p>getBcrypt_login() = <span class="pass">✓ 有实例</span></p>');
+
+    try {
+      var result1 = bc1.compareSync(password, dbHash);
+      html.push('<p>bcrypt.compareSync("' + password + '", dbHash) = <strong>' + (result1 ? '<span class="pass">TRUE ✓ 密码正确！</span>' : '<span class="fail">FALSE ✗ 密码不匹配</span>') + '</strong></p>');
+
+      if (!result1) {
+        // 尝试分析为什么失败
+        html.push('<p><span class="warn">⚠ 密码验证失败，深入分析...</span></p>');
+
+        // 检查哈希结构
+        if (dbHash.startsWith('$2a$') || dbHash.startsWith('$2b$')) {
+          html.push('<p>哈希前缀正确 (' + dbHash.substring(0, 4) + ')</p>');
+        } else {
+          html.push('<p><span class="fail">哈希前缀异常: ' + dbHash.substring(0, 4) + '</span></p>');
+        }
+
+        if (dbHash.length !== 60) {
+          html.push('<p><span class="fail">哈希长度异常: ' + dbHash.length + ' (应为60)</span></p>');
+        }
+
+        // 用我们自己生成的哈希做交叉验证
+        try {
+          var ourHash = bc1.hashSync(password, bc1.genSaltSync(10));
+          var selfCheck = bc1.compareSync(password, ourHash);
+          html.push('<p>自验证测试 (自己生成 → 自己验证): ' + (selfCheck ? '<span class="pass">✓ 通过</span>' : '<span class="fail">✗ 失败！库本身有问题！</span>') + '</p>');
+          html.push('<p>　自生成哈希: <code>' + ourHash + '</code></p>');
+          html.push('<p>　自生成长度: ' + ourHash.length + '</p>');
+
+          // 关键交叉测试：用自生成哈希 vs 数据库哈希
+          var cross1 = bc1.compareSync(password, ourHash);  // 应成功
+          var cross2 = bc1.compareSync('123456', ourHash);  // 如果 password 是 123456 应成功
+
+          // 试试不同的输入编码方式
+          html.push('<p><strong>尝试其他可能性:</strong></p>');
+
+          // 试试空密码
+          var tryEmpty = bc1.compareSync('', dbHash);
+          html.push('<p>　空密码: ' + (tryEmpty ? '<span class="warn">意外匹配!</span>' : '不匹配') + '</p>');
+
+          // 试试常见密码
+          var common = ['test', 'admin', 'password', '12345678', 'test123', '000000', '111111'];
+          var found = false;
+          for (var i = 0; i < common.length; i++) {
+            if (bc1.compareSync(common[i], dbHash)) {
+              html.push('<p>　找到匹配: "<strong>' + common[i] + '</strong>" <span class="warn">⚠</span></p>');
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            html.push('<p>　常见密码都不匹配</p>');
+          }
+
+        } catch(e2) {
+          html.push('<p><span class="fail">自验证异常: ' + e2.message + '</span></p>');
+        }
+      }
+    } catch(e) {
+      html.push('<p><span class="fail">✗ compareSync 抛出异常: ' + e.message + '</span></p>');
+      html.push('<pre>' + (e.stack || '') + '</pre>');
+    }
+  }
+
+  // === 测试 2: 用 verifyPassword_login 函数 ===
+  html.push('<hr><p><strong>【测试2】login.html 的 verifyPassword 函数:</strong></p>');
+  try {
+    var result2 = await verifyPassword_login(password, dbHash);
+    html.push('<p>verifyPassword_login("' + password + '", dbHash) = <strong>' + (result2 ? '<span class="pass">TRUE ✓</span>' : '<span class="fail">FALSE ✗</span>') + '</strong></p>');
+  } catch(e) {
+    html.push('<p><span class="fail">✗ 异常: ' + e.message + '</span></p>');
+  }
+
+  // === 测试 3: 如果是 $2a$ 前缀，尝试换成 $2b$ ===
+  html.push('<hr><p><strong>【测试3】$2a$ vs $2b$ 前缀:</strong></p>');
+  if (dbHash.startsWith('$2a$')) {
+    var hash2b = '$2b$' + dbHash.substring(4);
+    html.push('<p>原始 ($2a$): <code>' + dbHash + '</code></p>');
+    html.push('<p>转换 ($2b$): <code>' + hash2b + '</code></p>');
+    var bc = getBcrypt_login();
+    if (bc) {
+      var r2a = bc.compareSync(password, dbHash);
+      var r2b = bc.compareSync(password, hash2b);
+      html.push('<p>$2a$ 前缀: ' + (r2a ? '<span class="pass">TRUE</span>' : '<span class="fail">FALSE</span>') + '</p>');
+      html.push('<p>$2b$ 前缀: ' + (r2b ? '<span class="pass">TRUE</span>' : '<span class="fail">FALSE</span>') + '</p>');
+    }
+  } else {
+    html.push('<p>哈希不以 $2a$ 开头，跳过此测试</p>');
+  }
+
+  div.innerHTML = html.join('');
+  btn.disabled = false;
+  btn.textContent = '验证';
+}
+
+// 步骤 4
+async function runStep4() {
+  var div = document.getElementById('step4');
+  var btn = document.getElementById('btn4');
+  var username = document.getElementById('username').value.trim();
+  var password = document.getElementById('password').value;
+
+  btn.disabled = true;
+  btn.textContent = '模拟中...';
+
+  var html = [];
+  html.push('<p><strong>完整模拟 login.html 的 handleLogin 流程</strong></p>');
+
+  try {
+    // Step 1: 查询用户
+    html.push('<p>1. 查询用户 "' + username + '"...</p>');
+    var users = await supabaseQuery('app_users', {
+      username: 'eq.' + encodeURIComponent(username),
+      select: '*'
+    });
+
+    if (!users || users.length === 0) {
+      html.push('<p><span class="fail">✗ 用户不存在</span></p>');
+      div.innerHTML = html.join('');
+      btn.disabled = false;
+      btn.textContent = '模拟完整登录';
+      return;
+    }
+    html.push('<p>   <span class="pass">✓ 找到用户</span></p>');
+
+    var user = users[0];
+
+    // Step 2: 检查 bcrypt 可用性
+    html.push('<p>2. 检查 bcrypt 可用性...</p>');
+    var isBcryptHash = user.password_hash && (user.password_hash.startsWith('$2a$') || user.password_hash.startsWith('$2b$'));
+    html.push('<p>   isBcryptHash = ' + isBcryptHash + '</p>');
+
+    if (isBcryptHash && !getBcrypt_login()) {
+      html.push('<p><span class="fail">✗ bcrypt 库未加载 — 这就是问题根源！</span></p>');
+      html.push('<p>请强制刷新页面 (Ctrl+Shift+R) 或检查 CDN 连通性</p>');
+      div.innerHTML = html.join('');
+      btn.disabled = false;
+      btn.textContent = '模拟完整登录';
+      return;
+    }
+    html.push('<p>   <span class="pass">✓ bcrypt 可用</span></p>');
+
+    // Step 3: 验证密码
+    html.push('<p>3. 验证密码...</p>');
+    var valid = await verifyPassword_login(password, user.password_hash);
+    html.push('<p>   verifyPassword 结果 = <strong>' + (valid ? '<span class="pass">TRUE ✓</span>' : '<span class="fail">FALSE ✗</span>') + '</strong></p>');
+
+    if (!valid) {
+      html.push('<p><span class="fail">✗ 密码验证失败 — 这就是登录失败的直接原因</span></p>');
+
+      // 尝试找出原因
+      var bc = getBcrypt_login();
+      if (bc && isBcryptHash) {
+        var rawResult = bc.compareSync(password, user.password_hash);
+        html.push('<p>   bcrypt.compareSync 原始结果: ' + rawResult + '</p>');
+
+        // 尝试 hashSync 然后 compareSync
+        try {
+          var newHash = bc.hashSync('123456', bc.genSaltSync(10));
+          var selfTest = bc.compareSync('123456', newHash);
+          html.push('<p>   自验证测试 (hashSync → compareSync): ' + (selfTest ? '<span class="pass">✓</span>' : '<span class="fail">✗ 库异常!</span>') + '</p>');
+        } catch(he) {
+          html.push('<p>   hashSync 异常: ' + he.message + '</p>');
+        }
+      }
+
+    } else {
+      html.push('<p><span class="pass">✓ 密码验证通过</span></p>');
+    }
+
+    // Step 4: 检查审批
+    html.push('<p>4. 检查审批状态...</p>');
+    if (user.is_approved === false) {
+      html.push('<p><span class="warn">⚠ 用户未通过审批</span></p>');
+    } else {
+      html.push('<p>   <span class="pass">✓ 已审批</span></p>');
+    }
+
+    // 最终结论
+    html.push('<hr><p><strong>最终结论:</strong></p>');
+    if (valid && user.is_approved !== false) {
+      html.push('<p style="font-size:18px;"><span class="pass">✅ 登录应该成功！</span></p>');
+      html.push('<p>如果实际登录仍然失败，可能是浏览器缓存了旧版代码。请尝试：</p>');
+      html.push('<ol><li>Ctrl+Shift+R 强制刷新 login.html</li><li>清除浏览器缓存</li><li>使用无痕模式打开 login.html</li></ol>');
+    } else if (!valid) {
+      html.push('<p style="font-size:18px;"><span class="fail">❌ 密码验证失败</span></p>');
+      html.push('<p>可能原因：</p>');
+      html.push('<ol><li>密码确实不匹配（但你说的是123456）</li><li>数据库中 password_hash 不是用 bcryptjs 生成的</li><li>bcryptjs 库加载有问题</li></ol>');
+    }
+
+  } catch(e) {
+    html.push('<p><span class="fail">✗ 异常: ' + e.message + '</span></p>');
+    html.push('<pre>' + (e.stack || '') + '</pre>');
+  }
+
+  div.innerHTML = html.join('');
+  btn.disabled = false;
+  btn.textContent = '模拟完整登录';
+}
+</script>
+</body>
+</html>
