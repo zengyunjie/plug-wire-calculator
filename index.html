@@ -9,7 +9,7 @@
 <script src="auth.js"></script>
 <script>
   // 登录检查：未登录则重定向到 login.html
-  if (!isLoggedIn()) {
+  if (typeof isLoggedIn !== "function" || !isLoggedIn()) {
     window.location.href = 'login.html';
   }
 </script>

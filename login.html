@@ -247,7 +247,7 @@
 // ==================== 初始化 ====================
 
 // 如果已登录，直接跳转到首页
-if (isLoggedIn()) {
+if (typeof isLoggedIn === "function" && isLoggedIn()) {
   window.location.href = 'index.html';
 }
 
