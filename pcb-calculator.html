@@ -27,23 +27,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
 .cp th{background:#f8fafd;font-weight:600;color:#555;padding:10px 12px;text-align:left;border-bottom:1px solid #eef1f5;font-size:11px}
 .cp td{padding:10px 12px;border-bottom:1px solid #f0f3f7;font-size:13px}
 .cp tr:hover td{background:#fafbff}
-.pn{font-size:15px;font-weight:700;color:#22a022}.pn2{font-size:14px;font-weight:600;color:#e74c3c}
+ .price-num{font-size:13px;color:#1a1a2e}.pn2{font-size:15px;font-weight:700;color:#e74c3c;background:#fef2f2;border-radius:4px;padding:3px 8px;display:inline-block}
+ .sup-bg-0 td{background:#f0f7ff}.sup-bg-1 td{background:#fff8f0}.sup-bg-2 td{background:#f0fff4}.sup-bg-3 td{background:#fff0f5}.sup-bg-4 td{background:#f5f0ff}.sup-bg-5 td{background:#f0fff8}.sup-bg-6 td{background:#fff5f0}.sup-bg-7 td{background:#f0f0ff}
+ .sup-bg-0 td:first-child{position:relative}.sup-bg-0 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#3664fb}.sup-bg-1 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e67e22}.sup-bg-2 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#22a022}.sup-bg-3 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e74c3c}.sup-bg-4 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#8b5cf6}.sup-bg-5 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#0d9488}.sup-bg-6 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#d97706}.sup-bg-7 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#6366f1}
 .notes{background:#fffdf5;border:1px solid #fef0c7;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#8b6914;line-height:1.7}
 .al{text-align:right;margin-bottom:10px;font-size:12px}.al a{color:#999;text-decoration:none;cursor:pointer}.al a:hover{color:#3664fb}
 </style></head><body><div class="c">
 <div class="al"><a href="#" onclick="window.open('pcb_price_admin.html','_blank','width=1300,height=800')">📋 管理员编辑价目表</a></div>
 <div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h1>PCB 成本核算 &amp; 供应商比价</h1><p class="sub">选择规格 → 匹配单价 → 拼版测算 → 每块 PCB 成本</p></div><div><button class="btn bo" onclick="clearAll()">🔄 清除</button></div></div>
 <div class="card"><div class="ct">规格参数选择</div><div id="specArea"></div></div>
-<div class="card"><div class="ct">单板尺寸 &amp; 拼版测算</div>
-<div class="ir"><div class="ic"><label>板长 L (mm)</label><input type="number" id="boardL" value="74" min="1" step="0.1"></div>
-<div class="ic"><label>板宽 W (mm)</label><input type="number" id="boardW" value="25" min="1" step="0.1"></div>
-<div class="ic"><label>目标数量</label><input type="number" id="targetQty" value="16" min="0" step="1" onchange="onQtyChange()"></div>
-<div class="ic"><label>工艺边 (mm)</label><input type="number" id="edgeW" value="5" min="0" max="20" step="0.5"></div>
-<div class="ic"><label>长宽比≤</label><input type="number" id="maxAR" value="2" min="1" max="10" step="0.1"></div>
-<div class="ic"><label>拼版后最大宽度mm</label><input type="number" id="eqMaxW" value="250" min="10" step="5"></div>
-<div class="ic"><label>拼版后最大高度mm</label><input type="number" id="eqMaxH" value="360" min="10" step="5"></div>
-<div class="ic"><label>拼版后最小宽度mm</label><input type="number" id="eqMinW" value="50" min="5" step="5"></div>
-<div style="display:flex;align-items:end"><button class="btn bp" onclick="calcPanel()">测算拼版</button></div></div>
+ <div class="card"><div class="ct">单板尺寸 &amp; 拼板测算</div>
+ <div class="ir"><div class="ic"><label>板长 L (mm)</label><input type="number" id="boardL" value="74" min="1" step="0.1"></div>
+ <div class="ic"><label>板宽 W (mm)</label><input type="number" id="boardW" value="25" min="1" step="0.1"></div>
+ <div class="ic"><label>目标数量</label><input type="number" id="targetQty" value="16" min="0" step="1" onchange="onQtyChange()"></div>
+ <div class="ic"><label>工艺边 (mm)</label><input type="number" id="edgeW" value="5" min="0" max="20" step="0.5"></div></div>
+ <div class="ir" style="margin-top:10px"><div class="ic"><label>长宽比限制</label><input type="number" id="maxAR" value="2" min="1" max="10" step="0.1"></div>
+ <div class="ic"><label>拼版最大宽度限制 (mm)</label><input type="number" id="eqMaxW" value="250" min="10" step="5"></div>
+ <div class="ic"><label>拼版最大长度限制 (mm)</label><input type="number" id="eqMaxH" value="360" min="10" step="5"></div>
+ <div class="ic"><label>拼版最小宽度要求 (mm)</label><input type="number" id="eqMinW" value="50" min="5" step="5"></div>
+ <div style="display:flex;align-items:end"><button class="btn bp" onclick="calcPanel()">测算拼版</button></div></div></div>
 <div id="panelResult" style="display:none;margin-top:10px"></div></div>
 <div class="card" id="resultCard" style="display:none"><div class="ct">供应商比价 &amp; 单板成本</div>
 <div id="matchInfo" style="font-size:11px;margin-bottom:10px;color:#999"></div><div style="overflow-x:auto">
@@ -139,13 +141,16 @@ function updateComparison(){
   card.style.display="block";var m=matches[0];
   info.innerHTML='匹配：<strong>'+m.m+'</strong> | '+m.l+' | '+m.i+' | '+m.md+' | 耐压 '+m.v+' | '+m.t+' | '+m.c;
   var vs=selectedSpec.via>15?Math.ceil(selectedSpec.via-15)*3:0,pa=panelResults[selectedArrIdx].area,pq=panelResults[selectedArrIdx].qty,h="";
-  SUP.forEach(function(su){
-    var v=m[su.c];if(v===null||v===undefined)return;
-    var up=v+vs,total=up*pa,pu=pq>0?total/pq:0,note="";
-    if(su.n==="正创")note="绿油/黑油+5/㎡ 底面字符+5/㎡";else if(su.n==="鑫阳")note="CNC+50/㎡ 喷锡+25/㎡ 半孔+30/㎡";else if(su.n==="健达")note="最低消费另计";
-    if(vs>0)note+=(note?" ":"")+"超孔+"+vs+"元/㎡";
-    h+='<tr><td><strong>'+su.n+'</strong></td><td>'+su.s+'</td><td class="pn">'+v+'</td><td>'+(vs>0?'<span style="color:#e74c3c">+'+vs+'</span>':'-')+'</td><td>'+pa.toFixed(4)+'</td><td><strong>'+pq+'</strong></td><td class="pn">'+total.toFixed(2)+'</td><td class="pn2">'+pu.toFixed(4)+'</td><td style="font-size:10px;color:#999">'+note+'</td></tr>';
-  });
+   var supColors={},colorIdx=0;var colorNames=["正创","恒丽","鑫阳","健达","豪鹏赢","其它"];
+   SUP.forEach(function(su){
+     var v=m[su.c];if(v===null||v===undefined)return;
+     var up=v+vs,total=up*pa,pu=pq>0?total/pq:0,note="";
+     if(su.n==="正创")note="绿油/黑油+5/㎡ 底面字符+5/㎡";else if(su.n==="鑫阳")note="CNC+50/㎡ 喷锡+25/㎡ 半孔+30/㎡";else if(su.n==="健达")note="最低消费另计";
+     if(vs>0)note+=(note?" ":"")+"超孔+"+vs+"元/㎡";
+     if(supColors[su.n]===undefined){supColors[su.n]=colorIdx%8;colorIdx++}
+     var bgCls="sup-bg-"+supColors[su.n];
+     h+='<tr class="'+bgCls+'"><td style="font-weight:600">'+su.n+'</td><td>'+su.s+'</td><td class="price-num">'+v+'</td><td>'+(vs>0?'<span style="color:#e74c3c">+'+vs+'</span>':'-')+'</td><td>'+pa.toFixed(4)+'</td><td>'+pq+'</td><td class="price-num">'+total.toFixed(2)+'</td><td class="pn2">'+pu.toFixed(4)+'</td><td style="font-size:10px;color:#999">'+note+'</td></tr>';
+   });
   body.innerHTML=h;document.getElementById("notesArea").innerHTML=NOTES;
 }
 

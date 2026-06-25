@@ -18,9 +18,12 @@ table{border-collapse:collapse;font-size:12px;min-width:1800px;width:max-content
 th,td{border:1px solid #eef1f5;padding:6px 8px;text-align:center;white-space:nowrap}
 th{background:#f8fafd;font-weight:600;font-size:11px;color:#666;position:sticky;top:0;z-index:1}
 th.sup{background:#eef3ff;color:#3664fb;font-size:12px}
-input{width:85px;border:1px solid #e8ecf0;border-radius:6px;padding:5px 6px;font-size:12px;text-align:center;outline:none;transition:border-color .15s;background:#fff}
-input:focus{border-color:#3664fb;background:#fafcff}
-input.pc{background:#fffdf5;width:65px}
+ input{width:85px;border:1px solid #e8ecf0;border-radius:6px;padding:5px 6px;font-size:12px;text-align:center;outline:none;transition:border-color .15s;background:#fff}
+ input:focus{border-color:#3664fb;background:#fafcff}
+ input.pc{background:#fffdf5;width:65px}
+ input:read-only{background:#f3f5f8;color:#666;cursor:default;border-color:#e8ecf0}
+ input:read-only:focus{background:#f3f5f8;border-color:#e8ecf0;box-shadow:none}
+ .sup-tag{display:inline-block;background:#eef3ff;color:#3664fb;padding:4px 12px;border-radius:6px;font-size:13px;font-weight:600}
 .gr td{background:#eef3ff;font-weight:600;text-align:left;padding:8px 12px;border-top:2px solid #3664fb;color:#3664fb;font-size:13px;border-bottom:none}
 .rn{font-size:9px;color:#bbb;width:30px;min-width:30px}
 .notebox{background:#fffdf5;border:1px solid #fef0c7;border-radius:8px;padding:12px 16px;margin-top:14px;font-size:11px;color:#8b6914;line-height:1.7}
@@ -35,24 +38,21 @@ input.pc{background:#fffdf5;width:65px}
 </style></head><body>
 <h1>📋 PCB 价目表管理</h1>
 <p class="sub">数据保存在浏览器本地。增/删/改供应商单价后点"保存"。</p>
-<div class="toolbar">
-  <button class="btn btn-pri" onclick="addRow()">+ 新增行</button>
-  <button class="btn btn-grn" onclick="saveAll()">💾 保存</button>
-  <button class="btn btn-out" onclick="exportJSON()">📤 导出JSON</button>
-  <button class="btn btn-out" onclick="importJSON()">📥 导入JSON</button>
-  <button class="btn btn-del" onclick="resetAll()">🔄 重置</button>
-  <span class="st" id="st"></span>
-</div>
-<div class="sup-section">
-  <div style="font-weight:600;color:#555;margin-right:8px">供应商：</div>
-  <div style="display:flex;flex-wrap:wrap;gap:10px" id="supList"></div>
-  <button class="btn btn-pri" onclick="addSupplier()" style="height:30px;font-size:12px">+ 新增供应商</button>
-</div>
-<div class="sup-section" id="supManage" style="display:none">
-  <div style="width:100%;font-weight:600;margin-bottom:8px;color:#888">供应商管理（管理员功能，选择供应商后删除）</div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px" id="supManageInner"></div>
-</div>
-<div class="table-wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+ <div class="toolbar">
+   <button class="btn btn-pri" onclick="addRow()">+ 新增行</button>
+   <button class="btn btn-pri" onclick="addSupplier()">+ 新增供应商</button>
+   <button class="btn btn-del" onclick="deleteSupplier()">- 删除供应商</button>
+   <button class="btn btn-grn" onclick="saveAll()">💾 保存</button>
+   <button class="btn btn-out" onclick="exportJSON()">📤 导出JSON</button>
+   <button class="btn btn-out" onclick="importJSON()">📥 导入JSON</button>
+   <button class="btn btn-del" onclick="resetAll()">🔄 重置</button>
+   <span class="st" id="st"></span>
+ </div>
+ <div class="sup-section">
+   <div style="font-weight:600;color:#555;margin-right:8px">供应商：</div>
+   <div style="display:flex;flex-wrap:wrap;gap:10px" id="supList"></div>
+ </div>
+ <div class="table-wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
 <div class="notebox"><strong>备注：</strong><br>正创：不足1000元+100工程费。底面字符+5/㎡。绿油/黑油比白油贵5/㎡<br>鑫阳：CNC+50/㎡。喷锡+25/㎡。半孔+30/㎡。单面板最低1000(不足+200)。双面板最低1500(不足+300)<br>健达：OSP/曝光/喷锡/半孔四列。豪鹏赢：仅OSP</div>
 <script>
 var BS=["m","l","p","i","md","v","t","c"],BN={"m":"物料名","l":"层数","p":"工艺","i":"油墨颜色","md":"油墨方式","v":"耐压","t":"厚度","c":"铜厚"};
@@ -81,23 +81,12 @@ function ac(){var c=[];DS.forEach(function(s){s.subs.forEach(function(sb){c.push
 function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].m&&t[0].m.length>0)return t}catch(e){}}localStorage.removeItem("pcb_price_data");return JSON.parse(JSON.stringify(DP))}
 function loadSM(){var d=localStorage.getItem("pcb_supplier_meta");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}catch(e){}}return JSON.parse(JSON.stringify(DS))}
 var pd=loadP(),sm=loadSM();
-var adminMode=false;
-
-function toggleAdmin(){
-  adminMode=!adminMode;
-  if(adminMode){
-    var pw=prompt("请输入管理员密码：(默认 admin123)");
-    if(pw!=="admin123"){adminMode=false;alert("密码错误");return}
-  }
-  document.getElementById("supManage").style.display=adminMode?"block":"none";
-  renderSup();
-}
-
-function saveAll(){
+ function saveAll(){
   var allc=ac(),ins=document.querySelectorAll("#tb input");
   ins.forEach(function(inp){var i=parseInt(inp.dataset.i),f=inp.dataset.f,v=inp.value.trim();
     if(f&&i>=0&&pd[i]){if(v==="")v=null;else if(allc.indexOf(f)>=0){var pv=parseFloat(v);if(!isNaN(pv))v=pv;else v=null}pd[i][f]=v}});
-  localStorage.setItem("pcb_price_data",JSON.stringify(pd));localStorage.setItem("pcb_supplier_meta",JSON.stringify(sm));
+   pd.forEach(function(r){delete r._newRow});
+   localStorage.setItem("pcb_price_data",JSON.stringify(pd));localStorage.setItem("pcb_supplier_meta",JSON.stringify(sm));
   renderTable();renderSup();var el=document.getElementById("st");el.textContent="OK "+new Date().toLocaleTimeString();
   setTimeout(function(){el.textContent=""},3000);
 }
@@ -120,34 +109,50 @@ function renderTable(){
   pd.forEach(function(r,i){
     if(r.m!==lm){h+='<tr class="gr"><td colspan="'+(9+tsc)+'">📦 '+(r.m||"未分类")+'</td></tr>';lm=r.m}
     h+='<tr><td class="rn">'+(i+1)+'</td>';
-    BS.forEach(function(f){h+='<td><input list="dl-'+f+'" value="'+nv(r[f])+'" data-i="'+i+'" data-f="'+f+'"></td>'});
+     BS.forEach(function(f){
+       var readonly=r._newRow?'':' readonly style="background:#f3f5f8;cursor:default"';
+       h+='<td><input list="dl-'+f+'" value="'+nv(r[f])+'" data-i="'+i+'" data-f="'+f+'"'+readonly+'></td>'
+     });
     allc.forEach(function(c){h+='<td><input class="pc" value="'+nv(r[c])+'" data-i="'+i+'" data-f="'+c+'"></td>'});
     h+='<td><button class="btn btn-del" style="height:26px;font-size:10px;padding:0 8px" onclick="del('+i+')">删</button></td></tr>';
   });
   document.getElementById("tb").innerHTML=h;
 }
 
-function renderSup(){
-  var sl="",ml="";
-  sm.forEach(function(s,i){
-    var subs=s.subs.map(function(sb){return sb.label}).join(", ");
-    sl+='<span class="sup-tag"><strong>'+s.name+'</strong> ('+subs+')</span>';
-    ml+='<div class="sup-card"><div class="sup-name">'+s.name+'</div><div class="sup-subs">'+subs+'</div><button class="sup-del visible" onclick="delSup(&quot;'+s.id+'&quot;)">⚠ 删除此供应商</button></div>';
-  });
-  document.getElementById("supList").innerHTML=sl;
-  document.getElementById("supManageInner").innerHTML=ml||'暂无供应商数据';
-}
+ function renderSup(){
+   var sl="";
+   sm.forEach(function(s,i){
+     sl+='<span class="sup-tag">'+s.name+'</span>';
+   });
+   document.getElementById("supList").innerHTML=sl;
+ }
 
-function addRow(){var o={};BS.forEach(function(f){o[f]=""});ac().forEach(function(c){o[c]=null});pd.push(o);renderTable()}
-function del(i){if(confirm("确认删除？")){pd.splice(i,1);renderTable()}}
+ function addRow(){var o={};BS.forEach(function(f){o[f]=""});ac().forEach(function(c){o[c]=null});o._newRow=true;pd.push(o);renderTable()}
+ function del(i){if(confirm("确认删除？")){pd.splice(i,1);renderTable()}}
+ function deleteSupplier(){
+   if(sm.length===0){alert("暂无供应商可删除");return}
+   var choices=sm.map(function(s,i){return (i+1)+". "+s.name}).join("\n");
+   var idx=prompt("选择要删除的供应商：\n"+choices+"\n\n输入编号 (1-"+sm.length+")：");
+   if(!idx)return;idx=parseInt(idx);
+   if(isNaN(idx)||idx<1||idx>sm.length){alert("无效选择");return}
+   delSup(sm[idx-1].id)
+ }
 function addSupplier(){
   var n=prompt("供应商名称：");if(!n||!n.trim())return;
   var id=n.replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
   if(sm.some(function(s){return s.id===id})){alert("已存在");return}
   var subs=[{id:id+"_osp",label:"OSP"},{id:id+"_exp",label:"曝光+15"},{id:id+"_spray",label:"喷锡+15"}];
   sm.unshift({id:id,name:n.trim(),subs:subs});pd.forEach(function(r){subs.forEach(function(s){r[s.id]=null})});saveAll()}
-function delSup(sid){var s=sm.find(function(x){return x.id===sid});if(!s)return;if(!confirm("⚠ 删除供应商 "+s.name+"？\n\n所有该供应商的价格数据将被清除！\n此操作不可恢复。"))return;
-  var cols=s.subs.map(function(sb){return sb.id});pd.forEach(function(r){cols.forEach(function(c){delete r[c]})});sm=sm.filter(function(x){return x.id!==sid});saveAll()}
+ function delSup(sid){
+   var s=sm.find(function(x){return x.id===sid});if(!s)return;
+   if(!confirm("⚠ 删除供应商 "+s.name+"？\n\n所有该供应商的价格数据将被清除！此操作不可恢复。"))return;
+   var cols=s.subs.map(function(sb){return sb.id});
+   pd.forEach(function(r){cols.forEach(function(c){delete r[c]})});
+   sm=sm.filter(function(x){return x.id!==sid});
+   var allc=ac();
+   pd=pd.filter(function(r){return allc.some(function(c){return r[c]!==null&&r[c]!==undefined})});
+   saveAll()
+ }
 function resetAll(){if(!confirm("重置默认？"))return;pd=JSON.parse(JSON.stringify(DP));sm=JSON.parse(JSON.stringify(DS));saveAll()}
 function exportJSON(){var d={v:2,p:pd,s:sm};var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="pcb_price_data.json";a.click()}
 function importJSON(){var inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(d.v===2){pd=d.p;sm=d.s;saveAll();return}if(Array.isArray(d)){pd=d;saveAll();return}alert("格式错误")}catch(ex){alert("解析失败:"+ex.message)}};r.readAsText(f)};inp.click()}
