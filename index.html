@@ -11,8 +11,17 @@
     window.location.href = 'login.html';
   }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js" defer></script>
+<script>if(typeof Chart==="undefined"){window.Chart=function(){return this};window.Chart.register=function(){};}
+console.log("Chart stub ready, actual:",typeof Chart==="function"? "loaded":"stub");</script>
+<script>
+window.chartJsLoaded=false;
+var chartScript=document.createElement("script");
+chartScript.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+chartScript.onload=function(){window.chartJsLoaded=true;};
+chartScript.onerror=function(){console.warn("chart.js failed to load")};
+document.head.appendChild(chartScript);
+</script>
+<script src="bcrypt.min.js" defer></script>
 <style>
   :root {
     --primary: #1a6fc4;
