@@ -14,7 +14,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
 .sb.sel{background:#3664fb;color:#fff;border-color:#3664fb;font-weight:600;box-shadow:0 2px 6px rgba(54,100,251,.25)}
 .sb.dis{background:#f8f9fb;color:#c0c4cc;border-color:#e8ecf0;cursor:default}
 .sb.dis:hover{background:#f8f9fb;color:#c0c4cc;border-color:#e8ecf0}
-.ir{display:flex;flex-wrap:wrap;gap:12px;align-items:end}.ic{flex:1;min-width:120px}
+.ir{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+ .ir .ic{flex:1 1 140px;min-width:120px}.ic{flex:1;min-width:120px}
 .ic label{display:block;font-size:11px;font-weight:500;color:#888;margin-bottom:4px}
 .ic input{width:100%;height:36px;padding:0 10px;border:1px solid #e2e6ed;border-radius:8px;font-size:13px;outline:none;transition:border-color .15s}
 .ic input:focus{border-color:#3664fb;box-shadow:0 0 0 3px rgba(54,100,251,.08)}
@@ -46,7 +47,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
  <div class="ic"><label>拼版最大宽度限制 (mm)</label><input type="number" id="eqMaxW" value="250" min="10" step="5"></div>
  <div class="ic"><label>拼版最大长度限制 (mm)</label><input type="number" id="eqMaxH" value="360" min="10" step="5"></div>
  <div class="ic"><label>拼版最小宽度要求 (mm)</label><input type="number" id="eqMinW" value="50" min="5" step="5"></div>
- <div style="display:flex;align-items:end"><button class="btn bp" onclick="calcPanel()">测算拼版</button></div></div></div>
+ </div><div style="margin-top:8px"><button class="btn bp" onclick="calcPanel()">测算拼版</button></div></div></div>
 <div id="panelResult" style="display:none;margin-top:10px"></div></div>
 <div class="card" id="resultCard" style="display:none"><div class="ct">供应商比价 &amp; 单板成本</div>
 <div id="matchInfo" style="font-size:11px;margin-bottom:10px;color:#999"></div><div style="overflow-x:auto">
@@ -75,7 +76,7 @@ var PDEF=[
 var SN={m:"板材类别",l:"板子层数",i:"阻焊/字符颜色",md:"油墨方式",v:"耐压",t:"成品板厚",c:"外层铜厚"};
 var panelResults=[],selectedArrIdx=0,selectedSpec={m:null,l:null,i:null,md:null,v:null,t:null,c:null,via:15};
 
-var SB_URL="https://vmtmctgcrwzjejqtnngp.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].m&&t[0].m.length>0)return t}catch(e){}}localStorage.removeItem("pcb_price_data");var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=price_data",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);try{xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].price_data)return r[0].price_data}}catch(e){}return JSON.parse(JSON.stringify(PDEF))}
+var SB_URL="https://vmtmctgcrwzjejqtnngp.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0){t=t.filter(function(r){return r.m&&r.m.length>0});if(t.length>0)return t}}catch(e){}}localStorage.removeItem("pcb_price_data");var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=price_data",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);try{xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].price_data)return r[0].price_data}}catch(e){}return JSON.parse(JSON.stringify(PDEF))}
 function loadSM(){var d=localStorage.getItem("pcb_supplier_meta");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}catch(e){}}var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=supplier_meta",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);try{xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].supplier_meta)return r[0].supplier_meta}}catch(e){}return JSON.parse(JSON.stringify(DEF_SUP_META))}
 function buildSUP(meta){var arr=[];meta.forEach(function(s){s.subs.forEach(function(sub){arr.push({id:sub.id,n:s.name,s:sub.label,c:sub.id})})});return arr}
 var priceData=loadP(),SUP=buildSUP(loadSM());
@@ -122,7 +123,7 @@ function calcPanel(){
   var b=panelResults[0];div.style.display="block";
   div.innerHTML='<div class="pr"><div class="pv"><div class="hd">排列</div><div class="vl">'+b.rows+'行x'+b.cols+'列</div></div><div class="pv"><div class="hd">拼板数</div><div class="vl">'+b.qty+'片</div></div><div class="pv"><div class="hd">拼板尺寸</div><div class="vl">'+b.pw+'x'+b.ph+'mm</div></div><div class="pv"><div class="hd">面积</div><div class="vl">'+b.area.toFixed(4)+'m²</div></div><div class="pv"><div class="hd">利用率</div><div class="vl">'+b.util.toFixed(1)+'%</div></div><div class="pv"><div class="hd">方式</div><div class="vl" style="font-size:13px">'+b.method+'</div></div></div>';
   var sel='<div style="margin-top:8px;font-size:11px;color:#999">其他方案：<select onchange="selectAlt(this.value)" style="font-size:11px;padding:4px;border-radius:6px;border:1px solid #e2e6ed;width:100%;max-width:600px">';
-  panelResults.slice(0,10).forEach(function(r,i){sel+='<option value="'+i+'">'+(i+1)+'. '+r.rows+'x'+r.cols+' ('+r.qty+'片) '+r.pw+'x'+r.ph+'mm | '+r.util.toFixed(1)+'% | '+r.method+'</option>'});
+  var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(r,i){sel+='<option value="'+i+'">'+(i+1)+'. '+r.rows+'x'+r.cols+' ('+r.qty+'片) '+r.pw+'x'+r.ph+'mm | '+r.util.toFixed(1)+'% | '+r.method+'</option>'});
   sel+='</select></div>';div.innerHTML+=sel;updateComparison();
 }
 
@@ -130,7 +131,7 @@ function selectAlt(idx){idx=parseInt(idx);var r=panelResults[idx];if(!r)return;s
   var div=document.getElementById("panelResult");
   div.innerHTML='<div class="pr"><div class="pv"><div class="hd">排列</div><div class="vl">'+r.rows+'行x'+r.cols+'列</div></div><div class="pv"><div class="hd">拼板数</div><div class="vl">'+r.qty+'片</div></div><div class="pv"><div class="hd">拼板尺寸</div><div class="vl">'+r.pw+'x'+r.ph+'mm</div></div><div class="pv"><div class="hd">面积</div><div class="vl">'+r.area.toFixed(4)+'m²</div></div><div class="pv"><div class="hd">利用率</div><div class="vl">'+r.util.toFixed(1)+'%</div></div><div class="pv"><div class="hd">方式</div><div class="vl" style="font-size:13px">'+r.method+'</div></div></div>';
   var sel='<div style="margin-top:8px;font-size:11px;color:#999">其他方案：<select onchange="selectAlt(this.value)" style="font-size:11px;padding:4px;border-radius:6px;border:1px solid #e2e6ed;width:100%;max-width:600px">';
-  panelResults.forEach(function(rr,i){sel+='<option value="'+i+'"'+(i===idx?' selected':'')+'>'+(i+1)+'. '+rr.rows+'x'+rr.cols+' ('+rr.qty+'片) '+rr.pw+'x'+rr.ph+'mm | '+rr.util.toFixed(1)+'% | '+rr.method+'</option>'});
+  var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(rr,i){sel+='<option value="'+i+'"'+(i===idx?' selected':'')+'>'+(i+1)+'. '+rr.rows+'x'+rr.cols+' ('+rr.qty+'片) '+rr.pw+'x'+rr.ph+'mm | '+rr.util.toFixed(1)+'% | '+rr.method+'</option>'});
   sel+='</select></div>';div.innerHTML+=sel;updateComparison();
 }
 
