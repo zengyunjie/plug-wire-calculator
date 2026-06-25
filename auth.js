@@ -491,3 +491,19 @@ function filterUsers(type) {
   }
   renderAdminUserList();
 }
+
+// ==================== 管理员权限检查 ====================
+
+function requireAdmin() {
+  if (!isLoggedIn()) {
+    var page = window.location.pathname.split('/').pop();
+    window.location.href = 'login.html?redirect=' + encodeURIComponent(page);
+    return false;
+  }
+  if (!isAdmin()) {
+    alert('权限不足：仅管理员可访问此页面。');
+    document.body.innerHTML = '<div style="padding:40px;text-align:center;font-size:16px;color:#e74c3c"><h2>拒绝访问</h2><p>仅管理员可查看此页面。</p><p><a href="login.html" style="color:#3664fb">返回登录</a></p></div>';
+    return false;
+  }
+  return true;
+}
