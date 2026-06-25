@@ -76,7 +76,7 @@ var DS=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"
 ];
 
 function nv(v){return v===null||v===undefined?"":String(v)}
-function ac(){var c=[];DS.forEach(function(s){s.subs.forEach(function(sb){c.push(sb.id)})});return c}
+ function ac(){var c=[];sm.forEach(function(s){s.subs.forEach(function(sb){c.push(sb.id)})});return c}
 
 function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].m&&t[0].m.length>0)return t}catch(e){}}localStorage.removeItem("pcb_price_data");return JSON.parse(JSON.stringify(DP))}
 function loadSM(){var d=localStorage.getItem("pcb_supplier_meta");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}catch(e){}}return JSON.parse(JSON.stringify(DS))}
@@ -142,7 +142,7 @@ function addSupplier(){
   var id=n.replace(/[^a-zA-Z0-9]/g,"").toLowerCase();
   if(sm.some(function(s){return s.id===id})){alert("已存在");return}
   var subs=[{id:id+"_osp",label:"OSP"},{id:id+"_exp",label:"曝光+15"},{id:id+"_spray",label:"喷锡+15"}];
-  sm.unshift({id:id,name:n.trim(),subs:subs});pd.forEach(function(r){subs.forEach(function(s){r[s.id]=null})});saveAll()}
+  sm.push({id:id,name:n.trim(),subs:subs});pd.forEach(function(r){subs.forEach(function(s){r[s.id]=null})});saveAll()}
  function delSup(sid){
    var s=sm.find(function(x){return x.id===sid});if(!s)return;
    if(!confirm("⚠ 删除供应商 "+s.name+"？\n\n所有该供应商的价格数据将被清除！此操作不可恢复。"))return;

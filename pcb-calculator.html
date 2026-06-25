@@ -27,7 +27,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
 .cp th{background:#f8fafd;font-weight:600;color:#555;padding:10px 12px;text-align:left;border-bottom:1px solid #eef1f5;font-size:11px}
 .cp td{padding:10px 12px;border-bottom:1px solid #f0f3f7;font-size:13px}
 .cp tr:hover td{background:#fafbff}
- .price-num{font-size:13px;color:#1a1a2e}.pn2{font-size:15px;font-weight:700;color:#e74c3c;background:#fef2f2;border-radius:4px;padding:3px 8px;display:inline-block}
+ .price-num{font-size:13px;font-weight:400;color:#333}
+.pn2-cell{font-size:16px;font-weight:700;color:#c0392b;background:#fef2f2}
  .sup-bg-0 td{background:#f0f7ff}.sup-bg-1 td{background:#fff8f0}.sup-bg-2 td{background:#f0fff4}.sup-bg-3 td{background:#fff0f5}.sup-bg-4 td{background:#f5f0ff}.sup-bg-5 td{background:#f0fff8}.sup-bg-6 td{background:#fff5f0}.sup-bg-7 td{background:#f0f0ff}
  .sup-bg-0 td:first-child{position:relative}.sup-bg-0 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#3664fb}.sup-bg-1 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e67e22}.sup-bg-2 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#22a022}.sup-bg-3 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e74c3c}.sup-bg-4 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#8b5cf6}.sup-bg-5 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#0d9488}.sup-bg-6 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#d97706}.sup-bg-7 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#6366f1}
 .notes{background:#fffdf5;border:1px solid #fef0c7;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#8b6914;line-height:1.7}
@@ -149,7 +150,7 @@ function updateComparison(){
      if(vs>0)note+=(note?" ":"")+"超孔+"+vs+"元/㎡";
      if(supColors[su.n]===undefined){supColors[su.n]=colorIdx%8;colorIdx++}
      var bgCls="sup-bg-"+supColors[su.n];
-     h+='<tr class="'+bgCls+'"><td style="font-weight:600">'+su.n+'</td><td>'+su.s+'</td><td class="price-num">'+v+'</td><td>'+(vs>0?'<span style="color:#e74c3c">+'+vs+'</span>':'-')+'</td><td>'+pa.toFixed(4)+'</td><td>'+pq+'</td><td class="price-num">'+total.toFixed(2)+'</td><td class="pn2">'+pu.toFixed(4)+'</td><td style="font-size:10px;color:#999">'+note+'</td></tr>';
+     h+='<tr class="'+bgCls+'"><td style="font-weight:600">'+su.n+'</td><td>'+su.s+'</td><td class="price-num">'+v+'</td><td>'+(vs>0?'<span style="color:#e74c3c">+'+vs+'</span>':'-')+'</td><td>'+pa.toFixed(4)+'</td><td>'+pq+'</td><td class="price-num">'+total.toFixed(2)+'</td><td class="pn2-cell">'+pu.toFixed(4)+'</td><td style="font-size:10px;color:#999">'+note+'</td></tr>';
    });
   body.innerHTML=h;document.getElementById("notesArea").innerHTML=NOTES;
 }
