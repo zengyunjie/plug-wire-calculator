@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -476,6 +476,7 @@
     <button class="tab-btn" onclick="switchPage('pkg')">📦 包材</button>
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
     <button class="tab-btn" onclick="switchPage('plastic')">🧩 塑胶件</button>
+    <button class="tab-btn" onclick="switchPage('pcb')">📟 PCB</button>
   </div>
   <div class="user-area" id="userArea">
     <span class="user-name" id="userBadge" style="cursor:pointer;" title="点击管理账户"></span>
@@ -1885,5 +1886,17 @@ window.addEventListener('DOMContentLoaded', function() {
   calcPlastic();
 });
 </script>
-</body>
+
+
+
+<!-- ############################################################ -->
+<!-- PAGE 5: PCB -->
+<!-- ############################################################ -->
+<div id="page-pcb" class="page-panel">
+  <iframe src="pcb-calculator.html" style="width:100%;min-height:900px;border:none;border-radius:8px"></iframe>
+</div></body>
 </html>
+
+
+
+
