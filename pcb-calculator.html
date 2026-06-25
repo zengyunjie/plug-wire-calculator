@@ -188,5 +188,5 @@ function updateComparison(){
 }
 
 function clearAll(){selectedSpec={m:null,l:null,i:null,md:null,v:null,t:null,c:null,via:15};document.getElementById("boardL").value=74;document.getElementById("boardW").value=25;document.getElementById("targetQty").value=0;document.getElementById("edgeW").value=5;document.getElementById("eqMaxW").value=250;document.getElementById("eqMaxH").value=360;document.getElementById("eqMinW").value=50;document.getElementById("panelResult").style.display="none";document.getElementById("resultCard").style.display="none";panelResults=[];renderSpecs();calcPanel()}
-try{if(isAdmin()&&document.getElementById("adminLink")){document.getElementById("adminLink").style.display="block"}renderSpecs();calcPanel()}catch(e){console.error("Init error:",e)}
+try{if(typeof isAdmin==="function"&&isAdmin()&&document.getElementById("adminLink")){document.getElementById("adminLink").style.display="block"}}catch(e){console.error("Admin check error:",e)}try{renderSpecs();calcPanel()}catch(e){console.error("Render error:",e)}
 </script></body></html>
