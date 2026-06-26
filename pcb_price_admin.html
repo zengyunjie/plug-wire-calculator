@@ -192,5 +192,6 @@ function resetAll(){if(!confirm("重置默认？"))return;pd=JSON.parse(JSON.str
 function exportJSON(){var d={v:2,p:pd,s:sm};var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="pcb_price_data.json";a.click()}
 function importJSON(){var inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(d.v===2){pd=d.p;sm=d.s;saveAll();return}if(Array.isArray(d)){pd=d;saveAll();return}alert("格式错误")}catch(ex){alert("解析失败:"+ex.message)}};r.readAsText(f)};inp.click()}
 if(requireAdmin()){renderTable();renderSup();setTimeout(function(){syncSupabase()},500)}
+</script>
 </div>
 <script>if(!isAdmin()){document.getElementById("adminContent").style.display="none";requireAdmin()}</script></body></html>
