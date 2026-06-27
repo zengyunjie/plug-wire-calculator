@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -6,19 +6,19 @@
 <title>PCB 价目表管理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Noto Sans SC",sans-serif;background:linear-gradient(135deg,#f0f4f8,#e8eef4,#f5f7fa);color:#1a1a2e;padding:28px 20px;min-height:100vh}
-h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{color:#86868b;font-size:13px;margin:4px 0 20px}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;align-items:center}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Noto Sans SC",sans-serif;background:linear-gradient(135deg,#f0f4f8,#e8eef4,#f5f7fa);color:#1a1a2e;padding:28px 20px 8px;min-height:100vh;overflow-x:hidden}
+h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{color:#86868b;font-size:13px;margin:4px 0 16px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;align-items:center}
 .btn{height:36px;padding:0 16px;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:-.1px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .btn-pri{background:rgba(54,100,251,.9);color:#fff;box-shadow:0 2px 8px rgba(54,100,251,.25)}.btn-pri:hover{background:rgba(54,100,251,1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(54,100,251,.35)}
 .btn-out{background:rgba(255,255,255,.8);color:#3664fb;border:1px solid rgba(54,100,251,.2)}.btn-out:hover{background:rgba(54,100,251,.08)}
 .btn-del{background:rgba(231,76,60,.09);color:#e74c3c;border:1px solid rgba(231,76,60,.2)}.btn-del:hover{background:rgba(231,76,60,.15)}
 .btn-grn{background:rgba(34,160,34,.9);color:#fff;box-shadow:0 2px 8px rgba(34,160,34,.2)}.btn-grn:hover{background:#22a022;transform:translateY(-1px)}
-.sup-section{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0;padding:14px 18px;background:rgba(255,255,255,.7);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.sup-section{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0;padding:12px 16px;background:rgba(255,255,255,.7);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(0,0,0,.04)}
 .sup-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(54,100,251,.06);padding:6px 14px;border-radius:20px;font-size:12px;border:1px solid rgba(54,100,251,.12);color:#3664fb;font-weight:500}
 .sup-card{background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:14px 16px;min-width:160px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .sup-name{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:6px}.sup-subs{font-size:11px;color:#86868b}
-.table-wrap{overflow-x:scroll;overflow-y:visible;background:rgba(255,255,255,.75);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.05);margin-top:12px;z-index:0}
+.table-wrap{overflow-x:scroll;overflow-y:auto;max-height:calc(100vh - 320px);background:rgba(255,255,255,.75);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.05);margin-top:10px}
 .table-wrap::-webkit-scrollbar{height:10px;width:8px;background:rgba(0,0,0,.03)}
 .table-wrap::-webkit-scrollbar-track{background:rgba(0,0,0,.03);border-radius:5px}
 .table-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:5px;min-width:50px}
@@ -31,12 +31,12 @@ input{width:90%;min-width:80px;border:1px solid rgba(0,0,0,.1);border-radius:7px
 input:focus{border-color:#3664fb;background:#fff;box-shadow:0 0 0 3px rgba(54,100,251,.08)}
 input.pc{background:rgba(255,253,245,.9);min-width:75px;width:auto;border:1px solid rgba(180,160,100,.2)}
 input.pc:focus{background:#fff;border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.1)}
-.gr td{background:rgba(239,244,255,.9);font-weight:600;text-align:left;padding:9px 14px;border-top:2px solid #3664fb;color:#3664fb;font-size:13px;letter-spacing:-.2px}
+.gr td{background:rgba(239,244,255,.9);font-weight:600;text-align:left;padding:9px 14px;border-top:2px solid #3664fb;color:#3664fb;font-size:13px}
 .rn{font-size:10px;color:#aaa;width:32px;min-width:32px}
-.notes{background:rgba(255,253,245,.8);border:1px solid rgba(254,240,199,.6);border-radius:10px;padding:14px 18px;margin-top:14px;font-size:11px;color:#8b6914;line-height:1.7;backdrop-filter:blur(8px)}
+.notes{position:sticky;bottom:0;z-index:10;background:rgba(255,253,245,.92);border:1px solid rgba(254,240,199,.6);border-radius:10px;padding:12px 16px;margin-top:8px;font-size:11px;color:#8b6914;line-height:1.7;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 -2px 8px rgba(0,0,0,.04)}
 </style></head>
 <body><h1>📋 PCB 价目表管理</h1>
-<p class="sub">数据保存在浏览器本地。供应商增删改需点"保存"生效。</p>
+<p class="sub">数据保存在浏览器本地。表头冻结 + 底部说明固定。供应商增删改需点"保存"。</p>
 <div class="toolbar">
 <button class="btn btn-pri" onclick="addRow()">+ 新增行</button>
 <button class="btn btn-grn" onclick="saveAll()">💾 保存</button>
@@ -51,7 +51,7 @@ input.pc:focus{background:#fff;border-color:#f5a623;box-shadow:0 0 0 3px rgba(24
 <div class="sup-section" id="supManage"><div style="width:100%;font-weight:600;margin-bottom:8px;color:#888">供应商管理（删除需确认）</div>
 <div style="display:flex;flex-wrap:wrap;gap:8px" id="supManageInner"></div></div>
 <div class="table-wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
-<div class="notes"><strong>备注：</strong><br>正创：不足1000元+100工程费。底面字符+5/㎡。绿油/黑油比白油贵5/㎡<br>鑫阳：CNC+50/㎡。喷锡+25/㎡。半孔+30/㎡。单面板最低1000(不足+200)。双面板最低1500(不足+300)<br>健达：OSP/曝光/喷锡/半孔四列。豪鹏赢：仅OSP</div>
+<div class="notes"><strong>备注：</strong> 正创：不足1000元+100工程费。底面字符+5/㎡。绿油/黑油比白油贵5/㎡ | 鑫阳：CNC+50/㎡。喷锡+25/㎡。半孔+30/㎡。单面板最低1000(不足+200)。双面板最低1500(不足+300) | 健达：OSP/曝光/喷锡/半孔四列 | 豪鹏赢：仅OSP</div>
 </body>
 </html><script>
 var BS=["m","l","p","i","md","v","t","c"],BN={"m":"物料名","l":"层数","p":"工艺","i":"油墨颜色","md":"油墨方式","v":"耐压","t":"厚度","c":"铜厚"};
