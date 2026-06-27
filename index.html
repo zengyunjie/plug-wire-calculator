@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -473,7 +473,13 @@ document.head.appendChild(chartScript);
     .form-grid-2, .form-grid-3, .form-grid-4 { grid-template-columns: 1fr !important; }
     .cost-breakdown { grid-template-columns: 1fr; }
   }
-</style>
+.page-panel{background:rgba(255,255,255,.75);border-radius:16px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.05);padding:20px;margin-top:12px}
+.card,body .card{background:rgba(255,255,255,.7);border-radius:14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.9);box-shadow:0 1px 4px rgba(0,0,0,.04);padding:16px;margin-bottom:12px}
+.btn-modern,.btn,.tab-btn,.action-btn{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:10px!important;transition:all .2s}
+.tab-btn{background:rgba(255,255,255,.65)!important;border:1px solid rgba(255,255,255,.8)!important;box-shadow:0 1px 3px rgba(0,0,0,.04)!important;color:#555!important;padding:8px 18px!important}
+.tab-btn.active{background:rgba(54,100,251,.9)!important;color:#fff!important;border-color:rgba(54,100,251,.3)!important;box-shadow:0 2px 8px rgba(54,100,251,.25)!important}
+.top-nav,.top-nav .tabs{background:rgba(255,255,255,.6);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.8);border-radius:0}
+.form-section,.form-group,.input-field,.result-card{border-radius:12px}.description-text{color:#86868b}</style>
 </head>
 <body>
 
@@ -1913,6 +1919,8 @@ window.addEventListener('DOMContentLoaded', function() {
   <iframe src="pcb-calculator.html" style="width:100%;min-height:900px;border:none;border-radius:8px"></iframe>
 </div></body>
 </html>
+
+
 
 
 
