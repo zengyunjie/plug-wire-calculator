@@ -54,7 +54,7 @@ var DS=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"
 {"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.6mm","c":"35μm","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":310,"hl_exp":325,"hl_spray":335,"xy_osp":524,"xy_exp":539,"xy_spray":539,"xy_half":569,"jd_osp":440,"jd_exp":440,"jd_spray":null,"jd_half":null,"hpy_osp":null}
 ];
 function nv(v){return v===null||v===undefined?"":String(v)}
-function ac(){var c=[];DS.forEach(function(s){s.subs.forEach(function(sb){c.push(sb.id)})});return c}
+function ac(){var c=[];sm.forEach(function(s){s.subs.forEach(function(sb){c.push(sb.id)})});return c}
 function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].m&&t[0].m.length>0)return t}catch(e){}}localStorage.removeItem("pcb_price_data");return JSON.parse(JSON.stringify(DP))}
 function loadSM(){var d=localStorage.getItem("pcb_supplier_meta");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}catch(e){}}return JSON.parse(JSON.stringify(DS))}
 var pd=loadP(),sm=loadSM(),pendingRowIdx=[];
@@ -78,7 +78,7 @@ function renderTable(){
     h+='<td><button class="btn btn-del" style="height:26px;font-size:10px;padding:0 8px" onclick="del('+i+')">删</button></td></tr>';
   });
   document.getElementById("tb").innerHTML=h;
-  setTimeout(unlockPendingRows,10);
+  unlockPendingRows();setTimeout(unlockPendingRows,10);
 }
 function unlockPendingRows(){
   pendingRowIdx.forEach(function(idx){
