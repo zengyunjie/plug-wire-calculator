@@ -3,38 +3,39 @@
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>PCB 价目表管理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;background:#f5f7fa;color:#1a1a2e;padding:20px;min-width:900px}
-h1{font-size:20px;font-weight:700}.sub{color:#999;font-size:12px;margin:4px 0 16px}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;align-items:center}
-.btn{height:34px;padding:0 14px;border:none;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
-.btn-pri{background:#3664fb;color:#fff}.btn-pri:hover{background:#2952d8}
-.btn-out{background:#fff;color:#3664fb;border:1px solid #3664fb}.btn-out:hover{background:#f0f5ff}
-.btn-del{background:#e74c3c;color:#fff}.btn-del:hover{background:#c0392b}
-.btn-grn{background:#22a022;color:#fff}.btn-grn:hover{background:#1a7d1a}
-.btn-admin{background:#fef0c7;color:#8b6914;border:1px solid #f5a623;height:28px;font-size:11px;padding:0 10px}
-.btn-admin.active{background:#f5a623;color:#fff}
-.table-wrap{overflow-x:auto;overflow-y:visible;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-top:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Noto Sans SC",sans-serif;background:linear-gradient(135deg,#f0f4f8,#e8eef4,#f5f7fa);color:#1a1a2e;padding:28px 20px;min-height:100vh}
+h1{font-size:22px;font-weight:700;letter-spacing:-.3px}.sub{color:#86868b;font-size:13px;margin:4px 0 20px}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;align-items:center}
+.btn{height:36px;padding:0 16px;border:none;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:-.1px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-pri{background:rgba(54,100,251,.9);color:#fff;box-shadow:0 2px 8px rgba(54,100,251,.25)}.btn-pri:hover{background:rgba(54,100,251,1);transform:translateY(-1px);box-shadow:0 4px 12px rgba(54,100,251,.35)}
+.btn-out{background:rgba(255,255,255,.8);color:#3664fb;border:1px solid rgba(54,100,251,.2);box-shadow:0 1px 3px rgba(0,0,0,.04)}.btn-out:hover{background:rgba(54,100,251,.08);border-color:rgba(54,100,251,.4)}
+.btn-del{background:rgba(231,76,60,.09);color:#e74c3c;border:1px solid rgba(231,76,60,.2)}.btn-del:hover{background:rgba(231,76,60,.15)}
+.btn-grn{background:rgba(34,160,34,.9);color:#fff;box-shadow:0 2px 8px rgba(34,160,34,.2)}.btn-grn:hover{background:#22a022;transform:translateY(-1px)}
+.btn-warn{background:rgba(255,153,0,.1);color:#996600;border:1px solid rgba(255,153,0,.25)}.btn-warn:hover{background:rgba(255,153,0,.15)}
+.sup-section{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0;padding:14px 18px;background:rgba(255,255,255,.7);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.sup-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(54,100,251,.06);padding:6px 14px;border-radius:20px;font-size:12px;border:1px solid rgba(54,100,251,.12);color:#3664fb;font-weight:500}
+.sup-card{background:rgba(255,255,255,.8);border:1px solid rgba(0,0,0,.06);border-radius:12px;padding:14px 16px;min-width:160px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.sup-name{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:6px}.sup-subs{font-size:11px;color:#86868b}
+.table-wrap{overflow-x:scroll;overflow-y:visible;background:rgba(255,255,255,.75);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.05);margin-top:12px}
+.table-wrap::-webkit-scrollbar{height:8px;width:8px}
+.table-wrap::-webkit-scrollbar-track{background:rgba(0,0,0,.04);border-radius:4px}
+.table-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
 table{border-collapse:collapse;font-size:12px;min-width:1800px;width:max-content}
-th,td{border:1px solid #eef1f5;padding:6px 8px;text-align:center;white-space:nowrap}
-th{background:#f8fafd;font-weight:600;font-size:11px;color:#666;position:sticky;top:0;z-index:1}
-th.sup{background:#eef3ff;color:#3664fb;font-size:12px}
-input{width:85px;border:1px solid #e8ecf0;border-radius:6px;padding:5px 6px;font-size:12px;text-align:center;outline:none;transition:border-color .15s;background:#fff}
-input:focus{border-color:#3664fb;background:#fafcff}
-input.pc{background:#fffdf5;width:65px}
-.gr td{background:#eef3ff;font-weight:600;text-align:left;padding:8px 12px;border-top:2px solid #3664fb;color:#3664fb;font-size:13px;border-bottom:none}
-.rn{font-size:9px;color:#bbb;width:30px;min-width:30px}
-.notebox{background:#fffdf5;border:1px solid #fef0c7;border-radius:8px;padding:12px 16px;margin-top:14px;font-size:11px;color:#8b6914;line-height:1.7}
-.st{font-size:11px;color:#22a022;margin-left:10px}
-.sup-section{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0;padding:12px 16px;background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
-.sup-card{background:#f8fafd;border:1px solid #eef1f5;border-radius:10px;padding:12px 14px;min-width:180px}
-.sup-card .sup-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:4px}
-.sup-card .sup-subs{font-size:11px;color:#888}
-.sup-card .sup-del{background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;display:none}
-.sup-card .sup-del.visible{display:inline-block}
-.sup-card .sup-del:hover{background:#fde8e8}
+th,td{border:1px solid rgba(0,0,0,.06);padding:7px 9px;text-align:center;white-space:nowrap}
+th{background:rgba(248,250,253,.95);font-weight:600;font-size:11px;color:#666;letter-spacing:.2px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+th.sup{background:rgba(239,244,255,.95);color:#3664fb;font-size:12px;font-weight:600}
+input{width:85px;border:1px solid rgba(0,0,0,.1);border-radius:7px;padding:6px 7px;font-size:12px;text-align:center;outline:none;transition:all .15s;background:rgba(255,255,255,.8)}
+input:focus{border-color:#3664fb;background:#fff;box-shadow:0 0 0 3px rgba(54,100,251,.08)}
+input.pc{background:rgba(255,253,245,.9);width:65px;border:1px solid rgba(180,160,100,.2)}
+input.pc:focus{background:#fff;border-color:#f5a623;box-shadow:0 0 0 3px rgba(245,166,35,.1)}
+.gr td{background:rgba(239,244,255,.9);font-weight:600;text-align:left;padding:9px 14px;border-top:2px solid #3664fb;color:#3664fb;font-size:13px;letter-spacing:-.2px}
+.rn{font-size:10px;color:#aaa;width:32px;min-width:32px}
+.notes{background:rgba(255,253,245,.8);border:1px solid rgba(254,240,199,.6);border-radius:10px;padding:14px 18px;margin-top:14px;font-size:11px;color:#8b6914;line-height:1.7;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.st{font-size:11px;color:#22a022;margin-left:10px;font-weight:500}
 </style></head><body>
 <h1>📋 PCB 价目表管理</h1>
-<p class="sub">数据保存在浏览器本地。增/删/改供应商单价后点"保存"。</p>
+<p class="sub">数据保存在浏览器本地。供应商增删改需点"保存"生效。</p>
 <div class="toolbar">
   <button class="btn btn-pri" onclick="addRow()">+ 新增行</button>
   <button class="btn btn-grn" onclick="saveAll()">💾 保存</button>
@@ -44,16 +45,16 @@ input.pc{background:#fffdf5;width:65px}
   <span class="st" id="st"></span>
 </div>
 <div class="sup-section">
-  <div style="font-weight:600;color:#555;margin-right:8px">供应商：</div>
-  <div style="display:flex;flex-wrap:wrap;gap:10px" id="supList"></div>
-  <button class="btn btn-pri" onclick="addSupplier()" style="height:30px;font-size:12px">+ 新增供应商</button>
+  <div style="font-weight:600;color:#666;margin-right:8px;letter-spacing:-.2px">供应商：</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px" id="supList"></div>
+  <button class="btn btn-pri" onclick="addSupplier()" style="height:32px;font-size:12px;padding:0 14px">+ 新增供应商</button>
 </div>
-<div class="sup-section" id="supManage" style="display:none">
-  <div style="width:100%;font-weight:600;margin-bottom:8px;color:#888">供应商管理（管理员功能，选择供应商后删除）</div>
+<div class="sup-section" id="supManage">
+  <div style="width:100%;font-weight:600;margin-bottom:8px;color:#888;letter-spacing:-.2px">供应商管理（删除需确认）</div>
   <div style="display:flex;flex-wrap:wrap;gap:8px" id="supManageInner"></div>
 </div>
 <div class="table-wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
-<div class="notebox"><strong>备注：</strong><br>正创：不足1000元+100工程费。底面字符+5/㎡。绿油/黑油比白油贵5/㎡<br>鑫阳：CNC+50/㎡。喷锡+25/㎡。半孔+30/㎡。单面板最低1000(不足+200)。双面板最低1500(不足+300)<br>健达：OSP/曝光/喷锡/半孔四列。豪鹏赢：仅OSP</div>
+<div class="notes"><strong>备注：</strong><br>正创：不足1000元+100工程费。底面字符+5/㎡。绿油/黑油比白油贵5/㎡<br>鑫阳：CNC+50/㎡。喷锡+25/㎡。半孔+30/㎡。单面板最低1000(不足+200)。双面板最低1500(不足+300)<br>健达：OSP/曝光/喷锡/半孔四列。豪鹏赢：仅OSP</div>
 <script>
 var BS=["m","l","p","i","md","v","t","c"],BN={"m":"物料名","l":"层数","p":"工艺","i":"油墨颜色","md":"油墨方式","v":"耐压","t":"厚度","c":"铜厚"};
 var DS=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"zc_exp","label":"曝光+15"},{"id":"zc_spray","label":"喷锡+15"}]},{"id":"hl","name":"恒丽","subs":[{"id":"hl_osp","label":"OSP"},{"id":"hl_exp","label":"曝光+15"},{"id":"hl_spray","label":"喷锡+10"}]},{"id":"xy","name":"鑫阳","subs":[{"id":"xy_osp","label":"OSP"},{"id":"xy_exp","label":"曝光+15"},{"id":"xy_spray","label":"喷锡+20"},{"id":"xy_half","label":"半孔+30"}]},{"id":"jd","name":"健达","subs":[{"id":"jd_osp","label":"OSP"},{"id":"jd_exp","label":"曝光"},{"id":"jd_spray","label":"喷锡+15"},{"id":"jd_half","label":"半孔+50"}]},{"id":"hpy","name":"豪鹏赢","subs":[{"id":"hpy_osp","label":"OSP"}]}],DP=[
@@ -74,48 +75,35 @@ var DS=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"
   {"m":"FR-4玻纤板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.0mm","c":"25μm","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":150,"hl_exp":165,"hl_spray":175,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
   {"m":"FR-4玻纤板","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.0mm","c":"25μm","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":260,"hl_exp":275,"hl_spray":285,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null}
 ];
-
 function nv(v){return v===null||v===undefined?"":String(v)}
 function ac(){var c=[];DS.forEach(function(s){s.subs.forEach(function(sb){c.push(sb.id)})});return c}
-
 function loadP(){var d=localStorage.getItem("pcb_price_data");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].m&&t[0].m.length>0)return t}catch(e){}}localStorage.removeItem("pcb_price_data");return JSON.parse(JSON.stringify(DP))}
 function loadSM(){var d=localStorage.getItem("pcb_supplier_meta");if(d){try{var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}catch(e){}}return JSON.parse(JSON.stringify(DS))}
 var pd=loadP(),sm=loadSM();
-var adminMode=false;
-
-function toggleAdmin(){
-  adminMode=!adminMode;
-  if(adminMode){
-    var pw=prompt("请输入管理员密码：(默认 admin123)");
-    if(pw!=="admin123"){adminMode=false;alert("密码错误");return}
-  }
-  document.getElementById("supManage").style.display=adminMode?"block":"none";
-  renderSup();
-}
-
 function saveAll(){
   var allc=ac(),ins=document.querySelectorAll("#tb input");
   ins.forEach(function(inp){var i=parseInt(inp.dataset.i),f=inp.dataset.f,v=inp.value.trim();
     if(f&&i>=0&&pd[i]){if(v==="")v=null;else if(allc.indexOf(f)>=0){var pv=parseFloat(v);if(!isNaN(pv))v=pv;else v=null}pd[i][f]=v}});
   localStorage.setItem("pcb_price_data",JSON.stringify(pd));localStorage.setItem("pcb_supplier_meta",JSON.stringify(sm));
-  renderTable();renderSup();var el=document.getElementById("st");el.textContent="OK "+new Date().toLocaleTimeString();
+  renderTable();renderSup();var el=document.getElementById("st");el.textContent="✅ 已保存 "+new Date().toLocaleTimeString();
   setTimeout(function(){el.textContent=""},3000);
 }
-
 function renderTable(){
   pd.sort(function(a,b){return(a.m||"").localeCompare(b.m||"")||(a.l||"").localeCompare(b.l||"")||(a.t||"").localeCompare(b.t||"")});
   var allc=ac(),tsc=allc.length;
-  var hdr='<tr><th>#</th>';BS.forEach(function(f){hdr+='<th>'+BN[f]+'</th>'});
-  sm.forEach(function(s){hdr+='<th class="sup" colspan="'+s.subs.length+'">'+s.name+'</th>'});
-  hdr+='<th>操作</th></tr><tr><th></th>';BS.forEach(function(f){hdr+='<th></th>'});
-  sm.forEach(function(s){s.subs.forEach(function(sb){hdr+='<th style="font-size:10px">'+sb.label+'</th>'})});
-  hdr+='<th></th></tr>';document.getElementById("th").innerHTML=hdr;
-
+  var hdr='<tr style="position:sticky;top:0;z-index:3"><th style="position:sticky;top:0;left:0;z-index:4">#</th>';
+  BS.forEach(function(f){hdr+='<th style="position:sticky;top:0;z-index:3">'+BN[f]+'</th>'});
+  sm.forEach(function(s){hdr+='<th class="sup" style="position:sticky;top:0;z-index:3" colspan="'+s.subs.length+'">'+s.name+'</th>'});
+  hdr+='<th style="position:sticky;top:0;z-index:3">操作</th></tr>';
+  hdr+='<tr style="position:sticky;top:31px;z-index:2"><th style="position:sticky;top:31px;left:0;z-index:2"></th>';
+  BS.forEach(function(f){hdr+='<th style="position:sticky;top:31px;z-index:2"></th>'});
+  sm.forEach(function(s){s.subs.forEach(function(sb){hdr+='<th style="position:sticky;top:31px;z-index:2;font-size:10px">'+sb.label+'</th>'})});
+  hdr+='<th style="position:sticky;top:31px;z-index:2"></th></tr>';
+  document.getElementById("th").innerHTML=hdr;
   var dls="";BS.forEach(function(f){
     var vs=new Set();pd.forEach(function(r){if(r[f])vs.add(r[f])});
     dls+='<datalist id="dl-'+f+'">'+Array.from(vs).sort().map(function(v){return'<option value="'+v+'">'}).join("")+'</datalist>';
   });
-
   var h=dls,lm="";
   pd.forEach(function(r,i){
     if(r.m!==lm){h+='<tr class="gr"><td colspan="'+(9+tsc)+'">📦 '+(r.m||"未分类")+'</td></tr>';lm=r.m}
@@ -126,18 +114,16 @@ function renderTable(){
   });
   document.getElementById("tb").innerHTML=h;
 }
-
 function renderSup(){
   var sl="",ml="";
   sm.forEach(function(s,i){
     var subs=s.subs.map(function(sb){return sb.label}).join(", ");
-    sl+='<span class="sup-tag"><strong>'+s.name+'</strong> ('+subs+')</span>';
-    ml+='<div class="sup-card"><div class="sup-name">'+s.name+'</div><div class="sup-subs">'+subs+'</div><button class="sup-del visible" onclick="delSup(&quot;'+s.id+'&quot;)">⚠ 删除此供应商</button></div>';
+    sl+='<span class="sup-tag">'+s.name+' <span style="font-weight:400;color:rgba(54,100,251,.7);font-size:10px">'+subs+'</span></span>';
+    ml+='<div class="sup-card"><div class="sup-name">'+s.name+'</div><div class="sup-subs">'+subs+'</div><button class="btn btn-del" style="height:28px;font-size:11px;padding:0 10px;margin-top:8px" onclick="delSup(&quot;'+s.id+'&quot;)">⚠ 删除</button></div>';
   });
   document.getElementById("supList").innerHTML=sl;
   document.getElementById("supManageInner").innerHTML=ml||'暂无供应商数据';
 }
-
 function addRow(){var o={};BS.forEach(function(f){o[f]=""});ac().forEach(function(c){o[c]=null});pd.push(o);renderTable()}
 function del(i){if(confirm("确认删除？")){pd.splice(i,1);renderTable()}}
 function addSupplier(){
@@ -146,10 +132,9 @@ function addSupplier(){
   if(sm.some(function(s){return s.id===id})){alert("已存在");return}
   var subs=[{id:id+"_osp",label:"OSP"},{id:id+"_exp",label:"曝光+15"},{id:id+"_spray",label:"喷锡+15"}];
   sm.unshift({id:id,name:n.trim(),subs:subs});pd.forEach(function(r){subs.forEach(function(s){r[s.id]=null})});saveAll()}
-function delSup(sid){var s=sm.find(function(x){return x.id===sid});if(!s)return;if(!confirm("⚠ 删除供应商 "+s.name+"？\n\n所有该供应商的价格数据将被清除！\n此操作不可恢复。"))return;
+function delSup(sid){var s=sm.find(function(x){return x.id===sid});if(!s)return;if(!confirm("⚠ 删除供应商 "+s.name+"？\n\n所有该供应商的价格数据将被清除！"))return;
   var cols=s.subs.map(function(sb){return sb.id});pd.forEach(function(r){cols.forEach(function(c){delete r[c]})});sm=sm.filter(function(x){return x.id!==sid});saveAll()}
 function resetAll(){if(!confirm("重置默认？"))return;pd=JSON.parse(JSON.stringify(DP));sm=JSON.parse(JSON.stringify(DS));saveAll()}
 function exportJSON(){var d={v:2,p:pd,s:sm};var b=new Blob([JSON.stringify(d,null,2)],{type:"application/json"});var a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="pcb_price_data.json";a.click()}
 function importJSON(){var inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(d.v===2){pd=d.p;sm=d.s;saveAll();return}if(Array.isArray(d)){pd=d;saveAll();return}alert("格式错误")}catch(ex){alert("解析失败:"+ex.message)}};r.readAsText(f)};inp.click()}
-renderTable();renderSup();
-</script></body></html>
+renderTable();renderSup()</script></body></html>
