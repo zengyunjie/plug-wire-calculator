@@ -180,7 +180,7 @@ function calcPanel(){
   var b=panelResults[0];div.style.display="block";
   div.innerHTML='<div class="pr"><div class="pv"><div class="hd">排列</div><div class="vl">'+b.rows+'行x'+b.cols+'列</div></div><div class="pv"><div class="hd">拼板数</div><div class="vl">'+b.qty+'片</div></div><div class="pv"><div class="hd">拼板尺寸</div><div class="vl">'+b.pw+'x'+b.ph+'mm</div></div><div class="pv"><div class="hd">面积</div><div class="vl">'+b.area.toFixed(4)+'m²</div></div><div class="pv"><div class="hd">利用率</div><div class="vl">'+b.util.toFixed(1)+'%</div></div><div class="pv"><div class="hd">方式</div><div class="vl" style="font-size:13px">'+b.method+'</div></div></div>';
   var sel='<div style="margin-top:8px;font-size:11px;color:#999">其他方案：<select onchange="selectAlt(this.value)" style="font-size:11px;padding:2px 4px;line-height:1.3;border-radius:6px;border:1px solid #e2e6ed;width:100%;max-width:600px;height:auto;min-height:0">';
-  var tq=parseInt(document.getElementById("targetQty").value)||0;var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(r,i){sel+='<option value="'+i+'">'+(i+1)+'. '+r.rows+'x'+r.cols+' ('+r.qty+'片) '+r.pw+'x'+r.ph+'mm | '+r.util.toFixed(1)+'% | '+r.method+'</option>'});
+  var tq=parseInt(document.getElementById("targetQty").value)||0;var tq=parseInt(document.getElementById("targetQty").value)||0;var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(r,i){sel+='<option value="'+i+'">'+(i+1)+'. '+r.rows+'x'+r.cols+' ('+r.qty+'片) '+r.pw+'x'+r.ph+'mm | '+r.util.toFixed(1)+'% | '+r.method+'</option>'});
   sel+='</select></div>';div.innerHTML+=sel;updateComparison();
 }
 
@@ -188,7 +188,7 @@ function selectAlt(idx){idx=parseInt(idx);var r=panelResults[idx];if(!r)return;s
   var div=document.getElementById("panelResult");
   div.innerHTML='<div class="pr"><div class="pv"><div class="hd">排列</div><div class="vl">'+r.rows+'行x'+r.cols+'列</div></div><div class="pv"><div class="hd">拼板数</div><div class="vl">'+r.qty+'片</div></div><div class="pv"><div class="hd">拼板尺寸</div><div class="vl">'+r.pw+'x'+r.ph+'mm</div></div><div class="pv"><div class="hd">面积</div><div class="vl">'+r.area.toFixed(4)+'m²</div></div><div class="pv"><div class="hd">利用率</div><div class="vl">'+r.util.toFixed(1)+'%</div></div><div class="pv"><div class="hd">方式</div><div class="vl" style="font-size:13px">'+r.method+'</div></div></div>';
   var sel='<div style="margin-top:8px;font-size:11px;color:#999">其他方案：<select onchange="selectAlt(this.value)" style="font-size:11px;padding:2px 4px;line-height:1.3;border-radius:6px;border:1px solid #e2e6ed;width:100%;max-width:600px;height:auto;min-height:0">';
-  var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(rr,i){sel+='<option value="'+i+'"'+(i===idx?' selected':'')+'>'+(i+1)+'. '+rr.rows+'x'+rr.cols+' ('+rr.qty+'片) '+rr.pw+'x'+rr.ph+'mm | '+rr.util.toFixed(1)+'% | '+rr.method+'</option>'});
+  var tq=parseInt(document.getElementById("targetQty").value)||0;var maxShow=tq===0?Math.min(50,panelResults.length):10;panelResults.slice(0,maxShow).forEach(function(rr,i){sel+='<option value="'+i+'"'+(i===idx?' selected':'')+'>'+(i+1)+'. '+rr.rows+'x'+rr.cols+' ('+rr.qty+'片) '+rr.pw+'x'+rr.ph+'mm | '+rr.util.toFixed(1)+'% | '+rr.method+'</option>'});
   sel+='</select></div>';div.innerHTML+=sel;updateComparison();
 }
 
