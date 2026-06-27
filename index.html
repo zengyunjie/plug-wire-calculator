@@ -4,15 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>成本测算工具</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
 <script>
   // 登录检查：未登录则重定向到 login.html
-  if (!isLoggedIn()) {
+  if (typeof isLoggedIn !== "function" || !isLoggedIn()) {
     window.location.href = 'login.html';
   }
 </script>
+<script>if(typeof Chart==="undefined"){window.Chart=function(){return this};window.Chart.register=function(){};}
+console.log("Chart stub ready, actual:",typeof Chart==="function"? "loaded":"stub");</script>
+<script>
+window.chartJsLoaded=false;
+var chartScript=document.createElement("script");
+chartScript.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+chartScript.onload=function(){window.chartJsLoaded=true;};
+chartScript.onerror=function(){console.warn("chart.js failed to load")};
+document.head.appendChild(chartScript);
+</script>
+<script src="bcrypt.min.js" defer></script>
 <style>
   :root {
     --primary: #1a6fc4;
@@ -477,6 +486,7 @@
     <button class="tab-btn" onclick="switchPage('alu')">🔩 铝型材</button>
     <button class="tab-btn" onclick="switchPage('plastic')">🧩 塑胶件</button>
     <button class="tab-btn" onclick="switchPage('pcb')">📟 PCB</button>
+    <button class="tab-btn" id="adminNavBtn" style="display:none" onclick="window.open('pcb_price_admin.html','_blank','width=1300,height=800')">📋 价目表</button>
   </div>
   <div class="user-area" id="userArea">
     <span class="user-name" id="userBadge" style="cursor:pointer;" title="点击管理账户"></span>
@@ -1877,6 +1887,13 @@ function clearPkg() {
 window.addEventListener('DOMContentLoaded', function() {
   // 初始化认证 UI（显示用户名徽章）
   initUserUI();
+  // 管理员导航按钮
+  try {
+    if (typeof isAdmin === "function" && isAdmin()) {
+      var adminBtn = document.getElementById("adminNavBtn");
+      if (adminBtn) adminBtn.style.display = "";
+    }
+  } catch(e) { console.error("Admin nav error:", e); }
   refreshCurrentUser();
 
   onInsulationChange();

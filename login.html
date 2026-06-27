@@ -7,11 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>登录 - 成本测算工具</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
+<script src="bcrypt.min.js" defer></script>
 <script>
   // bcryptjs 就绪检查（同步脚本加载后应立即可用）
   var _bcryptReady = false;
@@ -247,7 +244,7 @@
 // ==================== 初始化 ====================
 
 // 如果已登录，直接跳转到首页
-if (isLoggedIn()) {
+if (typeof isLoggedIn === "function" && isLoggedIn()) {
   window.location.href = 'index.html';
 }
 
