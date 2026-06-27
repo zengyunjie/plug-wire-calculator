@@ -202,7 +202,7 @@ function updateComparison(){
   var vs=selectedSpec.via>15?Math.ceil(selectedSpec.via-15)*3:0,pa=panelResults[selectedArrIdx].area,pq=panelResults[selectedArrIdx].qty,h="";
    var supColors={},colorIdx=0;var colorNames=["正创","恒丽","鑫阳","健达","豪鹏赢","其它"];
    SUP.forEach(function(su){
-     var v=null;for(var mi=0;mi<matches.length;mi++){if(matches[mi][su.c]!==null&&matches[mi][su.c]!==undefined){v=matches[mi][su.c];break}}if(v===null)return;
+     var v=m[su.c];if(v===null||v===undefined)return;
      var up=v+vs,total=up*pa,pu=pq>0?total/pq:0,note="";
      if(su.n==="正创")note="绿油/黑油+5/㎡ 底面字符+5/㎡";else if(su.n==="鑫阳")note="CNC+50/㎡ 喷锡+25/㎡ 半孔+30/㎡";else if(su.n==="健达")note="最低消费另计";
      if(vs>0)note+=(note?" ":"")+"超孔+"+vs+"元/㎡";
