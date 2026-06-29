@@ -254,7 +254,7 @@ async function loadAdminUserList() {
 }
 
 // 弹窗内渲染用户列表
-function renderAdminUserList() {
+var _modPending = {};function markModuleChange(uid,mid,chk){if(!_modPending[uid])_modPending[uid]={};_modPending[uid][mid]=chk}function saveAllModules(){var uids=Object.keys(_modPending);if(uids.length===0){alert("没有待保存的更改");return}var ps=uids.map(function(uid){var ms=[];ALL_MODULES.forEach(function(m){if(_modPending[uid][m.id])ms.push(m.id)});return supabaseUpdate("app_users",{id:uid},{modules:ms})});Promise.all(ps).then(function(){_modPending={};alert("模块权限已保存");loadAdminUserList()}).catch(function(e){alert("保存失败："+e.message)});}function renderAdminUserList() {
   var container = document.getElementById('adminUserList');
   if (!container || !_allUsers) return;
 
@@ -263,8 +263,8 @@ function renderAdminUserList() {
 
   // 按
 // ==================== MODULE PERMISSION TOGGLE ====================
-function buildModuleCheckboxes(u){var mods=u.modules||[];var h="";ALL_MODULES.forEach(function(md){var checked=(mods.length===0||mods.indexOf(md.id)>=0)?"checked":"";h+="<label style=\'display:inline-block;margin:0 2px;cursor:pointer;font-size:11px\' title=\""+md.label+"\"><input type=\"checkbox\" "+checked+" onchange=\"adminToggleModule(\'"+u.id+"\',\'"+md.id+"\',this.checked)\">"+md.icon+"</label>";});return h+"<br><span style=\'color:#94A3B8;font-size:9px\'>点击勾选保存</span>";}
-function adminToggleModule(userId,modId,checked){var u=null;for(var i=0;i<_allUsers.length;i++){if(_allUsers[i].id===userId){u=_allUsers[i];break}}if(!u){alert("用户数据不存在");return}var mods=u.modules||ALL_MODULES.map(function(m){return m.id});var idx=mods.indexOf(modId);if(checked&&idx<0)mods.push(modId);else if(!checked&&idx>=0)mods.splice(idx,1);supabaseUpdate("app_users",{id:userId},{modules:mods}).then(function(){loadAdminUserList()}).catch(function(e){alert("保存失败:"+e.message)});}
+function buildModuleCheckboxes(u){var mods=u.modules||[];var h="";ALL_MODULES.forEach(function(md){var checked=(mods.length===0||mods.indexOf(md.id)>=0)?"checked":"";h+="<label style=\'display:inline-block;margin:0 2px;cursor:pointer;font-size:11px\' title=\""+md.label+"\"><input type=\"checkbox\" "+checked+" onchange=\"markModuleChange(\'"+u.id+"\',\'"+md.id+"\',this.checked)\">"+md.icon+"</label>";});return h+"<br><span style=\'color:#94A3B8;font-size:9px\'>点击勾选保存</span>";}
+function markModuleChange(userId,modId,checked){var u=null;for(var i=0;i<_allUsers.length;i++){if(_allUsers[i].id===userId){u=_allUsers[i];break}}if(!u){alert("用户数据不存在");return}var mods=u.modules||ALL_MODULES.map(function(m){return m.id});var idx=mods.indexOf(modId);if(checked&&idx<0)mods.push(modId);else if(!checked&&idx>=0)mods.splice(idx,1);supabaseUpdate("app_users",{id:userId},{modules:mods}).then(function(){loadAdminUserList()}).catch(function(e){alert("保存失败:"+e.message)});}
 if (_userFilter === 'pending') {
     users = users.filter(function(u) { return u.is_approved === false; });
   } else if (_userFilter === 'active') {
