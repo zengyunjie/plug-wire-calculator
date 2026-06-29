@@ -8,6 +8,17 @@ const SUPABASE_REST_URL = SUPABASE_URL + "/rest/v1/";
 // 用户列表缓存（管理员页面用）
 var _allUsers = null;
 var _userFilter = 'all';
+// MODULE PERMISSION DEFINITIONS
+var ALL_MODULES = [
+  {id:'plug',label:'��ͷ��',icon:'\u{1f50c}'},
+  {id:'pkg',label:'����',icon:'\u{1f4e6}'},
+  {id:'alu',label:'���Ͳ�',icon:'\u{1f529}'},
+  {id:'plastic',label:'�ܽ���',icon:'\u{1fa79}'},
+  {id:'pcb',label:'PCB',icon:'\u{1f4df}'}
+];
+function getUserModules(user){if(!user||user.role==='admin')return ALL_MODULES.map(function(m){return m.id});if(user.modules&&user.modules.length)return user.modules;return ALL_MODULES.map(function(m){return m.id})}
+function canAccessModule(mid){return getUserModules(getCurrentUser()).indexOf(mid)>=0}
+
 
 // ==================== 用户会话管理 ====================
 
@@ -47,6 +58,7 @@ async function refreshCurrentUser() {
         role: u.role,
         display_name: u.display_name || u.username,
         is_approved: u.is_approved !== false,
+        modules: u.modules,
         login_time: Date.now()
       }));
     }
@@ -249,7 +261,11 @@ function renderAdminUserList() {
   var currentUser = getCurrentUser();
   var users = _allUsers;
 
-  // 按筛选条件过滤
+  // 按
+// ==================== MODULE PERMISSION TOGGLE ====================
+function buildModuleCheckboxes(u){var mods=u.modules||[];var h="";ALL_MODULES.forEach(function(md){var checked=(mods.length===0||mods.indexOf(md.id)>=0)?"checked":"";h+="<label style=\'display:inline-block;margin:0 2px;cursor:pointer;font-size:11px\' title=\""+md.label+"\"><input type=\"checkbox\" "+checked+" onchange=\"adminToggleModule(\'"+u.id+"\',\'"+md.id+"\',this.checked)\">"+md.icon+"</label>";});return h+"<br><span style=\'color:#94A3B8;font-size:9px\'>点击勾选保存</span>";}
+function adminToggleModule(userId,modId,checked){var u=null;for(var i=0;i<_allUsers.length;i++){if(_allUsers[i].id===userId){u=_allUsers[i];break}}if(!u){alert("用户数据不存在");return}var mods=u.modules||ALL_MODULES.map(function(m){return m.id});var idx=mods.indexOf(modId);if(checked&&idx<0)mods.push(modId);else if(!checked&&idx>=0)mods.splice(idx,1);supabaseUpdate("app_users",{id:userId},{modules:mods}).then(function(){loadAdminUserList()}).catch(function(e){alert("保存失败:"+e.message)});}
+筛选条件过滤
   if (_userFilter === 'pending') {
     users = users.filter(function(u) { return u.is_approved === false; });
   } else if (_userFilter === 'active') {
@@ -275,7 +291,7 @@ function renderAdminUserList() {
     '<thead><tr style="border-bottom:2px solid #E2E8F0;text-align:left;color:#64748B;">' +
     '<th style="padding:6px 4px;">用户名</th>' +
     '<th style="padding:6px 4px;">角色</th>' +
-    '<th style="padding:6px 4px;">状态</th>' +
+    '<th style="padding:6px 4px;">状态</th><th style="padding:6px 4px;">模块</th>' +
     '<th style="padding:6px 4px;text-align:right;">操作</th>' +
     '</tr></thead><tbody>';
 
@@ -314,7 +330,7 @@ function renderAdminUserList() {
     html += '<tr style="border-bottom:1px solid #F1F5F9;' + (isMe ? 'background:#EFF6FF;' : '') + '">' +
       '<td style="padding:6px 4px;font-weight:600;color:#1E293B;">' + u.username + '</td>' +
       '<td style="padding:6px 4px;">' + roleHtml + '</td>' +
-      '<td style="padding:6px 4px;">' + statusHtml + '</td>' +
+      '<td style="padding:6px 4px;">' + statusHtml + '</td><td style="padding:6px 4px;font-size:10px;max-width:120px;white-space:normal;line-height:1.4">'+buildModuleCheckboxes(u)+'</td>' +
       '<td style="padding:6px 4px;text-align:right;white-space:nowrap;">' + actionsHtml + '</td>' +
       '</tr>';
   }

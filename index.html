@@ -1901,6 +1901,28 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   } catch(e) { console.error("Admin nav error:", e); }
   refreshCurrentUser();
+  // Module permission: hide inaccessible tabs
+  try{
+    var btns=document.querySelectorAll(".tab-btn");
+    for(var bi=0;bi<btns.length;bi++){
+      var b=btns[bi];
+      if(!b.id&&b.getAttribute("onclick")){
+        var m=b.getAttribute("onclick").match(/switchPage("(w+)")/);
+        if(m&&typeof canAccessModule==="function"&&!canAccessModule(m[1])){b.style.display="none"}
+      }
+    }
+    // Switch to first visible page
+    var firstV=null;
+    var panels=document.querySelectorAll(".page-panel");
+    for(var pi=0;pi<panels.length;pi++){
+      if(panels[pi].id){
+        var pid=panels[pi].id.replace("page-","");
+        var btn=document.querySelector('.tab-btn[onclick*="'+pid+'"]');
+        if(!btn||btn.style.display!=="none"){firstV=pid;break}
+      }
+    }
+    if(firstV)switchPage(firstV)
+  }catch(e){}
 
   onInsulationChange();
   onWireSpecChange();
