@@ -13,6 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
+<link rel="stylesheet" href="css/enhanced.css">
 <style>
   :root {
     --primary: #3B82F6;
@@ -490,6 +491,12 @@
     插头线成本计价
   </div>
   <div style="display:flex;gap:12px;margin-left:auto;align-items:center;">
+    <div class="action-buttons" style="display:flex;gap:8px;align-items:center;">
+      <button class="action-btn" onclick="saveScheme('plugWire')" title="保存方案">💾 保存</button>
+      <button class="action-btn" onclick="showHistory('plugWire')" title="历史记录">📋 历史</button>
+      <button class="action-btn" onclick="exportCSV('plugWire')" title="导出CSV">📊 导出</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色模式">🌙</button>
     <a href="pcb-calculator.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">🖥️ PCB板</a>
     <a href="packaging-aluminum.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">📦 包材</a>
     <a class="nav-back" href="index.html">← 返回首页</a>
@@ -1459,6 +1466,42 @@ window.addEventListener('resize', function() {
   if (mobileDetail && mobileFormula) {
     mobileDetail.style.display = isMobile ? '' : 'none';
     mobileFormula.style.display = isMobile ? '' : 'none';
+  }
+});
+</script>
+<script src="js/common.js"></script>
+<script>
+// 初始化深色模式
+initTheme();
+
+// 自动保存历史记录（防抖3秒）
+let autoSaveTimer = null;
+function autoSaveHistory() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(function() {
+    saveHistory('plugWire', collectPlugWireData());
+  }, 3000);
+}
+
+// 收集插头线计算数据
+function collectPlugWireData() {
+  const data = {};
+  const inputs = document.querySelectorAll('.input-wrap input, .input-wrap select');
+  inputs.forEach(input => {
+    if (input.id) {
+      data[input.id] = input.value;
+    }
+  });
+  data.totalCost = document.getElementById('mobileTotalCost')?.textContent || '—';
+  data.perMeterCost = document.getElementById('mobilePerMeter')?.textContent || '—';
+  data.timestamp = new Date().toISOString();
+  return data;
+}
+
+// 监听所有输入变化，触发自动保存
+document.addEventListener('input', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+    autoSaveHistory();
   }
 });
 </script>

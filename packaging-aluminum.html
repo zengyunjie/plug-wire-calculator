@@ -13,6 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 <script src="auth.js"></script>
+<link rel="stylesheet" href="css/enhanced.css">
 <style>
   :root {
     --primary: #F97316;
@@ -417,6 +418,12 @@
     包装 & 铝材成本测算
   </div>
   <div style="display:flex;gap:12px;margin-left:auto;align-items:center;">
+    <div class="action-buttons" style="display:flex;gap:8px;align-items:center;">
+      <button class="action-btn" onclick="saveCurrentScheme()" title="保存方案">💾 保存</button>
+      <button class="action-btn" onclick="showCurrentHistory()" title="历史记录">📋 历史</button>
+      <button class="action-btn" onclick="exportCurrentCSV()" title="导出CSV">📊 导出</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="切换深色模式">🌙</button>
     <a href="pcb-calculator.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">🖥️ PCB板</a>
     <a href="plug-wire.html" style="font-size:13px;font-weight:600;color:var(--slate-500);text-decoration:none;transition:color 0.2s;white-space:nowrap;">🔌 插头线</a>
     <a class="nav-back" href="index.html">← 返回首页</a>
@@ -1004,6 +1011,82 @@ function toggleSection(titleEl) {
 window.addEventListener('DOMContentLoaded', () => {
   selectType('纸盒');
   calcAlu();
+});
+</script>
+<script src="js/common.js"></script>
+<script>
+// 初始化深色模式
+initTheme();
+
+// 获取当前活动模块类型
+function getCurrentModuleType() {
+  const activeTab = document.querySelector('.tab-btn.active');
+  if (activeTab) {
+    const tabText = activeTab.textContent.trim();
+    if (tabText.includes('包装') || tabText.includes('纸盒') || tabText.includes('吸塑')) {
+      return 'packaging';
+    } else if (tabText.includes('铝型') || tabText.includes('铝材')) {
+      return 'aluminum';
+    }
+  }
+  // 默认检查显示的section
+  const packagingSection = document.getElementById('packagingSection');
+  if (packagingSection && packagingSection.style.display !== 'none') {
+    return 'packaging';
+  }
+  return 'aluminum';
+}
+
+// 保存当前方案
+function saveCurrentScheme() {
+  const type = getCurrentModuleType();
+  const data = collectModuleData(type);
+  saveScheme(type, data);
+}
+
+// 显示当前模块历史
+function showCurrentHistory() {
+  const type = getCurrentModuleType();
+  showHistory(type);
+}
+
+// 导出当前模块CSV
+function exportCurrentCSV() {
+  const type = getCurrentModuleType();
+  exportCSV(type);
+}
+
+// 收集模块数据
+function collectModuleData(type) {
+  const data = {};
+  const inputs = document.querySelectorAll('input, select');
+  inputs.forEach(input => {
+    if (input.id) {
+      data[input.id] = input.value;
+    }
+  });
+  const totalEl = document.getElementById('mobileResultTotal');
+  data.totalCost = totalEl ? totalEl.textContent : '—';
+  data.timestamp = new Date().toISOString();
+  return data;
+}
+
+// 自动保存历史记录（防抖3秒）
+let autoSaveTimer = null;
+function autoSaveHistory() {
+  if (autoSaveTimer) clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(function() {
+    const type = getCurrentModuleType();
+    const data = collectModuleData(type);
+    saveHistory(type, data);
+  }, 3000);
+}
+
+// 监听所有输入变化，触发自动保存
+document.addEventListener('input', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+    autoSaveHistory();
+  }
 });
 </script>
 </body>

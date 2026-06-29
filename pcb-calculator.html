@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>PCB 成本核算</title>
+<link rel="stylesheet" href="css/enhanced.css">
+<script src="js/common.js" defer></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif;background:#f5f7fa;color:#1a1a2e;padding:24px}
@@ -34,9 +36,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
  .sup-bg-0 td:first-child{position:relative}.sup-bg-0 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#3664fb}.sup-bg-1 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e67e22}.sup-bg-2 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#22a022}.sup-bg-3 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#e74c3c}.sup-bg-4 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#8b5cf6}.sup-bg-5 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#0d9488}.sup-bg-6 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#d97706}.sup-bg-7 td:first-child::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:#6366f1}
 .notes{background:#fffdf5;border:1px solid #fef0c7;border-radius:8px;padding:12px 16px;margin-top:12px;font-size:11px;color:#8b6914;line-height:1.7}
 .al{text-align:right;margin-bottom:10px;font-size:12px}.al a{color:#999;text-decoration:none;cursor:pointer}.al a:hover{color:#3664fb}
+
+/* 深色模式 */
+body.dark-mode{background:#1a1a2e;color:#e5e7eb}
+body.dark-mode .card{background:#16213e;border-color:#1e3a5f}
+body.dark-mode .ct{color:#e5e7eb;border-color:#1e3a5f}
+body.dark-mode .sb{background:#0f3460;border-color:#1e3a5f;color:#e5e7eb}
+body.dark-mode .sb:hover{border-color:#3664fb;color:#93c5fd}
+body.dark-mode .sb.sel{background:#3664fb;color:#fff}
+body.dark-mode .ic label{color:#9ca3af}
+body.dark-mode .ic input{background:#0f3460;border-color:#1e3a5f;color:#e5e7eb}
+body.dark-mode .ic input:focus{border-color:#3664fb;box-shadow:0 0 0 3px rgba(54,100,251,.2)}
+body.dark-mode .btn.bo{background:#16213e;border-color:#1e3a5f;color:#e5e7eb}
+body.dark-mode .btn.bo:hover{background:#1e3a5f}
+body.dark-mode .pr{background:#0f3460}
+body.dark-mode .pv .hd{color:#9ca3af}
+body.dark-mode .pv .vl{color:#60a5fa}
+body.dark-mode .cp th{background:#0f3460;color:#9ca3af;border-color:#1e3a5f}
+body.dark-mode .cp td{border-bottom-color:#1e3a5f;color:#d1d5db}
+body.dark-mode .cp tr:hover td{background:#16213e}
+body.dark-mode .price-num{color:#d1d5db}
+body.dark-mode .notes{background:#1a1a2e;border-color:#2d2d44;color:#a78bfa}
+body.dark-mode h1{color:#e5e7eb}
+body.dark-mode .sub{color:#6b7280}
+body.dark-mode .al a{color:#6b7280}
+body.dark-mode .al a:hover{color:#60a5fa}
 </style></head><body><div class="c">
 <div class="al" id="adminLink" style="display:none"><a href="#" onclick="window.open('pcb_price_admin.html','_blank','width=1300,height=800')">📋 管理员编辑价目表</a></div>
-<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h1>PCB 成本核算 &amp; 供应商比价</h1><p class="sub">选择规格 → 匹配单价 → 拼版测算 → 每块 PCB 成本</p></div><div><button class="btn bo" onclick="clearAll()">🔄 清除</button></div></div>
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><h1>PCB 成本核算 &amp; 供应商比价</h1><p class="sub">选择规格 → 匹配单价 → 拼版测算 → 每块 PCB 成本</p></div><div style="display:flex;gap:8px;align-items:center"><button class="btn bo" onclick="togglePcbTheme()" id="pcbThemeBtn">🌙</button><button class="btn bo" onclick="clearAll()">🔄 清除</button></div></div>
 <div class="card"><div class="ct">规格参数选择</div><div id="specArea"></div></div>
  <div class="card"><div class="ct">单板尺寸 &amp; 拼板测算</div>
  <div class="ir"><div class="ic"><label>板长 L (mm)</label><input type="number" id="boardL" value="74" min="1" step="0.1"></div>
@@ -54,39 +81,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans
 <table class="cp"><thead><tr><th>供应商</th><th>规格</th><th>单价</th><th>超孔</th><th>面积</th><th>拼板数</th><th>拼板价</th><th>单板价</th><th>说明</th></tr></thead><tbody id="cb"></tbody></table></div>
 <div class="notes" id="notesArea"></div></div></div>
 <script>
-var NOTES="<strong>备注：</strong><br>"+"<strong>正创：</strong>不足1000元+100工程费；底面字符+5/㎡；绿油/黑油比白油贵5/㎡<br><strong>鑫阳：</strong>CNC+50/㎡；喷锡+25/㎡；半孔+30/㎡；单面板最低1000(不足+200)<br><strong>鑫阳：</strong>双面板最低1500(不足+300)<br><strong>健达：</strong>OSP/曝光/喷锡/半孔分列<br><strong>豪鹏赢：</strong>仅OSP";
-var DATA_TS="20260627";var PDEF=[
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞3750V","t":"1.0mm","c":"25um","zc_osp":125,"zc_exp":140,"zc_spray":155,"hl_osp":175,"hl_exp":190,"hl_spray":200,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞3750V","t":"1.2mm","c":"25um","zc_osp":150,"zc_exp":165,"zc_spray":180,"hl_osp":190,"hl_exp":205,"hl_spray":215,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"25um","zc_osp":135,"zc_exp":150,"zc_spray":165,"hl_osp":130,"hl_exp":145,"hl_spray":155,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"35um","zc_osp":145,"zc_exp":160,"zc_spray":175,"hl_osp":145,"hl_exp":160,"hl_spray":170,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"36um","zc_osp":168,"zc_exp":183,"zc_spray":198,"hl_osp":null,"hl_exp":15,"hl_spray":25,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.0mm","c":"35um","zc_osp":135,"zc_exp":150,"zc_spray":165,"hl_osp":120,"hl_exp":135,"hl_spray":145,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.0mm","c":"25um","zc_osp":125,"zc_exp":140,"zc_spray":155,"hl_osp":110,"hl_exp":125,"hl_spray":135,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"0.8mm","c":"25um","zc_osp":110,"zc_exp":125,"zc_spray":140,"hl_osp":100,"hl_exp":115,"hl_spray":125,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"≤1000V","t":"0.8mm","c":"12um","zc_osp":95,"zc_exp":110,"zc_spray":125,"hl_osp":85,"hl_exp":100,"hl_spray":110,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"≤1000V","t":"0.6mm","c":"12um","zc_osp":75,"zc_exp":90,"zc_spray":105,"hl_osp":78,"hl_exp":93,"hl_spray":103,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"曝光","v":"＞1500V","t":"1.0mm","c":"35um","zc_osp":165,"zc_exp":null,"zc_spray":180,"hl_osp":160,"hl_exp":175,"hl_spray":185,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"曝光","v":"＞1500V","t":"1.2mm","c":"25um","zc_osp":150,"zc_exp":null,"zc_spray":165,"hl_osp":175,"hl_exp":190,"hl_spray":200,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.5mm","c":"25um","zc_osp":185,"zc_exp":200,"zc_spray":215,"hl_osp":150,"hl_exp":165,"hl_spray":175,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"曝光","v":"＞1500V","t":"1.5mm","c":"25um","zc_osp":205,"zc_exp":null,"zc_spray":220,"hl_osp":190,"hl_exp":205,"hl_spray":215,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"无要求","t":"1.0mm","c":"36um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":160,"hl_exp":175,"hl_spray":185,"xy_osp":245,"xy_exp":260,"xy_spray":265,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"无要求","t":"1.2mm","c":"36um","zc_osp":168,"zc_exp":183,"zc_spray":198,"hl_osp":165,"hl_exp":180,"hl_spray":190,"xy_osp":252,"xy_exp":267,"xy_spray":267,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"无要求","t":"1.6mm","c":"36um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":170,"hl_exp":185,"hl_spray":195,"xy_osp":258,"xy_exp":273,"xy_spray":273,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"HB纸板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.0mm","c":"15um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":90,"hl_exp":105,"hl_spray":115,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":108},
-{"m":"HB纸板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.2mm","c":"15um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":95,"hl_exp":110,"hl_spray":120,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":110},
-{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.0mm","c":"35um","zc_osp":160,"zc_exp":175,"zc_spray":190,"hl_osp":160,"hl_exp":175,"hl_spray":185,"xy_osp":311,"xy_exp":326,"xy_spray":326,"xy_half":null,"jd_osp":280,"jd_exp":280,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.2mm","c":"35um","zc_osp":168,"zc_exp":183,"zc_spray":198,"hl_osp":170,"hl_exp":185,"hl_spray":195,"xy_osp":324,"xy_exp":339,"xy_spray":339,"xy_half":null,"jd_osp":290,"jd_exp":290,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.6mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":175,"hl_exp":190,"hl_spray":200,"xy_osp":351,"xy_exp":366,"xy_spray":366,"xy_half":null,"jd_osp":320,"jd_exp":320,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.0mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":265,"hl_exp":280,"hl_spray":290,"xy_osp":478,"xy_exp":493,"xy_spray":493,"xy_half":523,"jd_osp":400,"jd_exp":400,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.2mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":275,"hl_exp":290,"hl_spray":300,"xy_osp":494,"xy_exp":509,"xy_spray":509,"xy_half":539,"jd_osp":410,"jd_exp":410,"jd_spray":null,"jd_half":null,"hpy_osp":null},
-{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"无要求","t":"1.6mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"hl_osp":310,"hl_exp":325,"hl_spray":335,"xy_osp":524,"xy_exp":539,"xy_spray":539,"xy_half":569,"jd_osp":440,"jd_exp":440,"jd_spray":null,"jd_half":null,"hpy_osp":null}
-];var DEF_SUP_META=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"zc_exp","label":"曝光+15"},{"id":"zc_spray","label":"喷锡+15"}]},{"id":"hl","name":"恒丽","subs":[{"id":"hl_osp","label":"OSP"},{"id":"hl_exp","label":"曝光+15"},{"id":"hl_spray","label":"喷锡+10"}]},{"id":"xy","name":"鑫阳","subs":[{"id":"xy_osp","label":"OSP"},{"id":"xy_exp","label":"曝光+15"},{"id":"xy_spray","label":"喷锡+20"},{"id":"xy_half","label":"半孔+30"}]},{"id":"jd","name":"健达","subs":[{"id":"jd_osp","label":"OSP"},{"id":"jd_exp","label":"曝光"},{"id":"jd_spray","label":"喷锡+15"},{"id":"jd_half","label":"半孔+50"}]},{"id":"hpy","name":"豪鹏赢","subs":[{"id":"hpy_osp","label":"OSP"}]}]
-var SN={m:"板材类别",l:"板子层数",i:"阻焊/字符颜色",md:"油墨方式",v:"耐压",t:"成品板厚",c:"外层铜厚"};
-var panelResults=[],selectedArrIdx=0,selectedSpec={m:null,l:null,p:null,i:null,md:null,v:null,t:null,c:null,via:15};var simPrice="";
+// ===== 主题切换 =====
+function togglePcbTheme() {
+  var isDark = document.body.classList.toggle('dark-mode');
+  var btn = document.getElementById('pcbThemeBtn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  try { localStorage.setItem('calc_tool_theme', isDark ? 'dark' : 'light'); } catch(e) {}
+}
 
-var SB_URL="https://vmtmctgcrwzjejqtnngp.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";function loadP(){try{var d=localStorage.getItem("pcb_price_data");if(d){var t=JSON.parse(d);if(t&&t._ts===DATA_TS&&t._pd){t=t._pd;if(t&&t.length>0){t=t.filter(function(r){return r.m&&r.m.length>0});if(t.length>0)return t}}if(t&&t.length>0){t=t.filter(function(r){return r.m&&r.m.length>0});if(t.length>0)return t}}}catch(e){}try{localStorage.removeItem("pcb_price_data")}catch(e){}try{var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=price_data",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].price_data)return r[0].price_data}}catch(e){}return JSON.parse(JSON.stringify(PDEF))}
-function loadSM(){try{var d=localStorage.getItem("pcb_supplier_meta");if(d){var t=JSON.parse(d);if(t&&t.length>0&&t[0].id&&t[0].subs)return t}}catch(e){}try{var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=supplier_meta",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].supplier_meta)return r[0].supplier_meta}}catch(e){}return JSON.parse(JSON.stringify(DEF_SUP_META))}
+// 初始化主题
+(function initPcbTheme() {
+  try {
+    var saved = localStorage.getItem('calc_tool_theme');
+    if (saved === 'dark') {
+      document.body.classList.add('dark-mode');
+      setTimeout(function() {
+        var btn = document.getElementById('pcbThemeBtn');
+        if (btn) btn.textContent = '☀️';
+      }, 50);
+    }
+  } catch(e) {}
+})();
+
+var NOTES="<strong>备注：</strong><br><strong>正创：</strong>不足1000元+100工程费；底面字符+5/㎡；绿油/黑油比白油贵5/㎡<br><strong>鑫阳：</strong>CNC+50/㎡；喷锡+25/㎡；半孔+30/㎡；单面板最低1000(不足+200)<br><strong>鑫阳：</strong>双面板最低1500(不足+300)<br><strong>健达：</strong>OSP/曝光/喷锡/半孔分列<br><strong>豪鹏赢：</strong>仅OSP";
+var DATA_TS="20260629-2";var PDEF=[{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞3750V","t":"1.0mm","c":"25um","zc_osp":125,"zc_exp":140,"zc_spray":155,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞3750V","t":"1.2mm","c":"25um","zc_osp":150,"zc_exp":165,"zc_spray":180,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"25um","zc_osp":135,"zc_exp":150,"zc_spray":165,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"35um","zc_osp":145,"zc_exp":160,"zc_spray":175,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.2mm","c":"36um","zc_osp":168,"zc_exp":183,"zc_spray":198,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":">1500V","t":"1.0mm","c":"35um","zc_osp":135,"zc_exp":150,"zc_spray":165,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.0mm","c":"25um","zc_osp":125,"zc_exp":140,"zc_spray":155,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"0.8mm","c":"25um","zc_osp":110,"zc_exp":125,"zc_spray":140,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"≤1000V","t":"0.8mm","c":"12um","zc_osp":95,"zc_exp":110,"zc_spray":125,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"≤1000V","t":"0.6mm","c":"12um","zc_osp":75,"zc_exp":90,"zc_spray":105,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.5mm","c":"25um","zc_osp":185,"zc_exp":200,"zc_spray":215,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"铝基板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"＞1500V","t":"1.5mm","c":"25um","zc_osp":190,"zc_exp":205,"zc_spray":220,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"","t":"1.0mm","c":"36um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":245,"xy_exp":260,"xy_spray":265,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"","t":"1.2mm","c":"36um","zc_osp":168,"zc_exp":183,"zc_spray":198,"xy_osp":252,"xy_exp":267,"xy_spray":267,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"CEM-1","l":"单面板","p":"OSP抗氧化","i":"绿油白字","md":"丝印","v":"","t":"1.6mm","c":"36um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":258,"xy_exp":273,"xy_spray":273,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":null},{"m":"94HB纸板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.0mm","c":"15um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":108},{"m":"94HB纸板","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.2mm","c":"15um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":null,"xy_exp":null,"xy_spray":null,"xy_half":null,"jd_osp":null,"jd_exp":null,"jd_spray":null,"jd_half":null,"hpy_osp":110},{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1mm","c":"35um","zc_osp":160,"zc_exp":175,"zc_spray":190,"xy_osp":311,"xy_exp":326,"xy_spray":326,"xy_half":null,"jd_osp":280,"jd_exp":280,"jd_spray":295,"jd_half":null,"hpy_osp":null},{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.2mm","c":"35um","zc_osp":168,"zc_exp":183,"zc_spray":198,"xy_osp":324,"xy_exp":339,"xy_spray":339,"xy_half":null,"jd_osp":290,"jd_exp":290,"jd_spray":305,"jd_half":null,"hpy_osp":null},{"m":"FR-4","l":"单面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.6mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":351,"xy_exp":366,"xy_spray":366,"xy_half":null,"jd_osp":320,"jd_exp":320,"jd_spray":335,"jd_half":null,"hpy_osp":null},{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.0mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":478,"xy_exp":493,"xy_spray":493,"xy_half":523,"jd_osp":400,"jd_exp":400,"jd_spray":415,"jd_half":465,"hpy_osp":null},{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.2mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":494,"xy_exp":509,"xy_spray":509,"xy_half":539,"jd_osp":410,"jd_exp":410,"jd_spray":425,"jd_half":475,"hpy_osp":null},{"m":"FR-4","l":"双面板","p":"OSP抗氧化","i":"白油黑字","md":"丝印","v":"","t":"1.6mm","c":"35um","zc_osp":null,"zc_exp":null,"zc_spray":null,"xy_osp":524,"xy_exp":539,"xy_spray":539,"xy_half":569,"jd_osp":440,"jd_exp":440,"jd_spray":455,"jd_half":505,"hpy_osp":null}];var DEF_SUP_META=[{"id":"zc","name":"正创","subs":[{"id":"zc_osp","label":"OSP"},{"id":"zc_exp","label":"曝光"},{"id":"zc_spray","label":"喷锡"},{"id":"zc_half","label":"半孔板/面"}]},{"id":"xy","name":"鑫阳","subs":[{"id":"xy_osp","label":"OSP"},{"id":"xy_exp","label":"曝光"},{"id":"xy_spray","label":"喷锡"},{"id":"xy_half","label":"半孔板/面"}]},{"id":"jd","name":"健达","subs":[{"id":"jd_osp","label":"OSP"},{"id":"jd_exp","label":"曝光"},{"id":"jd_spray","label":"喷锡"},{"id":"jd_half","label":"半孔板/面"}]},{"id":"hpy","name":"豪鹏赢","subs":[{"id":"hpy_osp","label":"OSP"},{"id":"hpy_exp","label":"曝光"},{"id":"hpy_spray","label":"喷锡"},{"id":"hpy_half","label":"半孔板/面"}]}]
+var SN={m:"板材类别",l:"板子层数",p:"工艺",i:"阻焊/字符颜色",md:"油墨方式",v:"耐压",t:"成品板厚",c:"外层铜厚"};
+var panelResults=[],selectedArrIdx=0,selectedSpec={m:null,l:null,p:null,i:null,md:null,v:null,t:null,c:null,via:15};var selectedProc=null;var simPrice="";
+
+var SB_URL="https://vmtmctgcrwzjejqtnngp.supabase.co",SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZtdG1jdGdjcnd6amVqcXRubmdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTk0MTIsImV4cCI6MjA5NTU5NTQxMn0.UG6XLKuIi1klXNaljTQH3A2Bt_tBPrSG17077SCVJyg";function loadP(){try{var d=localStorage.getItem("pcb_price_data");if(d){var t=JSON.parse(d);if(t&&t._ts===DATA_TS&&t._pd){var pd=t._pd;if(pd&&pd.length>0){pd=pd.filter(function(r){return r.m&&r.m.length>0});if(pd.length>0)return pd}}localStorage.removeItem("pcb_price_data")}}catch(e){try{localStorage.removeItem("pcb_price_data")}catch(e2){}}try{var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=price_data",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].price_data){var sd=r[0].price_data;if(sd&&sd._ts===DATA_TS&&sd._pd){var pd=sd._pd;if(pd&&pd.length>0){pd=pd.filter(function(r){return r.m&&r.m.length>0});try{localStorage.setItem("pcb_price_data",JSON.stringify(sd))}catch(e){}if(pd.length>0)return pd}}}}}catch(e){}return JSON.parse(JSON.stringify(PDEF))}
+function loadSM(){try{var d=localStorage.getItem("pcb_supplier_meta");if(d){var t=JSON.parse(d);if(t&&t._ts===DATA_TS&&t._sm&&t._sm.length>0&&t._sm[0].id&&t._sm[0].subs)return t._sm}}catch(e){}try{localStorage.removeItem("pcb_supplier_meta")}catch(e2){}try{var xhr=new XMLHttpRequest();xhr.open("GET",SB_URL+"/rest/v1/pcb_price_config?id=eq.1&select=supplier_meta",false);xhr.setRequestHeader("apikey",SB_KEY);xhr.setRequestHeader("Authorization","Bearer "+SB_KEY);xhr.send();if(xhr.status===200){var r=JSON.parse(xhr.responseText);if(r.length>0&&r[0].supplier_meta){var sm=r[0].supplier_meta;if(sm&&sm._ts===DATA_TS&&sm._sm&&sm._sm.length>0&&sm._sm[0].id&&sm._sm[0].subs){try{localStorage.setItem("pcb_supplier_meta",JSON.stringify(sm))}catch(e){}return sm._sm}}}}catch(e){}return JSON.parse(JSON.stringify(DEF_SUP_META))}
 function buildSUP(meta){var arr=[];meta.forEach(function(s){s.subs.forEach(function(sub){arr.push({id:sub.id,n:s.name,s:sub.label,c:sub.id})})});return arr}
 var priceData=loadP(),SUP=buildSUP(loadSM());
 
@@ -109,11 +132,20 @@ function renderSpecs(){
   });
   h+='<div class="sg"><div class="sl">超孔(每超出1万+3元/㎡)</div><div class="so">';
   for(var i=15;i<=30;i++){var v=i,lb=(i<=15?"≤":"")+i+"万",cls="sb"+(selectedSpec.via===v?" sel":"");h+='<button class="'+cls+'" onclick="selectVia('+v+')">'+lb+'</button>'}
+  h+='</div></div>';
+  // 加工方式筛选
+  h+='<div class="sg"><div class="sl">加工方式</div><div class="so">';
+  var procs=[{id:null,label:"全部"},{id:"osp",label:"OSP"},{id:"exp",label:"曝光"},{id:"spray",label:"喷锡"},{id:"half",label:"半孔板/面"}];
+  procs.forEach(function(pc){
+    var cls="sb"+(selectedProc===pc.id?" sel":"");
+    h+='<button class="'+cls+'" onclick="selectProc(\''+pc.id+'\')">'+pc.label+'</button>';
+  });
   h+='</div></div>';a.innerHTML=h;
 }
 
 function selectSpec(f,v){if(selectedSpec[f]===v)selectedSpec[f]=null;else selectedSpec[f]=v;renderSpecs();calcPanel()}
 function selectVia(v){selectedSpec.via=v;renderSpecs();calcPanel()}
+function selectProc(p){selectedProc=(selectedProc===p)?null:p;renderSpecs();updateComparison()}
 function onQtyChange(){var t=parseInt(document.getElementById("targetQty").value)||0;if(t===1)document.getElementById("edgeW").value=0;calcPanel()}
 
 function calcPanel(){
@@ -152,9 +184,10 @@ function updateComparison(){
   card.style.display="block";var m=matches[0];
   info.innerHTML='匹配：<strong>'+m.m+'</strong> | '+m.l+' | '+m.i+' | '+m.md+' | 耐压 '+m.v+' | '+m.t+' | '+m.c;
   var vs=selectedSpec.via>15?Math.ceil(selectedSpec.via-15)*3:0,pa=panelResults[selectedArrIdx].area,pq=panelResults[selectedArrIdx].qty,h="";
-   var supColors={},colorIdx=0;var colorNames=["正创","恒丽","鑫阳","健达","豪鹏赢","其它"];
+   var supColors={},colorIdx=0;var colorNames=["正创","鑫阳","健达","豪鹏赢","其它"];
    SUP.forEach(function(su){
      var v=m[su.c];if(v===null||v===undefined)return;
+     if(selectedProc!==null){var procType=su.c.split('_')[1];if(procType!==selectedProc)return;}
      var up=v+vs,total=up*pa,pu=pq>0?total/pq:0,note="";
      if(su.n==="正创")note="绿油/黑油+5/㎡ 底面字符+5/㎡";else if(su.n==="鑫阳")note="CNC+50/㎡ 喷锡+25/㎡ 半孔+30/㎡";else if(su.n==="健达")note="最低消费另计";
      if(vs>0)note+=(note?" ":"")+"超孔+"+vs+"元/㎡";
@@ -165,6 +198,6 @@ function updateComparison(){
   h='<tr style="background:#fff8f0"><td style="font-weight:600">模拟测算</td><td>-</td><td><input type="number" id="simPrice" oninput="calcSim()" value="'+simPrice+'" style="width:65px;padding:3px 5px;border:1px solid #e2e6ed;border-radius:5px;font-size:12px;text-align:center" placeholder="输入单价"></td><td>-</td><td>'+pa.toFixed(4)+'</td><td>'+pq+'</td><td id="simTotal" class="price-num">-</td><td id="simPU" class="pn2-cell">-</td><td style="font-size:10px;color:#999">自定义</td></tr>'+h;body.innerHTML=h;calcSim();document.getElementById("notesArea").innerHTML=NOTES;
 }
 
-function clearAll(){selectedSpec={m:null,l:null,i:null,md:null,v:null,t:null,c:null,via:15};document.getElementById("boardL").value=74;document.getElementById("boardW").value=25;document.getElementById("targetQty").value=0;document.getElementById("edgeW").value=5;document.getElementById("eqMaxW").value=250;document.getElementById("eqMaxH").value=360;document.getElementById("eqMinW").value=50;document.getElementById("panelResult").style.display="none";document.getElementById("resultCard").style.display="none";panelResults=[];renderSpecs();calcPanel()}
+function clearAll(){selectedSpec={m:null,l:null,p:null,i:null,md:null,v:null,t:null,c:null,via:15};selectedProc=null;document.getElementById("boardL").value=74;document.getElementById("boardW").value=25;document.getElementById("targetQty").value=0;document.getElementById("edgeW").value=5;document.getElementById("eqMaxW").value=250;document.getElementById("eqMaxH").value=360;document.getElementById("eqMinW").value=50;document.getElementById("panelResult").style.display="none";document.getElementById("resultCard").style.display="none";panelResults=[];renderSpecs();calcPanel()}
 function calcSim(){var inp=document.getElementById("simPrice");if(!inp)return;simPrice=inp.value;var p=parseFloat(simPrice)||0;if(p<=0||panelResults.length===0)return;var a=panelResults[selectedArrIdx].area,q=panelResults[selectedArrIdx].qty;var t=p*a,pu=q>0?t/q:0;var e1=document.getElementById("simTotal");if(e1)e1.textContent=t.toFixed(2);var e2=document.getElementById("simPU");if(e2)e2.textContent=pu.toFixed(4)}try{if(typeof isAdmin==="function"&&isAdmin()&&document.getElementById("adminLink")){document.getElementById("adminLink").style.display="block"}}catch(e){console.error("Admin check error:",e)}try{renderSpecs();calcPanel()}catch(e){console.error("Render error:",e)}
 </script></body></html>

@@ -22,6 +22,8 @@ chartScript.onerror=function(){console.warn("chart.js failed to load")};
 document.head.appendChild(chartScript);
 </script>
 <script src="bcrypt.min.js" defer></script>
+<link rel="stylesheet" href="css/enhanced.css">
+<script src="js/common.js" defer></script>
 <style>
   :root {
     --primary: #1a6fc4;
@@ -495,6 +497,7 @@ document.head.appendChild(chartScript);
     <button class="tab-btn" id="adminNavBtn" style="display:none" onclick="window.open('pcb_price_admin.html','_blank','width=1300,height=800')">📋 价目表</button>
   </div>
   <div class="user-area" id="userArea">
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换深色/浅色模式">🌙</button>
     <span class="user-name" id="userBadge" style="cursor:pointer;" title="点击管理账户"></span>
     <button class="logout-btn" onclick="logout()">退出</button>
   </div>
@@ -837,6 +840,14 @@ document.head.appendChild(chartScript);
       </div>
     </div>
 
+    <!-- 操作按钮 -->
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="action-btn primary" onclick="savePlugScheme()">💾 保存方案</button>
+      <button class="action-btn" onclick="exportPlugData()">📤 导出</button>
+      <button class="action-btn" onclick="showPlugHistory()">📜 历史</button>
+      <button class="action-btn" onclick="showPlugCompare()">📊 对比</button>
+    </div>
+
     <!-- 成本明细 -->
     <div class="card">
       <div class="card-title">📊 成本分解明细</div>
@@ -960,6 +971,14 @@ document.head.appendChild(chartScript);
       <div class="label" id="pkgResultLabel">牛皮盒 含税总成本</div>
       <div class="total-price"><span class="currency">¥ </span><span id="pkgResultTotal">0.0000</span></div>
     </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="action-btn primary" onclick="savePkgScheme()">💾 保存方案</button>
+      <button class="action-btn" onclick="exportPkgData()">📤 导出</button>
+      <button class="action-btn" onclick="showPkgHistory()">📜 历史</button>
+    </div>
+    
     <div class="card" style="margin-top:12px;">
       <div class="card-title">计算明细</div>
       <div id="pkgDetailContent" style="font-size:13px;line-height:2;">
@@ -1063,6 +1082,13 @@ document.head.appendChild(chartScript);
     <div class="result-card">
       <div class="label">铝材含税总成本（整条）</div>
       <div class="total-price"><span class="currency">¥ </span><span id="aluResultTotal">-</span></div>
+    </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="action-btn primary" onclick="saveAluScheme()">💾 保存方案</button>
+      <button class="action-btn" onclick="exportAluData()">📤 导出</button>
+      <button class="action-btn" onclick="showAluHistory()">📜 历史</button>
     </div>
 
     <div class="card" style="margin-top:12px;">
@@ -1230,6 +1256,13 @@ document.head.appendChild(chartScript);
       <div class="label">塑胶件最终报价（含税）</div>
       <div class="total-price"><span class="currency">¥ </span><span id="plResultFinal">-</span></div>
     </div>
+    
+    <!-- 操作按钮 -->
+    <div class="action-btns" style="margin-top:12px;">
+      <button class="action-btn primary" onclick="savePlasticScheme()">💾 保存方案</button>
+      <button class="action-btn" onclick="exportPlasticData()">📤 导出</button>
+      <button class="action-btn" onclick="showPlasticHistory()">📜 历史</button>
+    </div>
 
     <div class="card" style="margin-top:12px;">
       <div class="card-title">成本分解明细</div>
@@ -1263,6 +1296,29 @@ document.head.appendChild(chartScript);
 
 
 <script>
+// ############################################################
+// THEME & COMMON
+// ############################################################
+function toggleTheme() {
+  var isDark = ThemeManager.toggle();
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  // 更新图表颜色
+  if (typeof chartInstance !== 'undefined' && chartInstance) {
+    chartInstance.update();
+  }
+}
+
+// 页面加载时同步主题按钮图标
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var btn = document.querySelector('.theme-toggle');
+    if (btn && ThemeManager.isDark()) {
+      btn.textContent = '☀️';
+    }
+  }, 100);
+});
+
 // ############################################################
 // PAGE SWITCHING
 // ############################################################
@@ -1568,6 +1624,13 @@ function calcPlug() {
   legendEl.innerHTML = chartData.map(function(d){
     return '<div style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:' + d.color + ';display:inline-block;flex-shrink:0"></span><span>' + d.label + ': \u00a5' + d.value.toFixed(3) + '</span></div>';
   }).join('');
+  
+  // 自动保存历史记录（防抖）
+  if (window._plugHistoryTimer) clearTimeout(window._plugHistoryTimer);
+  window._plugHistoryTimer = setTimeout(function() {
+    var data = getPlugFormData();
+    HistoryManager.add('plug', data);
+  }, 3000);
 }
 function setText(id, text) {
   var el = document.getElementById(id);
@@ -1580,6 +1643,263 @@ function switchPlugTab(name) {
   document.getElementById('plug-tab-detail').classList.toggle('active', name === 'detail');
   document.getElementById('plug-tab-chart').classList.toggle('active', name === 'chart');
 }
+
+// ############################################################
+// PLUG WIRE - 方案保存、导出、历史、对比
+// ############################################################
+
+// 获取当前所有输入数据
+function getPlugFormData() {
+  return {
+    conductorType: document.getElementById('conductorType').value,
+    coreCount: parseFloat(document.getElementById('coreCount').value),
+    wireLength: parseFloat(document.getElementById('wireLength').value),
+    strandDia: parseFloat(document.getElementById('strandDia').value),
+    outerDia: parseFloat(document.getElementById('outerDia').value),
+    copperStrands: parseInt(document.getElementById('copperStrands').value),
+    aluminumStrands: parseInt(document.getElementById('aluminumStrands').value),
+    ccaStrands: parseInt(document.getElementById('ccaStrands').value),
+    copperPrice: parseFloat(document.getElementById('copperPrice').value),
+    aluminumPrice: parseFloat(document.getElementById('aluminumPrice').value),
+    ccaPrice: parseFloat(document.getElementById('ccaPrice').value),
+    insulPrice: parseFloat(document.getElementById('insulPrice').value),
+    insulationType: document.getElementById('insulationType').value,
+    plugPrice: parseFloat(document.getElementById('plugPrice').value),
+    plugQty: parseInt(document.getElementById('plugQty').value),
+    switchPrice: parseFloat(document.getElementById('switchPrice').value),
+    switchQty: parseInt(document.getElementById('switchQty').value),
+    terminalPrice: parseFloat(document.getElementById('terminalPrice').value),
+    terminalQty: parseInt(document.getElementById('terminalQty').value),
+    radFee: parseFloat(document.getElementById('radFee').value),
+    tailFee: parseFloat(document.getElementById('tailFee').value),
+    shipFee: parseFloat(document.getElementById('shipFee').value),
+    profitRate: parseFloat(document.getElementById('profitRate').value),
+    taxRate: parseFloat(document.getElementById('taxRate').value),
+    totalCost: parseFloat(document.getElementById('totalCost').textContent) || 0,
+    subTotal: parseFloat(document.getElementById('subTotal').textContent) || 0
+  };
+}
+
+// 应用数据到表单
+function applyPlugFormData(data) {
+  for (var key in data) {
+    if (data.hasOwnProperty(key)) {
+      var el = document.getElementById(key);
+      if (el) {
+        el.value = data[key];
+      }
+    }
+  }
+  calcPlug();
+  Toast.success('方案已加载');
+}
+
+// 保存方案
+function savePlugScheme() {
+  var name = prompt('请输入方案名称：', '方案 ' + new Date().toLocaleString('zh-CN'));
+  if (!name) return;
+  var data = getPlugFormData();
+  SchemeManager.save('plug', name, data);
+}
+
+// 导出数据
+function exportPlugData() {
+  var data = getPlugFormData();
+  var total = data.totalCost;
+  
+  // 准备 CSV 格式
+  var headers = ['项目', '数值', '单位'];
+  var rows = [
+    ['导体材质', data.conductorType, ''],
+    ['芯数', data.coreCount, '芯'],
+    ['线长', data.wireLength, 'm'],
+    ['单支直径', data.strandDia, 'mm'],
+    ['外径', data.outerDia, 'mm'],
+    ['铜支数', data.copperStrands, '支'],
+    ['铝支数', data.aluminumStrands, '支'],
+    ['铜包铝支数', data.ccaStrands, '支'],
+    ['铜价', data.copperPrice, '元/kg'],
+    ['铝价', data.aluminumPrice, '元/kg'],
+    ['铜包铝价', data.ccaPrice, '元/kg'],
+    ['胶料价格', data.insulPrice, '元/kg'],
+    ['绝缘材质', data.insulationType, ''],
+    ['插头单价', data.plugPrice, '元'],
+    ['插头数量', data.plugQty, '个'],
+    ['开关单价', data.switchPrice, '元'],
+    ['开关数量', data.switchQty, '个'],
+    ['端子单价', data.terminalPrice, '元'],
+    ['端子数量', data.terminalQty, '个'],
+    ['辐照费', data.radFee, '元/m'],
+    ['尾部加工费', data.tailFee, '元'],
+    ['运费', data.shipFee, '元'],
+    ['利润率', data.profitRate, '%'],
+    ['税率', data.taxRate, '%'],
+    ['不含税小计', data.subTotal, '元'],
+    ['含税总成本', total, '元/条']
+  ];
+  
+  ExportUtil.toCSV(headers, rows, '插头线成本测算_' + new Date().toISOString().slice(0,10) + '.csv');
+}
+
+// 显示历史记录
+function showPlugHistory() {
+  var history = HistoryManager.get('plug');
+  
+  var html = '<div class="modal-overlay" onclick="closeModal(event)">';
+  html += '<div class="modal-content" onclick="event.stopPropagation()">';
+  html += '<div class="modal-header"><div class="modal-title">📜 计算历史记录</div><button class="modal-close" onclick="closeModal()">×</button></div>';
+  
+  if (history.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无历史记录</div></div>';
+  } else {
+    html += '<div class="history-panel">';
+    history.forEach(function(item) {
+      html += '<div class="history-item" onclick="applyPlugHistoryItem(' + item.id + ')">';
+      html += '<div><div style="font-weight:600;font-size:13px;">' + item.data.conductorType + ' · ' + item.data.coreCount + '芯 · ' + item.data.wireLength + 'm</div>';
+      html += '<div class="hi-time">' + item.time + '</div></div>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<span class="hi-val">¥' + (item.data.totalCost || item.data.subTotal).toFixed(4) + '</span>';
+      html += '<span class="hi-del" onclick="event.stopPropagation();deletePlugHistory(' + item.id + ')">×</span>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:right;"><button class="action-btn danger" onclick="clearPlugHistory()">清空历史</button></div>';
+  }
+  
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function applyPlugHistoryItem(id) {
+  var history = HistoryManager.get('plug');
+  var item = history.find(function(h) { return h.id === id; });
+  if (item) {
+    applyPlugFormData(item.data);
+    closeModal();
+  }
+}
+
+function deletePlugHistory(id) {
+  if (!confirm('确定删除这条历史记录？')) return;
+  HistoryManager.delete('plug', id);
+  closeModal();
+  showPlugHistory();
+}
+
+function clearPlugHistory() {
+  if (!confirm('确定清空所有历史记录？')) return;
+  HistoryManager.clear('plug');
+  closeModal();
+  Toast.info('历史记录已清空');
+}
+
+// 方案对比
+function showPlugCompare() {
+  var schemes = SchemeManager.get('plug');
+  
+  var html = '<div class="modal-overlay" onclick="closeModal(event)">';
+  html += '<div class="modal-content" style="max-width:1000px;" onclick="event.stopPropagation()">';
+  html += '<div class="modal-header"><div class="modal-title">📊 方案对比</div><button class="modal-close" onclick="closeModal()">×</button></div>';
+  
+  if (schemes.length < 2) {
+    html += '<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">至少需要保存 2 个方案才能对比</div></div>';
+  } else {
+    html += '<div style="overflow-x:auto;"><table class="compare-table">';
+    html += '<thead><tr><th>对比项</th>';
+    schemes.forEach(function(s) {
+      html += '<th>' + s.name + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    
+    var compareItems = [
+      { label: '导体材质', key: 'conductorType', unit: '' },
+      { label: '芯数', key: 'coreCount', unit: '芯' },
+      { label: '线长', key: 'wireLength', unit: 'm' },
+      { label: '铜价', key: 'copperPrice', unit: '元/kg' },
+      { label: '不含税小计', key: 'subTotal', unit: '元', isMoney: true },
+      { label: '含税总成本', key: 'totalCost', unit: '元/条', isMoney: true, highlight: true }
+    ];
+    
+    compareItems.forEach(function(item) {
+      html += '<tr' + (item.highlight ? ' style="background:#f0f9ff;"' : '') + '>';
+      html += '<td>' + item.label + '</td>';
+      schemes.forEach(function(s) {
+        var val = s.data[item.key];
+        var displayVal = item.isMoney ? '¥' + val.toFixed(4) : val + (item.unit || '');
+        html += '<td>' + displayVal + '</td>';
+      });
+      html += '</tr>';
+    });
+    
+    html += '</tbody></table></div>';
+    html += '<div style="margin-top:16px;display:flex;gap:8px;justify-content:flex-end;">';
+    html += '<button class="action-btn" onclick="deleteAllPlugSchemes()">管理方案</button>';
+    html += '<button class="action-btn primary" onclick="exportPlugCompare()">导出对比表</button>';
+    html += '</div>';
+  }
+  
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function deleteAllPlugSchemes() {
+  if (!confirm('确定删除所有保存的方案？')) return;
+  Storage.remove('schemes_plug');
+  closeModal();
+  Toast.info('所有方案已删除');
+}
+
+function exportPlugCompare() {
+  var schemes = SchemeManager.get('plug');
+  if (schemes.length < 2) return;
+  
+  var headers = ['对比项'];
+  schemes.forEach(function(s) { headers.push(s.name); });
+  
+  var rows = [];
+  var compareItems = [
+    { label: '导体材质', key: 'conductorType' },
+    { label: '芯数', key: 'coreCount' },
+    { label: '线长', key: 'wireLength' },
+    { label: '外径', key: 'outerDia' },
+    { label: '铜支数', key: 'copperStrands' },
+    { label: '铝支数', key: 'aluminumStrands' },
+    { label: '铜包铝支数', key: 'ccaStrands' },
+    { label: '铜价', key: 'copperPrice' },
+    { label: '铝价', key: 'aluminumPrice' },
+    { label: '胶料价格', key: 'insulPrice' },
+    { label: '插头单价', key: 'plugPrice' },
+    { label: '开关单价', key: 'switchPrice' },
+    { label: '利润率', key: 'profitRate' },
+    { label: '税率', key: 'taxRate' },
+    { label: '不含税小计', key: 'subTotal' },
+    { label: '含税总成本', key: 'totalCost' }
+  ];
+  
+  compareItems.forEach(function(item) {
+    var row = [item.label];
+    schemes.forEach(function(s) {
+      row.push(s.data[item.key] || '');
+    });
+    rows.push(row);
+  });
+  
+  ExportUtil.toCSV(headers, rows, '插头线方案对比_' + new Date().toISOString().slice(0,10) + '.csv');
+}
+
+// 关闭模态框
+function closeModal(event) {
+  if (event && event.target !== event.currentTarget) return;
+  var overlays = document.querySelectorAll('.modal-overlay');
+  overlays.forEach(function(o) { o.remove(); });
+}
+
+// ESC 关闭模态框
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
 
 // ############################################################
 // PACKAGING LOGIC (3-column: type left, params middle, result right)
@@ -1684,6 +2004,13 @@ function calcPkg() {
   if (processFee > 0) dh += '<div style="margin-top:8px;padding:8px 12px;background:var(--gray-50);border-radius:8px;"><span style="font-size:12px;color:var(--gray-500);">\u52a0\u5de5\u8d39\uff1a</span><strong style="color:var(--gray-900);">\u00a5 ' + processFee.toFixed(2) + '</strong></div>';
   dh += '<div style="margin-top:12px;padding:10px 12px;background:linear-gradient(135deg,#1a6fc4,#0ea5e9);border-radius:8px;color:#fff;text-align:center;"><div style="font-size:12px;opacity:0.8;">\u603b\u6210\u672c\uff08\u542b\u7a0e\uff09</div><div style="font-size:24px;font-weight:800;">\u00a5 ' + total.toFixed(4) + '</div></div>';
   document.getElementById('pkgDetailContent').innerHTML = dh;
+  
+  // 自动保存历史记录（防抖）
+  if (window._pkgHistoryTimer) clearTimeout(window._pkgHistoryTimer);
+  window._pkgHistoryTimer = setTimeout(function() {
+    var data = getPkgFormData();
+    HistoryManager.add('pkg', data);
+  }, 3000);
 }
 
 
@@ -1752,6 +2079,13 @@ function calcAlu() {
       }
     });
   }
+  
+  // 自动保存历史记录（防抖）
+  if (window._aluHistoryTimer) clearTimeout(window._aluHistoryTimer);
+  window._aluHistoryTimer = setTimeout(function() {
+    var data = getAluFormData();
+    HistoryManager.add('alu', data);
+  }, 3000);
 }
 
 function clearAlu() {
@@ -1863,6 +2197,13 @@ function calcPlastic() {
       }
     });
   }
+  
+  // 自动保存历史记录（防抖）
+  if (window._plasticHistoryTimer) clearTimeout(window._plasticHistoryTimer);
+  window._plasticHistoryTimer = setTimeout(function() {
+    var data = getPlasticFormData();
+    HistoryManager.add('plastic', data);
+  }, 3000);
 }
 
 function clearPlastic() {
@@ -1885,6 +2226,348 @@ function clearPkg() {
     if (el) el.value = '';
   });
   calcPkg();
+}
+
+// ############################################################
+// PACKAGING - 方案保存、导出、历史
+// ############################################################
+
+function getPkgFormData() {
+  return {
+    type: currentPkgType,
+    length: parseFloat(document.getElementById('pkgL').value) || 0,
+    width: parseFloat(document.getElementById('pkgW').value) || 0,
+    height: parseFloat(document.getElementById('pkgH').value) || 0,
+    price: parseFloat(document.getElementById('pkgPrice').value) || 0,
+    markup: parseFloat(document.getElementById('pkgMarkup').value) || 0,
+    material: document.getElementById('pkgMaterial').value,
+    processFee: parseFloat(document.getElementById('pkgProcess').value) || 0,
+    total: parseFloat(document.getElementById('pkgResultTotal').textContent) || 0
+  };
+}
+
+function applyPkgFormData(data) {
+  if (data.type) {
+    var btns = document.querySelectorAll('.pkg-type-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.remove('active');
+      if (btns[i].dataset.type === data.type) {
+        btns[i].classList.add('active');
+      }
+    }
+    currentPkgType = data.type;
+    updatePkgFormulaHint(data.type);
+    var title = document.getElementById('pkgFormTitle');
+    if (title) title.textContent = data.type + ' 参数录入';
+    var resultLabel = document.getElementById('pkgResultLabel');
+    if (resultLabel) resultLabel.textContent = data.type + ' 含税总成本';
+  }
+  document.getElementById('pkgL').value = data.length;
+  document.getElementById('pkgW').value = data.width;
+  document.getElementById('pkgH').value = data.height;
+  document.getElementById('pkgPrice').value = data.price;
+  document.getElementById('pkgMarkup').value = data.markup;
+  if (data.material) document.getElementById('pkgMaterial').value = data.material;
+  document.getElementById('pkgProcess').value = data.processFee;
+  calcPkg();
+  Toast.success('方案已加载');
+}
+
+function savePkgScheme() {
+  var name = prompt('请输入方案名称：', '包装方案 ' + new Date().toLocaleString('zh-CN'));
+  if (!name) return;
+  var data = getPkgFormData();
+  SchemeManager.save('pkg', name, data);
+}
+
+function exportPkgData() {
+  var data = getPkgFormData();
+  var headers = ['项目', '数值', '单位'];
+  var unit = (data.type && data.type.indexOf('珍珠棉') > -1) ? '元/Kg' : '元/张';
+  var rows = [
+    ['包装类型', data.type, ''],
+    ['长', data.length, 'mm'],
+    ['宽', data.width, 'mm'],
+    ['高', data.height, 'mm'],
+    ['单价', data.price, unit],
+    ['加价系数', data.markup, ''],
+    ['材料', data.material, ''],
+    ['加工费', data.processFee, '元'],
+    ['含税总成本', data.total, '元']
+  ];
+  ExportUtil.toCSV(headers, rows, '包装成本测算_' + new Date().toISOString().slice(0,10) + '.csv');
+}
+
+function showPkgHistory() {
+  var history = HistoryManager.get('pkg');
+  var html = '<div class="modal-overlay" onclick="closeModal(event)">';
+  html += '<div class="modal-content" onclick="event.stopPropagation()">';
+  html += '<div class="modal-header"><div class="modal-title">📜 包装历史记录</div><button class="modal-close" onclick="closeModal()">×</button></div>';
+  if (history.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无历史记录</div></div>';
+  } else {
+    html += '<div class="history-panel">';
+    history.forEach(function(item) {
+      html += '<div class="history-item" onclick="applyPkgHistoryItem(' + item.id + ')">';
+      html += '<div><div style="font-weight:600;font-size:13px;">' + item.data.type + ' · ' + item.data.length + '×' + item.data.width + 'mm</div>';
+      html += '<div class="hi-time">' + item.time + '</div></div>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<span class="hi-val">¥' + item.data.total.toFixed(4) + '</span>';
+      html += '<span class="hi-del" onclick="event.stopPropagation();deletePkgHistory(' + item.id + ')">×</span>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:right;"><button class="action-btn danger" onclick="clearPkgHistory()">清空历史</button></div>';
+  }
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function applyPkgHistoryItem(id) {
+  var history = HistoryManager.get('pkg');
+  var item = history.find(function(h) { return h.id === id; });
+  if (item) {
+    applyPkgFormData(item.data);
+    closeModal();
+  }
+}
+
+function deletePkgHistory(id) {
+  if (!confirm('确定删除这条历史记录？')) return;
+  HistoryManager.delete('pkg', id);
+  closeModal();
+  showPkgHistory();
+}
+
+function clearPkgHistory() {
+  if (!confirm('确定清空所有历史记录？')) return;
+  HistoryManager.clear('pkg');
+  closeModal();
+  Toast.info('历史记录已清空');
+}
+
+// ############################################################
+// ALUMINUM - 方案保存、导出、历史
+// ############################################################
+
+function getAluFormData() {
+  return {
+    length: parseFloat(document.getElementById('aluLength').value) || 0,
+    weight: parseFloat(document.getElementById('aluWeight').value) || 0,
+    rawPrice: parseFloat(document.getElementById('aluRawPrice').value) || 0,
+    procPrice: parseFloat(document.getElementById('aluProcPrice').value) || 0,
+    surfPrice: parseFloat(document.getElementById('aluSurfPrice').value) || 0,
+    packFee: parseFloat(document.getElementById('aluPackFee').value) || 0,
+    taxRate: parseFloat(document.getElementById('aluTaxRate').value) || 0,
+    total: parseFloat(document.getElementById('aluResultTotal').textContent) || 0
+  };
+}
+
+function applyAluFormData(data) {
+  document.getElementById('aluLength').value = data.length;
+  document.getElementById('aluWeight').value = data.weight;
+  document.getElementById('aluRawPrice').value = data.rawPrice;
+  document.getElementById('aluProcPrice').value = data.procPrice;
+  document.getElementById('aluSurfPrice').value = data.surfPrice;
+  document.getElementById('aluPackFee').value = data.packFee;
+  document.getElementById('aluTaxRate').value = data.taxRate;
+  calcAlu();
+  Toast.success('方案已加载');
+}
+
+function saveAluScheme() {
+  var name = prompt('请输入方案名称：', '铝型材方案 ' + new Date().toLocaleString('zh-CN'));
+  if (!name) return;
+  var data = getAluFormData();
+  SchemeManager.save('alu', name, data);
+}
+
+function exportAluData() {
+  var data = getAluFormData();
+  var headers = ['项目', '数值', '单位'];
+  var rows = [
+    ['型材长度', data.length, 'mm'],
+    ['整条重量', data.weight, 'g'],
+    ['原材料单价', data.rawPrice, '元/吨'],
+    ['加工费单价', data.procPrice, '元/吨'],
+    ['表面处理单价', data.surfPrice, '元/吨'],
+    ['包装费', data.packFee, '元/条'],
+    ['税率', data.taxRate, '%'],
+    ['含税总成本', data.total, '元/条']
+  ];
+  ExportUtil.toCSV(headers, rows, '铝型材成本测算_' + new Date().toISOString().slice(0,10) + '.csv');
+}
+
+function showAluHistory() {
+  var history = HistoryManager.get('alu');
+  var html = '<div class="modal-overlay" onclick="closeModal(event)">';
+  html += '<div class="modal-content" onclick="event.stopPropagation()">';
+  html += '<div class="modal-header"><div class="modal-title">📜 铝型材历史记录</div><button class="modal-close" onclick="closeModal()">×</button></div>';
+  if (history.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无历史记录</div></div>';
+  } else {
+    html += '<div class="history-panel">';
+    history.forEach(function(item) {
+      html += '<div class="history-item" onclick="applyAluHistoryItem(' + item.id + ')">';
+      html += '<div><div style="font-weight:600;font-size:13px;">' + item.data.length + 'mm · ' + item.data.weight + 'g</div>';
+      html += '<div class="hi-time">' + item.time + '</div></div>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<span class="hi-val">¥' + item.data.total.toFixed(4) + '</span>';
+      html += '<span class="hi-del" onclick="event.stopPropagation();deleteAluHistory(' + item.id + ')">×</span>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:right;"><button class="action-btn danger" onclick="clearAluHistory()">清空历史</button></div>';
+  }
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function applyAluHistoryItem(id) {
+  var history = HistoryManager.get('alu');
+  var item = history.find(function(h) { return h.id === id; });
+  if (item) {
+    applyAluFormData(item.data);
+    closeModal();
+  }
+}
+
+function deleteAluHistory(id) {
+  if (!confirm('确定删除这条历史记录？')) return;
+  HistoryManager.delete('alu', id);
+  closeModal();
+  showAluHistory();
+}
+
+function clearAluHistory() {
+  if (!confirm('确定清空所有历史记录？')) return;
+  HistoryManager.clear('alu');
+  closeModal();
+  Toast.info('历史记录已清空');
+}
+
+// ############################################################
+// PLASTIC - 方案保存、导出、历史
+// ############################################################
+
+function getPlasticFormData() {
+  return {
+    matPrice: parseFloat(document.getElementById('plMatPrice').value) || 0,
+    netWeight: parseFloat(document.getElementById('plNetWeight').value) || 0,
+    gateWeight: parseFloat(document.getElementById('plGateWeight').value) || 0,
+    machineRent: parseFloat(document.getElementById('plMachineRent').value) || 0,
+    cycleTime: parseFloat(document.getElementById('plCycleTime').value) || 0,
+    cavities: parseFloat(document.getElementById('plCavities').value) || 1,
+    salary: parseFloat(document.getElementById('plSalary').value) || 0,
+    machinesPerPerson: parseFloat(document.getElementById('plMachinesPerPerson').value) || 1,
+    energyCoeff: parseFloat(document.getElementById('plEnergyCoeff').value) || 0,
+    yieldRate: parseFloat(document.getElementById('plYieldRate').value) || 100,
+    packCost: parseFloat(document.getElementById('plPackCost').value) || 0,
+    moldMaint: parseFloat(document.getElementById('plMoldMaint').value) || 0,
+    adminFee: parseFloat(document.getElementById('plAdminFee').value) || 0,
+    profitRate: parseFloat(document.getElementById('plProfitRate').value) || 0,
+    finCost: parseFloat(document.getElementById('plFinCost').value) || 0,
+    total: parseFloat(document.getElementById('plResultFinal').textContent) || 0
+  };
+}
+
+function applyPlasticFormData(data) {
+  document.getElementById('plMatPrice').value = data.matPrice;
+  document.getElementById('plNetWeight').value = data.netWeight;
+  document.getElementById('plGateWeight').value = data.gateWeight;
+  document.getElementById('plMachineRent').value = data.machineRent;
+  document.getElementById('plCycleTime').value = data.cycleTime;
+  document.getElementById('plCavities').value = data.cavities;
+  document.getElementById('plSalary').value = data.salary;
+  document.getElementById('plMachinesPerPerson').value = data.machinesPerPerson;
+  document.getElementById('plEnergyCoeff').value = data.energyCoeff;
+  document.getElementById('plYieldRate').value = data.yieldRate;
+  document.getElementById('plPackCost').value = data.packCost;
+  document.getElementById('plMoldMaint').value = data.moldMaint;
+  document.getElementById('plAdminFee').value = data.adminFee;
+  document.getElementById('plProfitRate').value = data.profitRate;
+  document.getElementById('plFinCost').value = data.finCost;
+  calcPlastic();
+  Toast.success('方案已加载');
+}
+
+function savePlasticScheme() {
+  var name = prompt('请输入方案名称：', '塑胶件方案 ' + new Date().toLocaleString('zh-CN'));
+  if (!name) return;
+  var data = getPlasticFormData();
+  SchemeManager.save('plastic', name, data);
+}
+
+function exportPlasticData() {
+  var data = getPlasticFormData();
+  var headers = ['项目', '数值', '单位'];
+  var rows = [
+    ['材料单价', data.matPrice, '元/kg'],
+    ['产品净重', data.netWeight, 'g'],
+    ['水口重量', data.gateWeight, 'g'],
+    ['机台时租', data.machineRent, '元/h'],
+    ['注塑周期', data.cycleTime, 's'],
+    ['穴数', data.cavities, '穴'],
+    ['月薪', data.salary, '元'],
+    ['看管机台数', data.machinesPerPerson, '台'],
+    ['能耗系数', data.energyCoeff, ''],
+    ['良品率', data.yieldRate, '%'],
+    ['包装及Tray盘', data.packCost, '元'],
+    ['模具维护金', data.moldMaint, '%'],
+    ['管理费', data.adminFee, '%'],
+    ['利润率', data.profitRate, '%'],
+    ['财务成本', data.finCost, '%'],
+    ['最终报价（含税）', data.total, '元']
+  ];
+  ExportUtil.toCSV(headers, rows, '塑胶件成本测算_' + new Date().toISOString().slice(0,10) + '.csv');
+}
+
+function showPlasticHistory() {
+  var history = HistoryManager.get('plastic');
+  var html = '<div class="modal-overlay" onclick="closeModal(event)">';
+  html += '<div class="modal-content" onclick="event.stopPropagation()">';
+  html += '<div class="modal-header"><div class="modal-title">📜 塑胶件历史记录</div><button class="modal-close" onclick="closeModal()">×</button></div>';
+  if (history.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">暂无历史记录</div></div>';
+  } else {
+    html += '<div class="history-panel">';
+    history.forEach(function(item) {
+      html += '<div class="history-item" onclick="applyPlasticHistoryItem(' + item.id + ')">';
+      html += '<div><div style="font-weight:600;font-size:13px;">' + item.data.netWeight + 'g · ' + item.data.cavities + '穴 · ' + item.data.cycleTime + 's</div>';
+      html += '<div class="hi-time">' + item.time + '</div></div>';
+      html += '<div style="display:flex;align-items:center;gap:8px;">';
+      html += '<span class="hi-val">¥' + item.data.total.toFixed(4) + '</span>';
+      html += '<span class="hi-del" onclick="event.stopPropagation();deletePlasticHistory(' + item.id + ')">×</span>';
+      html += '</div></div>';
+    });
+    html += '</div>';
+    html += '<div style="margin-top:12px;text-align:right;"><button class="action-btn danger" onclick="clearPlasticHistory()">清空历史</button></div>';
+  }
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function applyPlasticHistoryItem(id) {
+  var history = HistoryManager.get('plastic');
+  var item = history.find(function(h) { return h.id === id; });
+  if (item) {
+    applyPlasticFormData(item.data);
+    closeModal();
+  }
+}
+
+function deletePlasticHistory(id) {
+  if (!confirm('确定删除这条历史记录？')) return;
+  HistoryManager.delete('plastic', id);
+  closeModal();
+  showPlasticHistory();
+}
+
+function clearPlasticHistory() {
+  if (!confirm('确定清空所有历史记录？')) return;
+  HistoryManager.clear('plastic');
+  closeModal();
+  Toast.info('历史记录已清空');
 }
 
 // ############################################################
