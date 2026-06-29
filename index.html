@@ -1890,7 +1890,7 @@ function clearPkg() {
 // ############################################################
 // INIT
 // ############################################################
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', async function() {
   // 初始化认证 UI（显示用户名徽章）
   initUserUI();
   // 管理员导航按钮
@@ -1900,14 +1900,14 @@ window.addEventListener('DOMContentLoaded', function() {
       if (adminBtn) adminBtn.style.display = "";
     }
   } catch(e) { console.error("Admin nav error:", e); }
-  refreshCurrentUser();
+  await refreshCurrentUser();
   // Module permission: hide inaccessible tabs
   try{
     var btns=document.querySelectorAll(".tab-btn");
     for(var bi=0;bi<btns.length;bi++){
       var b=btns[bi];
       if(!b.id&&b.getAttribute("onclick")){
-        var m=b.getAttribute("onclick").match(/switchPage("(w+)")/);
+        var m=b.getAttribute("onclick").match(/switchPage\('(\w+)'\)/);
         if(m&&typeof canAccessModule==="function"&&!canAccessModule(m[1])){b.style.display="none"}
       }
     }
